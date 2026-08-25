@@ -1811,13 +1811,18 @@ $('#sponsorMail').href='mailto:'+CFG.contactEmail+'?subject='+encodeURIComponent
      '<div class="ic">'+esc(s.name.charAt(0))+'</div><div class="nm">'+esc(s.name)+'</div>'+
      '<div class="h2s">'+esc(s.handle)+'</div></a>'}).join('');
   $('#sg').addEventListener('click',function(){award('social','FOLLOWED THE FEED',10)});
-  var w=$('#igWrap'), posts=CFG.igPosts.filter(function(c){return c && c.indexOf('ABC123')<0});
-  if(posts.length){
-    w.innerHTML='<div class="igg">'+posts.map(function(c){
-      return '<iframe src="https://www.instagram.com/p/'+encodeURIComponent(c)+'/embed" loading="lazy" title="Instagram post"></iframe>'}).join('')+'</div>';
-  }else{
-    w.innerHTML='<div class="empty"><p>Post embeds go here. Open a real post, copy the code out of the link, and drop it into igPosts at the top of this file.</p>'+
-      '<a class="btn btn-g" href="'+esc(CFG.social[0].url)+'" target="_blank" rel="noopener">OPEN INSTAGRAM</a></div>';
+  /* The real feed lives in the tabbed, click-to-load section (#igGrid).
+     This block only signposts it, so we never autoload fifteen iframes. */
+  var w=$('#igWrap'), n=(CFG.igPosts||[]).length;
+  if(w){
+    if(n){
+      w.innerHTML='<div class="empty"><p>'+n+' clips and posts from cycle one are further down this page, '+
+        'sorted by government agency work, field days and squad diaries. Nothing plays until you tap it.</p>'+
+        '<a class="btn btn-o" href="#feed">WATCH THE FEED</a></div>';
+    }else{
+      w.innerHTML='<div class="empty"><p>Posts appear here once they are added to igPosts at the top of this file.</p>'+
+        '<a class="btn btn-g" href="'+esc(CFG.social[0].url)+'" target="_blank" rel="noopener">OPEN INSTAGRAM</a></div>';
+    }
   }
 })();
 
