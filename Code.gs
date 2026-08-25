@@ -40,8 +40,14 @@ var HEADERS = [
   'Education level','Institution','School type','School name',
   'Course or field','Social handle',
   'Prior involvement','Preferred squad','Quiz squad','Highcom interest','Own transport',
-  'Reasons for joining','Activity ideas','Guardian acknowledged','Dignity pledge','PDPA consent'
+  'Reasons for joining','Activity ideas','Guardian acknowledged','Dignity pledge','PDPA consent',
+  'GV Code','Photo'
 ];
+
+/* Pass numbering continues from cycle one. First new pass is 1582. */
+var PASS_START = 1581;
+var PASS_PREFIX = 'HLSTK-GV-2.0';
+var PHOTO_FOLDER = 'GV2 Volunteer Photos';
 
 /* Key, default value, and the note written beside it in the Config tab. */
 var CONFIG_DEFAULTS = [
@@ -83,6 +89,7 @@ function setup() {
     cnt.appendRow(['visits', 0, 'Total page views since launch. Written by the site, do not edit.']);
     cnt.appendRow(['today', 0, 'Views since midnight. Resets itself.']);
     cnt.appendRow(['lastReset', new Date(), 'When the daily counter last rolled over.']);
+    cnt.appendRow(['lastPassNo', PASS_START, 'Last GV Pass number issued. Next volunteer gets this + 1.']);
   }
   cnt.getRange(1, 1, 1, 3)
      .setFontWeight('bold').setBackground('#1F2A44').setFontColor('#FFFFFF');
@@ -124,6 +131,9 @@ function doPost(e) {
     var before = readState();
     var status = d.status || (before.filled >= before.capacity ? 'waitlist' : 'confirmed');
 
+    var code  = nextPassCode();
+    var photo = savePhoto(d.photo, d.name, code);
+
     var reg = regSheet();
     reg.appendRow([
       new Date(), status, d.name || '', d.email || '', d.phone || '',
@@ -132,7 +142,8 @@ function doPost(e) {
       d.course || '', d.socialHandle || '',
       d.priorInvolvement || '', d.squad || '', d.quizSquad || '',
       d.highcomInterest || '', d.transport || '', d.reason || '', d.ideas || '',
-      d.guardianAck || '', d.pledge || '', d.consent || ''
+      d.guardianAck || '', d.pledge || '', d.consent || '',
+      code, photo
     ]);
 
     var after = readState();
@@ -143,6 +154,7 @@ function doPost(e) {
     return ok({
       status: 'saved',
       placed: status,
+      code: code,
       row: reg.getLastRow(),
       filled: after.filled,
       waitlist: after.waitlist,
@@ -274,6 +286,59 @@ function bumpVisits(hit) {
     return { visits: 0, today: 0 };
   } finally {
     try { lock.releaseLock(); } catch (err) {}
+  }
+}
+
+/* Atomically issue the next GV Pass code. Numbers are never reused,
+   even if a registration is later cancelled. */
+function nextPassCode() {
+  var n = PASS_START + 1;
+  try {
+    var ss = book();
+    var sh = ss.getSheetByName(T_COUNT);
+    if (sh) {
+      var rows = sh.getDataRange().getValues();
+      var row = 0;
+      for (var i = 1; i < rows.length; i++) {
+        if (String(rows[i][0]).trim() === 'lastPassNo') { row = i + 1; break; }
+      }
+      if (!row) {
+        sh.appendRow(['lastPassNo', PASS_START, 'Last GV Pass number issued.']);
+        row = sh.getLastRow();
+      }
+      var last = Number(sh.getRange(row, 2).getValue()) || PASS_START;
+      n = last + 1;
+      sh.getRange(row, 2).setValue(n);
+    }
+    var tz = ss.getSpreadsheetTimeZone() || 'Asia/Kuala_Lumpur';
+    var stamp = Utilities.formatDate(new Date(), tz, 'yyyyMMdd');
+    return PASS_PREFIX + '-' + stamp + '-' + n;
+  } catch (err) {
+    audit('error', 'pass code: ' + err);
+    return PASS_PREFIX + '-' + Utilities.formatDate(new Date(), 'Asia/Kuala_Lumpur', 'yyyyMMdd') + '-' + n;
+  }
+}
+
+/* Store the optional photo in Drive and return a viewable link.
+   Nothing is stored if the volunteer skipped it. */
+function savePhoto(dataUrl, name, code) {
+  if (!dataUrl || String(dataUrl).indexOf('data:image/') !== 0) return '';
+  try {
+    var parts = String(dataUrl).split(',');
+    var meta = parts[0], b64 = parts[1];
+    if (!b64) return '';
+    var type = meta.substring(meta.indexOf(':') + 1, meta.indexOf(';'));
+    var ext = type.indexOf('png') > -1 ? 'png' : 'jpg';
+    var blob = Utilities.newBlob(Utilities.base64Decode(b64), type,
+      (code || 'GV') + '-' + String(name || 'volunteer').replace(/[^A-Za-z0-9]/g, '_') + '.' + ext);
+
+    var it = DriveApp.getFoldersByName(PHOTO_FOLDER);
+    var folder = it.hasNext() ? it.next() : DriveApp.createFolder(PHOTO_FOLDER);
+    var file = folder.createFile(blob);
+    return file.getUrl();
+  } catch (err) {
+    audit('error', 'photo: ' + err);
+    return '';
   }
 }
 
