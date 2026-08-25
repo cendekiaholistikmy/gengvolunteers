@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script id="gv-errtrap">
+/* Surfaces any JS error on screen instead of failing silently. */
+(function(){
+  var shown=false;
+  function show(msg,src,line,col){
+    if(shown)return; shown=true;
+    var d=document.createElement('div');
+    d.setAttribute('style','position:fixed;left:0;right:0;bottom:0;z-index:99999;'+
+      'background:#3B0A0A;color:#FFD9D9;font:12px/1.5 ui-monospace,Menlo,monospace;'+
+      'padding:14px 16px;border-top:3px solid #FF5A5A;max-height:46vh;overflow:auto;'+
+      '-webkit-overflow-scrolling:touch;white-space:pre-wrap;word-break:break-word');
+    d.textContent='JS ERROR\n'+msg+'\nfile: '+(src||'?')+'\nline: '+(line||'?')+'  col: '+(col||'?');
+    var put=function(){ (document.body||document.documentElement).appendChild(d) };
+    if(document.body)put(); else document.addEventListener('DOMContentLoaded',put);
+  }
+  window.addEventListener('error',function(e){
+    if(e.target&&e.target.tagName==='IMG'){return}
+    show(e.message,e.filename,e.lineno,e.colno);
+  },true);
+  window.addEventListener('unhandledrejection',function(e){
+    show('Unhandled promise: '+(e.reason&&e.reason.message||e.reason),'','','');
+  });
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GENGVOLUNTEERS 2.0 — 100 DAYS</title>
