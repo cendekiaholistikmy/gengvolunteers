@@ -1165,8 +1165,18 @@ html,body{hyphens:none;-webkit-hyphens:none;-ms-hyphens:none}
       <div class="btnrow">
         <a class="btn btn-o" href="#join">CLAIM YOUR PLACE</a>
         <a class="btn btn-g" href="#quiz">FIND YOUR SQUAD</a>
-        <a class="btn btn-g" href="highcom.html"style="margin-top:16px">APPLY FOR HIGHCOM</a>
-
+<style>
+.btn-gold{position:relative;overflow:hidden;color:#2E1D00;
+  background:linear-gradient(100deg,#8A6212,#D9A520 22%,#FFE071 45%,#FFF6C8 52%,#FFE071 60%,#D9A520 80%,#8A6212);
+  box-shadow:0 10px 26px rgba(255,186,40,.34),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold::after{content:"";position:absolute;top:0;bottom:0;width:38%;left:-45%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.72),transparent);
+  transform:skewX(-18deg);animation:gvshine 3.4s ease-in-out infinite}
+@keyframes gvshine{0%{left:-45%}55%,100%{left:118%}}
+.btn-gold span{position:relative}
+@media(prefers-reduced-motion:reduce){.btn-gold::after{animation:none;opacity:0}}
+</style>
+<a class="btn btn-gold" href="highcom.html" style="margin-top:16px"><span>APPLY FOR HIGHCOM</span></a>
       </div>
     </div>
     <div class="dial">
