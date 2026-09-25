@@ -29,7 +29,7 @@
 
 window.GV_CONFIG = {
 
-  appsScriptUrl : "PASTE_YOUR_EXEC_URL_HERE",
+  appsScriptUrl : "https://script.google.com/macros/s/AKfycbx-k-YC5AV6-W3Mr0kTOl54JLj4K04rIfdUfgvzlexzuAj8krkqzhM9ymDq2qZeujLc/exec",
 
   deadline      : "2026-10-01T12:00:00+08:00",
 
