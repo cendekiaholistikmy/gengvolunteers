@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script id="gv-errtrap">
+/* Surfaces any JS error on screen instead of failing silently. */
+(function(){
+  var shown=false;
+  function show(msg,src,line,col){
+    if(shown)return; shown=true;
+    var d=document.createElement('div');
+    d.setAttribute('style','position:fixed;left:0;right:0;bottom:0;z-index:99999;'+
+      'background:#3B0A0A;color:#FFD9D9;font:12px/1.5 ui-monospace,Menlo,monospace;'+
+      'padding:14px 16px;border-top:3px solid #FF5A5A;max-height:46vh;overflow:auto;'+
+      '-webkit-overflow-scrolling:touch;white-space:pre-wrap;word-break:break-word');
+    d.textContent='JS ERROR\n'+msg+'\nfile: '+(src||'?')+'\nline: '+(line||'?')+'  col: '+(col||'?');
+    var put=function(){ (document.body||document.documentElement).appendChild(d) };
+    if(document.body)put(); else document.addEventListener('DOMContentLoaded',put);
+  }
+  window.addEventListener('error',function(e){
+    if(e.target&&e.target.tagName==='IMG'){return}
+    if(!e.filename){return}   /* cross-origin script, nothing we can act on */
+    if(e.message==='Script error.'&&!e.filename){return}
+    show(e.message,e.filename,e.lineno,e.colno);
+  },true);
+
+  window.addEventListener('unhandledrejection',function(e){
+    show('Unhandled promise: '+(e.reason&&e.reason.message||e.reason),'','','');
+  });
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volunteer · GengVolunteers 2.0</title>
+<meta name="description" content="Claim your place in GengVolunteers 2.0. Find your squad, read the dignity pledge, and register.">
+<meta name="theme-color" content="#0B0F1E">
+<meta property="og:title" content="Volunteer · GengVolunteers 2.0">
+<meta property="og:description" content="Claim your place in GengVolunteers 2.0. Find your squad, read the dignity pledge, and register.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gv.css">
+</head>
+<body>
+
+<div class="strip" id="strip">LOADING</div>
+<div class="annbar" id="announce" style="display:none" role="status"></div>
+
+<div class="topstack">
+
+<div id="bar">
+  <div class="bar-in">
+    
+    <div class="xp">
+      <span class="lvl">RANK <b id="lvlName">ROOKIE</b></span>
+      <span class="track"><i id="xpFill"></i></span>
+      <span class="lvl" id="xpNum">0 XP</span>
+    </div>
+    <span class="vpill" id="visPill" hidden><i></i><b id="visBar">0</b><span>WATCHING</span></span>
+    <button class="iconbtn" id="theme" aria-label="Switch between day and night mode">☾</button>
+    
+  </div>
+</div>
+
+<nav class="sitenav" id="sitenav" aria-label="Main">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html"><img id="navLogo" alt="GengVolunteers"><span>GengVolunteers<b>2.0</b></span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navList" aria-label="Menu"><i></i><i></i><i></i></button>
+    <ul class="nav-list" id="navList">
+      <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="about.html">About<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the About menu"></button>
+        <ul class="nav-sub">
+          <li><a href="about.html#leaders">Who we are</a></li>
+          <li><a href="about.html#leaders">National XI</a></li>
+          <li><a href="about.html#quicksnaps">State High Committee</a></li>
+          <li><a href="about.html#trust">Accountability</a></li>
+          <li><a href="about.html#rights">Intellectual property</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="projects.html">Projects<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Projects menu"></button>
+        <ul class="nav-sub">
+          <li><a href="projects.html#map">The squad map</a></li>
+          <li><a href="projects.html#archive">Project archive</a></li>
+          <li><a href="projects.html#demand">What volunteers asked for</a></li>
+          <li><a href="projects.html#day">Run of show</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" aria-current="page" href="volunteer.html">Volunteer<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Volunteer menu"></button>
+        <ul class="nav-sub">
+          <li><a href="volunteer.html#join">Claim your place</a></li>
+          <li><a href="volunteer.html#quiz">Find your squad</a></li>
+          <li><a href="volunteer.html#squads">The four squads</a></li>
+          <li><a href="volunteer.html#pledge">The dignity pledge</a></li>
+          <li><a href="volunteer.html#faq">Before you ask</a></li>
+        </ul>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="highcom.html">HighCom</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="contact.html">Contact<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Contact menu"></button>
+        <ul class="nav-sub">
+          <li><a href="contact.html#social">Follow the work</a></li>
+          <li><a href="contact.html#feed">From the field</a></li>
+          <li><a href="contact.html#sponsor">For sponsors</a></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="nav-side">
+      <span class="nav-pill" id="navPill"><i></i><b id="navPillNum">&hellip;</b><span>left</span></span>
+      <a class="nav-cta" href="volunteer.html#join">Register</a>
+    </div>
+  </div>
+</nav>
+
+</div>
+
+<main class="pagetop">
+
+<section id="squads" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">THE FOUR SQUADS</span>
+    <h2 class="dh rv">EVERY PROJECT RUNS ON FOUR WINGS</h2>
+    <p class="lede rv">You are assigned to one squad based on your registration. Each squad has a specific job, and no project works if one of them is missing.</p>
+    <div class="sq" id="sq"></div>
+  </div>
+</section>
+
+<section id="quiz">
+  <div class="wrap" style="max-width:760px">
+    <span class="eye rv">30 SECONDS</span>
+    <h2 class="dh rv">WHICH SQUAD ARE YOU?</h2>
+    <p class="lede rv" style="margin-bottom:24px">Answer four questions. Your result goes straight into the form.</p>
+    <div class="quiz rv" id="quizBox"></div>
+  </div>
+</section>
+
+<section id="pledge">
+  <div class="wrap">
+    <span class="eye rv">THE DIGNITY PLEDGE</span>
+    <h2 class="dh rv">READ IT BEFORE YOU SIGN UP</h2>
+    <div class="pledge rv">
+      <p>I commit to serving this community with genuine respect for their dignity. I will listen before I act. I will never treat beneficiaries as subjects for my portfolio. I will ask before I photograph. I will keep every personal story I witness in confidence. I will show up fully, not for what I get, but for what the community needs.</p>
+      <button class="sig" id="sigBtn">I COMMIT TO THIS</button>
+    </div>
+  </div>
+</section>
+
+<section id="join">
+  <div class="blob" style="width:360px;height:360px;background:var(--pink);top:60px;right:-140px"></div>
+  <div class="wrap" style="position:relative;z-index:1">
+    <span class="eye rv">VOLUNTEER INTAKE 2026</span>
+    <h2 class="dh rv" id="joinTitle">CLAIM YOUR PLACE</h2>
+    <p class="lede rv" style="margin-bottom:26px">Fill this in once. When you finish you go straight to the community group, and that is where every briefing and callout goes out.</p>
+
+    <div class="fw rv">
+      <div class="wlban" id="wlban" style="display:none"></div>
+      <form id="form">
+        <div class="fg">
+          <div class="f full"><label for="name">FULL NAME AS IN IC <b>*</b></label><input id="name" autocomplete="name" required></div>
+          <div class="f"><label for="email">EMAIL <b>*</b></label><input id="email" type="email" autocomplete="email" required></div>
+          <div class="f"><label for="phone">PHONE <b>*</b></label><input id="phone" type="tel" placeholder="01X XXXXXXX" required></div>
+          <div class="f"><label for="tg">TELEGRAM ID <b>*</b></label><input id="tg" placeholder="@yourhandle" required></div>
+          <div class="f"><label for="age">AGE <b>*</b></label><input id="age" type="number" min="15" max="60" required></div>
+          <div class="f"><label for="state">STATE <b>*</b></label><select id="state" required></select></div>
+          <div class="f"><label for="district">DISTRICT <b>*</b></label><select id="district" required disabled><option value="">pick your state first</option></select></div>
+          <div class="f"><label for="edu">CURRENT EDUCATION LEVEL <b>*</b></label><select id="edu" required></select></div>
+          <div class="f"><label for="inst">UNIVERSITY, COLLEGE OR SCHOOL</label><input id="inst" placeholder="leave blank if not studying"></div>
+          <div class="f"><label for="course">COURSE OR FIELD OF STUDY</label><input id="course" placeholder="e.g. Foundation in Science, Diploma Kejuruteraan"></div>
+          <div class="f"><label for="sochandle">SOCIAL MEDIA HANDLE <span style="color:var(--mu);font-weight:400">optional</span></label><input id="sochandle" placeholder="@instagram or @tiktok"></div>
+          <div class="f"><label for="schooltype">PREVIOUS SCHOOL TYPE <b>*</b></label><select id="schooltype" required></select></div>
+          <div class="f"><label for="schoolname">PREVIOUS SCHOOL NAME <b>*</b></label><input id="schoolname" required></div>
+          <div class="f full"><label for="prior">HAVE YOU BEEN WITH US BEFORE? <b>*</b></label><select id="prior" required></select></div>
+          <div class="f"><label for="squad">PREFERRED SQUAD <b>*</b></label><select id="squad" required></select></div>
+          <div class="f"><label for="highcom">WANT TO LEAD AS HIGHCOM? <b>*</b></label><select id="highcom" required></select></div>
+          <div class="f"><label for="transport">OWN TRANSPORT? <b>*</b></label><select id="transport" required></select></div>
+          <div class="f full"><label>WHY DO YOU WANT TO JOIN? <b>*</b> <span style="color:var(--mu);font-weight:400">pick as many as you like</span></label>
+            <div class="mchips" id="whyBox"></div>
+            <input id="whyOther" placeholder="Tell us in your own words" style="display:none;margin-top:9px">
+          </div>
+          <div class="f full"><label for="ideas">ACTIVITIES YOU WOULD BE EXCITED TO RUN</label><textarea id="ideas" placeholder="anything you want to see on the programme"></textarea></div>
+          <div class="f full">
+            <label for="shotFile">YOUR BEST PICTURE <span style="opacity:.6">optional</span></label>
+            <div class="shot">
+              <div class="prev" id="shotPrev"><span>NONE</span></div>
+              <div class="act">
+                <button type="button" id="shotPick">CHOOSE A PICTURE</button>
+                <button type="button" class="clear" id="shotClear" style="display:none">REMOVE</button>
+                <span class="st" id="shotSt">No need to be formal. The best picture you can give, nothing is judged, anything goes. It goes on your GV Pass.</span>
+              </div>
+            </div>
+            <input type="file" id="shotFile" accept="image/*" style="display:none">
+          </div>
+          <div class="f full"><div class="ck" id="guard"><input type="checkbox" id="guardck"><label for="guardck">You are under 18. Tick to confirm a parent or guardian knows you are registering and will give written consent before you are placed.</label></div></div>
+          <div class="f full"><div class="ck"><input type="checkbox" id="pledgeck" required><label for="pledgeck">I have read the Dignity Pledge above and I commit to it.</label></div></div>
+          <div class="f full"><div class="ck"><input type="checkbox" id="consent" required><label for="consent">I consent, under the Personal Data Protection Act 2010 (Act 709), to Persatuan Belia Cendekia Holistik processing the personal data I have given here for volunteer placement and programme administration, as set out in the privacy notice below. This includes disclosing only what is necessary to programme partners and to the government agencies that approve each site. I understand I may withdraw consent, or ask to see, correct or delete my data, by writing to the address in that notice.</label></div></div>
+        </div>
+        <button class="btn btn-o" id="send" style="width:100%;margin-top:22px">SUBMIT AND JOIN THE GROUP</button>
+        <p class="hint" style="margin-top:11px">About two minutes. Telegram opens straight after.</p>
+        <div class="msg" id="err"></div>
+      </form>
+
+      <div id="done">
+        <span class="eye">ENTRY RECORDED</span>
+        <h3 id="doneTitle">CONGRATULATIONS!</h3>
+        <div class="gvp" id="gvPass"></div>
+        <p id="doneBody">Welcome to the GengVolunteers Familia. Join our community group on Telegram now for the latest updates. Stay tuned, future leaders!</p>
+        <a class="btn btn-o" id="tgBtn" href="#" style="width:100%">JOIN THE COMMUNITY GROUP</a>
+        <p class="hint" style="margin-top:12px">Opening Telegram in <b id="tgCount">5</b>s</p>
+        <div class="passbtns">
+          <button class="btn btn-o" id="shareBtn">SHARE YOUR PASS</button>
+          <button class="btn btn-g" id="saveBtn">SAVE AS IMAGE</button>
+        </div>
+        <p class="passnote">Your GV Code is yours alone. Keep it — it is how we identify you across the cycle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">BEFORE YOU ASK</span>
+    <h2 class="dh rv">QUESTIONS WE GET EVERY INTAKE</h2>
+    <div class="faq rv" id="faqBox"></div>
+  </div>
+</section>
+
+</main>
+
+
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <div>
+        <img id="footLogo" alt="Cendekia">
+        <p style="margin-top:14px;max-width:40ch;font-size:14px;color:var(--mu)">GengVolunteers is the volunteering line of <span id="entName"></span>.</p>
+        <div class="vblk" id="visBox" style="display:none">
+          <div class="live"><b><span class="vdot"></span><span id="visNum">—</span></b><small>TOTAL VISITS</small></div>
+          <div><b id="visToday">—</b><small>TODAY</small></div>
+        </div>
+      </div>
+      <div class="fl" id="fl"></div>
+    </div>
+    <div class="fb2"><span id="regLine"></span><span id="yr"></span></div>
+  </div>
+</footer>
+
+<div id="dos" role="dialog" aria-modal="true" aria-labelledby="dosCode">
+  <div class="veil"></div>
+  <div class="panel">
+    <div class="dosx">
+      <span class="code" id="dosCode"></span>
+      <button id="dosClose" type="button" aria-label="Close dossier">&#10005;</button>
+    </div>
+    <div class="dosin" id="dosBody"></div>
+  </div>
+</div>
+
+<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="shName">
+  <div class="veil" data-shut="1"></div>
+  <div class="card">
+    <div class="grab"></div>
+    <button class="x" id="shX" aria-label="Close">✕</button>
+    <div class="shhead">
+      <span class="badge" id="shBadge"></span>
+      <span>
+        <h3 id="shName"></h3>
+        <span class="zchip" id="shZone"></span>
+      </span>
+    </div>
+    <div id="shBody"></div>
+    <div class="shbtns" id="shBtns"></div>
+    <div class="shnav">
+      <button id="shPrev">‹ Previous squad</button>
+      <button id="shNext">Next squad ›</button>
+    </div>
+  </div>
+</div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Committee poster">
+  <button id="lbClose" aria-label="Close">✕</button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption><span id="lbCap"></span><span id="lbCount"></span></figcaption>
+  </figure>
+</div>
+<div id="toast"><span id="toastTxt"></span><span class="xpp" id="toastXp"></span></div>
+<iframe name="sink" id="sink" style="display:none" title="submission target"></iframe>
+
+<script src="site-config.js"></script>
+<script src="gv.js"></script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script id="gv-errtrap">
+/* Surfaces any JS error on screen instead of failing silently. */
+(function(){
+  var shown=false;
+  function show(msg,src,line,col){
+    if(shown)return; shown=true;
+    var d=document.createElement('div');
+    d.setAttribute('style','position:fixed;left:0;right:0;bottom:0;z-index:99999;'+
+      'background:#3B0A0A;color:#FFD9D9;font:12px/1.5 ui-monospace,Menlo,monospace;'+
+      'padding:14px 16px;border-top:3px solid #FF5A5A;max-height:46vh;overflow:auto;'+
+      '-webkit-overflow-scrolling:touch;white-space:pre-wrap;word-break:break-word');
+    d.textContent='JS ERROR\n'+msg+'\nfile: '+(src||'?')+'\nline: '+(line||'?')+'  col: '+(col||'?');
+    var put=function(){ (document.body||document.documentElement).appendChild(d) };
+    if(document.body)put(); else document.addEventListener('DOMContentLoaded',put);
+  }
+  window.addEventListener('error',function(e){
+    if(e.target&&e.target.tagName==='IMG'){return}
+    if(!e.filename){return}   /* cross-origin script, nothing we can act on */
+    if(e.message==='Script error.'&&!e.filename){return}
+    show(e.message,e.filename,e.lineno,e.colno);
+  },true);
+
+  window.addEventListener('unhandledrejection',function(e){
+    show('Unhandled promise: '+(e.reason&&e.reason.message||e.reason),'','','');
+  });
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects · GengVolunteers 2.0</title>
+<meta name="description" content="Fourteen projects across thirteen states, March to May 2026. The squad map, the full archive, and what volunteers asked for.">
+<meta name="theme-color" content="#0B0F1E">
+<meta property="og:title" content="Projects · GengVolunteers 2.0">
+<meta property="og:description" content="Fourteen projects across thirteen states, March to May 2026. The squad map, the full archive, and what volunteers asked for.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gv.css">
+</head>
+<body>
+
+<div class="strip" id="strip">LOADING</div>
+<div class="annbar" id="announce" style="display:none" role="status"></div>
+
+<div class="topstack">
+
+<div id="bar">
+  <div class="bar-in">
+    
+    <div class="xp">
+      <span class="lvl">RANK <b id="lvlName">ROOKIE</b></span>
+      <span class="track"><i id="xpFill"></i></span>
+      <span class="lvl" id="xpNum">0 XP</span>
+    </div>
+    <span class="vpill" id="visPill" hidden><i></i><b id="visBar">0</b><span>WATCHING</span></span>
+    <button class="iconbtn" id="theme" aria-label="Switch between day and night mode">☾</button>
+    
+  </div>
+</div>
+
+<nav class="sitenav" id="sitenav" aria-label="Main">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html"><img id="navLogo" alt="GengVolunteers"><span>GengVolunteers<b>2.0</b></span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navList" aria-label="Menu"><i></i><i></i><i></i></button>
+    <ul class="nav-list" id="navList">
+      <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="about.html">About<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the About menu"></button>
+        <ul class="nav-sub">
+          <li><a href="about.html#leaders">Who we are</a></li>
+          <li><a href="about.html#leaders">National XI</a></li>
+          <li><a href="about.html#quicksnaps">State High Committee</a></li>
+          <li><a href="about.html#trust">Accountability</a></li>
+          <li><a href="about.html#rights">Intellectual property</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" aria-current="page" href="projects.html">Projects<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Projects menu"></button>
+        <ul class="nav-sub">
+          <li><a href="projects.html#map">The squad map</a></li>
+          <li><a href="projects.html#archive">Project archive</a></li>
+          <li><a href="projects.html#demand">What volunteers asked for</a></li>
+          <li><a href="projects.html#day">Run of show</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="volunteer.html">Volunteer<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Volunteer menu"></button>
+        <ul class="nav-sub">
+          <li><a href="volunteer.html#join">Claim your place</a></li>
+          <li><a href="volunteer.html#quiz">Find your squad</a></li>
+          <li><a href="volunteer.html#squads">The four squads</a></li>
+          <li><a href="volunteer.html#pledge">The dignity pledge</a></li>
+          <li><a href="volunteer.html#faq">Before you ask</a></li>
+        </ul>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="highcom.html">HighCom</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="contact.html">Contact<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Contact menu"></button>
+        <ul class="nav-sub">
+          <li><a href="contact.html#social">Follow the work</a></li>
+          <li><a href="contact.html#feed">From the field</a></li>
+          <li><a href="contact.html#sponsor">For sponsors</a></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="nav-side">
+      <span class="nav-pill" id="navPill"><i></i><b id="navPillNum">&hellip;</b><span>left</span></span>
+      <a class="nav-cta" href="volunteer.html#join">Register</a>
+    </div>
+  </div>
+</nav>
+
+</div>
+
+<main class="pagetop">
+
+<section id="map" style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="cmwrap rv">
+      <span class="cmstage"><img id="cmLogo" alt="From SPM leavers to changemakers"></span>
+      <h2 class="dh">EVERY BADGE ON THIS MAP IS A TEAM THAT SHOWED UP</h2>
+      <p class="lede">Seventeen squads, five zones, one national line. Zoom in, tap any badge, and you get that squad's project: where they went, what they ran, and who signed it off on site.</p>
+      <img class="omm" id="ommLogo" alt="One map. One mission.">
+    </div>
+
+    <div class="mapwrap rv">
+      <div class="mapviewer" id="mv">
+        <div class="mvstage" id="mvStage">
+          <img class="mapart" id="mapArt" alt="Map of Malaysia with every GengVolunteers squad badge">
+        </div>
+        <div class="mvzoom" id="mvZoom">1.0×</div>
+        <div class="mvhint" id="mvHint">DRAG · PINCH OR SCROLL TO ZOOM · TAP A BADGE</div>
+        <div class="mvctl">
+          <button id="mvIn" aria-label="Zoom in">+</button>
+          <button id="mvOut" aria-label="Zoom out">−</button>
+          <button id="mvReset" aria-label="Reset the map">⟲</button>
+        </div>
+      </div>
+    </div>
+    <div class="zlegend rv" id="zlegend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px"></div>
+  </div>
+</section>
+
+<section id="archive" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">PROJECT ARCHIVE</span>
+    <h2 class="dh rv">EVERY PROJECT, EVERY STATE</h2>
+    <p class="lede rv">Each one designed, funded and run by the state team itself, with a named community authority signing off on site.</p>
+    <p class="note rv"><b>Reports live here.</b> Each card links to that squad's own project report as soon as the file is published. Where a card says the report is being uploaded, the project ran and was signed off on site, but the document is not online yet.</p>
+    <div class="chips rv" id="chips"></div>
+    <div class="pg" id="pg"></div>
+  </div>
+</section>
+
+<section id="demand" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">SPARK BOOK · 500 PLUS RESPONSES</span>
+    <h2 class="dh rv">WHAT VOLUNTEERS ACTUALLY ASKED FOR</h2>
+    <p class="lede rv">Before we planned anything, we asked. Over five hundred volunteers told us what they wanted to do. This is the ranked answer, and it shaped the whole programme.</p>
+    <div class="dm rv" id="dm"></div>
+    <p class="hint rv" style="margin-top:16px">Data as at 1 March 2026. A further 96 responses said they were open to anything.</p>
+  </div>
+</section>
+
+<section id="day">
+  <div class="wrap">
+    <span class="eye rv">RUN OF SHOW</span>
+    <h2 class="dh rv">WHAT A PROJECT DAY ACTUALLY LOOKS LIKE</h2>
+    <p class="lede rv">No guessing on the morning. This is the standard shape of a GengVolunteers community day.</p>
+    <p class="note rv"><b>Read this as a shape, not a timetable.</b> It is a simplified flow, printed here so you know how a day is built. Your real run of show is set by your own state committee for your specific site and community, and the briefing you receive five days before travel is the one that governs the day, not this page.</p>
+    <div class="rod rv" id="rod"></div>
+  </div>
+</section>
+
+</main>
+
+
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <div>
+        <img id="footLogo" alt="Cendekia">
+        <p style="margin-top:14px;max-width:40ch;font-size:14px;color:var(--mu)">GengVolunteers is the volunteering line of <span id="entName"></span>.</p>
+        <div class="vblk" id="visBox" style="display:none">
+          <div class="live"><b><span class="vdot"></span><span id="visNum">—</span></b><small>TOTAL VISITS</small></div>
+          <div><b id="visToday">—</b><small>TODAY</small></div>
+        </div>
+      </div>
+      <div class="fl" id="fl"></div>
+    </div>
+    <div class="fb2"><span id="regLine"></span><span id="yr"></span></div>
+  </div>
+</footer>
+
+<div id="dos" role="dialog" aria-modal="true" aria-labelledby="dosCode">
+  <div class="veil"></div>
+  <div class="panel">
+    <div class="dosx">
+      <span class="code" id="dosCode"></span>
+      <button id="dosClose" type="button" aria-label="Close dossier">&#10005;</button>
+    </div>
+    <div class="dosin" id="dosBody"></div>
+  </div>
+</div>
+
+<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="shName">
+  <div class="veil" data-shut="1"></div>
+  <div class="card">
+    <div class="grab"></div>
+    <button class="x" id="shX" aria-label="Close">✕</button>
+    <div class="shhead">
+      <span class="badge" id="shBadge"></span>
+      <span>
+        <h3 id="shName"></h3>
+        <span class="zchip" id="shZone"></span>
+      </span>
+    </div>
+    <div id="shBody"></div>
+    <div class="shbtns" id="shBtns"></div>
+    <div class="shnav">
+      <button id="shPrev">‹ Previous squad</button>
+      <button id="shNext">Next squad ›</button>
+    </div>
+  </div>
+</div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Committee poster">
+  <button id="lbClose" aria-label="Close">✕</button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption><span id="lbCap"></span><span id="lbCount"></span></figcaption>
+  </figure>
+</div>
+<div id="toast"><span id="toastTxt"></span><span class="xpp" id="toastXp"></span></div>
+<iframe name="sink" id="sink" style="display:none" title="submission target"></iframe>
+
+<script src="site-config.js"></script>
+<script src="gv.js"></script>
+</body>
+</html>

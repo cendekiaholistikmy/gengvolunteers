@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script id="gv-errtrap">
+/* Surfaces any JS error on screen instead of failing silently. */
+(function(){
+  var shown=false;
+  function show(msg,src,line,col){
+    if(shown)return; shown=true;
+    var d=document.createElement('div');
+    d.setAttribute('style','position:fixed;left:0;right:0;bottom:0;z-index:99999;'+
+      'background:#3B0A0A;color:#FFD9D9;font:12px/1.5 ui-monospace,Menlo,monospace;'+
+      'padding:14px 16px;border-top:3px solid #FF5A5A;max-height:46vh;overflow:auto;'+
+      '-webkit-overflow-scrolling:touch;white-space:pre-wrap;word-break:break-word');
+    d.textContent='JS ERROR\n'+msg+'\nfile: '+(src||'?')+'\nline: '+(line||'?')+'  col: '+(col||'?');
+    var put=function(){ (document.body||document.documentElement).appendChild(d) };
+    if(document.body)put(); else document.addEventListener('DOMContentLoaded',put);
+  }
+  window.addEventListener('error',function(e){
+    if(e.target&&e.target.tagName==='IMG'){return}
+    if(!e.filename){return}   /* cross-origin script, nothing we can act on */
+    if(e.message==='Script error.'&&!e.filename){return}
+    show(e.message,e.filename,e.lineno,e.colno);
+  },true);
+
+  window.addEventListener('unhandledrejection',function(e){
+    show('Unhandled promise: '+(e.reason&&e.reason.message||e.reason),'','','');
+  });
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GENGVOLUNTEERS 2.0 · 100 DAYS, ONE MOVEMENT</title>
+<meta name="description" content="GengVolunteers 2.0 is open to everyone. Registration closes the moment the last place goes.">
+<meta name="theme-color" content="#0B0F1E">
+<meta property="og:title" content="GENGVOLUNTEERS 2.0 · 100 DAYS, ONE MOVEMENT">
+<meta property="og:description" content="GengVolunteers 2.0 is open to everyone. Registration closes the moment the last place goes.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gv.css">
+</head>
+<body>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gateH">
+  <div class="gblob"></div>
+  <div class="gcard">
+    <div class="ghd">
+      <img id="gateLogo" alt="GengVolunteers">
+      <span class="eye">BEFORE YOU ENTER</span>
+      <h2 id="gateH">READ THIS FIRST</h2>
+    </div>
+
+    <div class="gbody">
+      <div class="gsec gwarn">
+        <h3>Our name, our marks, our work</h3>
+        <p>The <strong>GengVolunteers</strong> and <strong>Geng Scholars</strong> names and logos, every state squad emblem, all High Committee artwork, and every project report, photograph and figure on this site are the property of <strong>Persatuan Belia Cendekia Holistik</strong>.</p>
+        <p>They may not be copied, reproduced, edited, re-uploaded, sold, or used to represent any other organisation, campaign, fundraiser or event without <strong>formal written consent</strong>. Fundraising or soliciting donations in our name without that consent is a misuse of our identity.</p>
+        <span class="big">SEBARANG PENYALAHGUNAAN HARTA INTELEK KAMI AKAN DIAMBIL TINDAKAN · PELAKU AKAN DIHUKUM</span>
+      </div>
+
+      <div class="gsec">
+        <h3>Amaran (Bahasa Malaysia)</h3>
+        <p>Semua nama, logo, lambang skuad, laporan projek dan gambar di laman ini adalah hak milik Persatuan Belia Cendekia Holistik. Penggunaan tanpa kebenaran bertulis rasmi adalah dilarang sama sekali, termasuk penyalinan, pengubahsuaian, penyiaran semula, atau penggunaan bagi mewakili mana-mana pihak, kutipan dana atau program lain.</p>
+      </div>
+
+      <div class="gsec">
+        <h3>Children and beneficiaries are protected</h3>
+        <p>Faces of children and beneficiaries are masked or withheld throughout this site, in line with <strong>Akta Kanak-Kanak 2001</strong>. Volunteer contact details, emergency numbers, medical records, signatures and financial receipts are held in our internal records and are <strong>never published here</strong>. Do not attempt to identify, contact or photograph any person shown on this site.</p>
+      </div>
+
+      <div class="gsec">
+        <h3>About the figures</h3>
+        <p>Impact numbers on this site are <strong>rounded down</strong> to the nearest sensible figure. Exact line-by-line totals sit in the internal National Impact Report and are released to sponsors and partners on request, not published openly.</p>
+      </div>
+
+      <div class="gsec">
+        <h3>Your data</h3>
+        <p>If you register, the details you submit go to our organiser spreadsheet and are used only to place you in a squad and contact you about this programme. Under-18 applicants need a guardian's consent. Nothing is sold, and nothing is shared beyond the committee and the platforms named in the registration form.</p>
+      </div>
+    </div>
+
+    <div class="gft">
+      <label class="gchk" for="gateChk">
+        <input type="checkbox" id="gateChk">
+        <span>I have read and understood the above, and I agree not to use any material from this site without written consent.</span>
+      </label>
+      <a class="btn btn-o" id="gateGo" href="#">I UNDERSTAND · ENTER THE SITE</a>
+      <p class="gnote">Persatuan Belia Cendekia Holistik &middot; GengVolunteers 2.0</p>
+    </div>
+  </div>
+</div>
+
+<div id="intro">
+  <div class="burst"></div><div class="ring"></div>
+  <div class="stage">
+    <img id="introLogo" alt="GengVolunteers">
+    <div class="zb"><i></i><i></i><i></i><i></i></div>
+    <div class="wm">GENGVOLUNTEERS 2.0</div>
+    <div class="tl">100 DAYS · 100 PLACES · ONE MOVEMENT</div>
+  </div>
+  <button id="skip">SKIP</button>
+</div>
+
+<div class="strip" id="strip">LOADING</div>
+<div class="annbar" id="announce" style="display:none" role="status"></div>
+
+<div class="topstack">
+
+<div id="bar">
+  <div class="bar-in">
+    
+    <div class="xp">
+      <span class="lvl">RANK <b id="lvlName">ROOKIE</b></span>
+      <span class="track"><i id="xpFill"></i></span>
+      <span class="lvl" id="xpNum">0 XP</span>
+    </div>
+    <span class="vpill" id="visPill" hidden><i></i><b id="visBar">0</b><span>WATCHING</span></span>
+    <button class="iconbtn" id="theme" aria-label="Switch between day and night mode">☾</button>
+    
+  </div>
+</div>
+
+<nav class="sitenav" id="sitenav" aria-label="Main">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html"><img id="navLogo" alt="GengVolunteers"><span>GengVolunteers<b>2.0</b></span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navList" aria-label="Menu"><i></i><i></i><i></i></button>
+    <ul class="nav-list" id="navList">
+      <li class="nav-item"><a class="nav-link" aria-current="page" href="index.html">Home</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="about.html">About<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the About menu"></button>
+        <ul class="nav-sub">
+          <li><a href="about.html#leaders">Who we are</a></li>
+          <li><a href="about.html#leaders">National XI</a></li>
+          <li><a href="about.html#quicksnaps">State High Committee</a></li>
+          <li><a href="about.html#trust">Accountability</a></li>
+          <li><a href="about.html#rights">Intellectual property</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="projects.html">Projects<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Projects menu"></button>
+        <ul class="nav-sub">
+          <li><a href="projects.html#map">The squad map</a></li>
+          <li><a href="projects.html#archive">Project archive</a></li>
+          <li><a href="projects.html#demand">What volunteers asked for</a></li>
+          <li><a href="projects.html#day">Run of show</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="volunteer.html">Volunteer<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Volunteer menu"></button>
+        <ul class="nav-sub">
+          <li><a href="volunteer.html#join">Claim your place</a></li>
+          <li><a href="volunteer.html#quiz">Find your squad</a></li>
+          <li><a href="volunteer.html#squads">The four squads</a></li>
+          <li><a href="volunteer.html#pledge">The dignity pledge</a></li>
+          <li><a href="volunteer.html#faq">Before you ask</a></li>
+        </ul>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="highcom.html">HighCom</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="contact.html">Contact<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Contact menu"></button>
+        <ul class="nav-sub">
+          <li><a href="contact.html#social">Follow the work</a></li>
+          <li><a href="contact.html#feed">From the field</a></li>
+          <li><a href="contact.html#sponsor">For sponsors</a></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="nav-side">
+      <span class="nav-pill" id="navPill"><i></i><b id="navPillNum">&hellip;</b><span>left</span></span>
+      <a class="nav-cta" href="volunteer.html#join">Register</a>
+    </div>
+  </div>
+</nav>
+
+</div>
+
+<header class="hero">
+  <div class="blob" style="width:420px;height:420px;background:var(--o);top:-140px;left:-100px"></div>
+  <div class="blob" style="width:380px;height:380px;background:var(--vio);top:40px;right:-120px;animation-delay:-8s"></div>
+  <div class="wrap hgrid">
+    <div>
+      <img class="mark" id="heroLogo" alt="GengVolunteers logo">
+      <h1>OPEN TO<br>EVERYONE.<br><em>ONE MOVEMENT.</em></h1>
+      <p class="sub">GengVolunteers 2.0 opens on 24 August 2026. You do not need to be an SPM leaver, a student, or anything in particular &mdash; you need to want to show up. There is no closing date. <strong>Registration closes the moment the last place goes.</strong></p>
+      <div class="pills">
+        <span class="pill">OPENS <b>24 AUG 2026</b></span>
+        <span class="pill">CLOSES <b>WHEN FULL</b></span>
+        <span class="pill"><b id="pillCap">100</b> PLACES</span>
+        <span class="pill">OPEN TO <b>EVERYONE</b></span>
+      </div>
+      <div class="btnrow">
+        <a class="btn btn-o" href="#join">CLAIM YOUR PLACE</a>
+        <a class="btn btn-g" href="#quiz">FIND YOUR SQUAD</a>
+<style>
+.btn-gold{position:relative;overflow:hidden;color:#2E1D00;
+  background:linear-gradient(100deg,#8A6212,#D9A520 22%,#FFE071 45%,#FFF6C8 52%,#FFE071 60%,#D9A520 80%,#8A6212);
+  box-shadow:0 10px 26px rgba(255,186,40,.34),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold::after{content:"";position:absolute;top:0;bottom:0;width:38%;left:-45%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.72),transparent);
+  transform:skewX(-18deg);animation:gvshine 3.4s ease-in-out infinite}
+@keyframes gvshine{0%{left:-45%}55%,100%{left:118%}}
+.btn-gold span{position:relative}
+.gvgold{flex:0 0 100%;margin:18px 0 22px}
+@media(prefers-reduced-motion:reduce){.btn-gold::after{animation:none;opacity:0}}
+</style>
+<div class="gvgold"><a class="btn btn-gold" href="highcom.html"><span>APPLY FOR HIGHCOM</span></a></div>
+      </div>
+    </div>
+    <div class="dial">
+      <div class="hd"><span id="dayLabel">THE 100 DAYS</span><span id="dayPct">0%</span></div>
+      <div class="big"><span id="dayNum">0</span></div>
+      <div class="hd"><span id="daySub"></span></div>
+      <div class="bar100"><i id="dayBar"></i></div>
+      <div class="hd" style="margin-top:22px"><span>PLACES CLAIMED</span><span id="capPct">0%</span></div>
+      <div class="big" style="font-size:clamp(32px,7vw,46px)"><span id="capLeft">0</span> LEFT</div>
+      <div class="slots" id="slots" aria-hidden="true"></div>
+      <div class="hot" id="hot"><i></i><span id="hotTxt"></span></div>
+    </div>
+  </div>
+</header>
+
+<div class="mq"><div class="mq-in" id="mq"></div></div>
+
+<section id="record">
+  <div class="wrap">
+    <span class="eye rv">IMPACT REPORT · APRIL 2026</span>
+    <h2 class="dh rv">WHAT 14 TEAMS DID FROM MARCH TO MAY</h2>
+    <p class="lede rv">Every number below comes from the cycle one report, <strong>rounded down</strong> to the nearest sensible figure. Nothing is rounded up and nothing is borrowed from a projection. Exact line-by-line totals are held in our internal impact report and released to sponsors and partners on request.</p>
+    <div class="recg" id="recg"></div>
+  </div>
+</section>
+
+<section id="gain" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">WHY IT IS WORTH 100 DAYS</span>
+    <h2 class="dh rv">WHAT YOU ACTUALLY WALK AWAY WITH</h2>
+    <p class="lede rv">The certificate is the least valuable thing here. These are the rest.</p>
+    <div class="tr rv" id="gainGrid"></div>
+  </div>
+</section>
+
+
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <div>
+        <img id="footLogo" alt="Cendekia">
+        <p style="margin-top:14px;max-width:40ch;font-size:14px;color:var(--mu)">GengVolunteers is the volunteering line of <span id="entName"></span>.</p>
+        <div class="vblk" id="visBox" style="display:none">
+          <div class="live"><b><span class="vdot"></span><span id="visNum">—</span></b><small>TOTAL VISITS</small></div>
+          <div><b id="visToday">—</b><small>TODAY</small></div>
+        </div>
+      </div>
+      <div class="fl" id="fl"></div>
+    </div>
+    <div class="fb2"><span id="regLine"></span><span id="yr"></span></div>
+  </div>
+</footer>
+
+<div id="dos" role="dialog" aria-modal="true" aria-labelledby="dosCode">
+  <div class="veil"></div>
+  <div class="panel">
+    <div class="dosx">
+      <span class="code" id="dosCode"></span>
+      <button id="dosClose" type="button" aria-label="Close dossier">&#10005;</button>
+    </div>
+    <div class="dosin" id="dosBody"></div>
+  </div>
+</div>
+
+<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="shName">
+  <div class="veil" data-shut="1"></div>
+  <div class="card">
+    <div class="grab"></div>
+    <button class="x" id="shX" aria-label="Close">✕</button>
+    <div class="shhead">
+      <span class="badge" id="shBadge"></span>
+      <span>
+        <h3 id="shName"></h3>
+        <span class="zchip" id="shZone"></span>
+      </span>
+    </div>
+    <div id="shBody"></div>
+    <div class="shbtns" id="shBtns"></div>
+    <div class="shnav">
+      <button id="shPrev">‹ Previous squad</button>
+      <button id="shNext">Next squad ›</button>
+    </div>
+  </div>
+</div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Committee poster">
+  <button id="lbClose" aria-label="Close">✕</button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption><span id="lbCap"></span><span id="lbCount"></span></figcaption>
+  </figure>
+</div>
+<div id="toast"><span id="toastTxt"></span><span class="xpp" id="toastXp"></span></div>
+<iframe name="sink" id="sink" style="display:none" title="submission target"></iframe>
+
+<script src="site-config.js"></script>
+<script src="gv.js"></script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script id="gv-errtrap">
+/* Surfaces any JS error on screen instead of failing silently. */
+(function(){
+  var shown=false;
+  function show(msg,src,line,col){
+    if(shown)return; shown=true;
+    var d=document.createElement('div');
+    d.setAttribute('style','position:fixed;left:0;right:0;bottom:0;z-index:99999;'+
+      'background:#3B0A0A;color:#FFD9D9;font:12px/1.5 ui-monospace,Menlo,monospace;'+
+      'padding:14px 16px;border-top:3px solid #FF5A5A;max-height:46vh;overflow:auto;'+
+      '-webkit-overflow-scrolling:touch;white-space:pre-wrap;word-break:break-word');
+    d.textContent='JS ERROR\n'+msg+'\nfile: '+(src||'?')+'\nline: '+(line||'?')+'  col: '+(col||'?');
+    var put=function(){ (document.body||document.documentElement).appendChild(d) };
+    if(document.body)put(); else document.addEventListener('DOMContentLoaded',put);
+  }
+  window.addEventListener('error',function(e){
+    if(e.target&&e.target.tagName==='IMG'){return}
+    if(!e.filename){return}   /* cross-origin script, nothing we can act on */
+    if(e.message==='Script error.'&&!e.filename){return}
+    show(e.message,e.filename,e.lineno,e.colno);
+  },true);
+
+  window.addEventListener('unhandledrejection',function(e){
+    show('Unhandled promise: '+(e.reason&&e.reason.message||e.reason),'','','');
+  });
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About · GengVolunteers 2.0</title>
+<meta name="description" content="Who runs GengVolunteers 2.0: the National XI, the state High Committees, how we account for money, and our intellectual property.">
+<meta name="theme-color" content="#0B0F1E">
+<meta property="og:title" content="About · GengVolunteers 2.0">
+<meta property="og:description" content="Who runs GengVolunteers 2.0: the National XI, the state High Committees, how we account for money, and our intellectual property.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gv.css">
+</head>
+<body>
+
+<div class="strip" id="strip">LOADING</div>
+<div class="annbar" id="announce" style="display:none" role="status"></div>
+
+<div class="topstack">
+
+<div id="bar">
+  <div class="bar-in">
+    
+    <div class="xp">
+      <span class="lvl">RANK <b id="lvlName">ROOKIE</b></span>
+      <span class="track"><i id="xpFill"></i></span>
+      <span class="lvl" id="xpNum">0 XP</span>
+    </div>
+    <span class="vpill" id="visPill" hidden><i></i><b id="visBar">0</b><span>WATCHING</span></span>
+    <button class="iconbtn" id="theme" aria-label="Switch between day and night mode">☾</button>
+    
+  </div>
+</div>
+
+<nav class="sitenav" id="sitenav" aria-label="Main">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html"><img id="navLogo" alt="GengVolunteers"><span>GengVolunteers<b>2.0</b></span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navList" aria-label="Menu"><i></i><i></i><i></i></button>
+    <ul class="nav-list" id="navList">
+      <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" aria-current="page" href="about.html">About<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the About menu"></button>
+        <ul class="nav-sub">
+          <li><a href="about.html#leaders">Who we are</a></li>
+          <li><a href="about.html#leaders">National XI</a></li>
+          <li><a href="about.html#quicksnaps">State High Committee</a></li>
+          <li><a href="about.html#trust">Accountability</a></li>
+          <li><a href="about.html#rights">Intellectual property</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="projects.html">Projects<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Projects menu"></button>
+        <ul class="nav-sub">
+          <li><a href="projects.html#map">The squad map</a></li>
+          <li><a href="projects.html#archive">Project archive</a></li>
+          <li><a href="projects.html#demand">What volunteers asked for</a></li>
+          <li><a href="projects.html#day">Run of show</a></li>
+        </ul>
+      </li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="volunteer.html">Volunteer<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Volunteer menu"></button>
+        <ul class="nav-sub">
+          <li><a href="volunteer.html#join">Claim your place</a></li>
+          <li><a href="volunteer.html#quiz">Find your squad</a></li>
+          <li><a href="volunteer.html#squads">The four squads</a></li>
+          <li><a href="volunteer.html#pledge">The dignity pledge</a></li>
+          <li><a href="volunteer.html#faq">Before you ask</a></li>
+        </ul>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="highcom.html">HighCom</a></li>
+      <li class="nav-item has-kids">
+        <a class="nav-link" href="contact.html">Contact<i class="caret" aria-hidden="true"></i></a>
+        <button class="nav-open" aria-expanded="false" aria-label="Open the Contact menu"></button>
+        <ul class="nav-sub">
+          <li><a href="contact.html#social">Follow the work</a></li>
+          <li><a href="contact.html#feed">From the field</a></li>
+          <li><a href="contact.html#sponsor">For sponsors</a></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="nav-side">
+      <span class="nav-pill" id="navPill"><i></i><b id="navPillNum">&hellip;</b><span>left</span></span>
+      <a class="nav-cta" href="volunteer.html#join">Register</a>
+    </div>
+  </div>
+</nav>
+
+</div>
+
+<main class="pagetop">
+
+<section id="leaders">
+  <div class="wrap">
+    <span class="eye rv">NATIONAL XI</span>
+    <h2 class="dh rv">ELEVEN PEOPLE HOLD THE WHOLE THING UP</h2>
+    <p class="lede rv">The national line runs the cycle end to end: operations, communication, funding, documentation, logistics, and one coordinator for every zone. Named, so you know exactly who to ask.</p>
+    <div class="nxi">
+      <figure class="shot rv">
+        <img id="nxiShot" loading="lazy" alt="National XI committee">
+        <figcaption>NATIONAL XI · CYCLE 2026</figcaption>
+      </figure>
+      <div class="xigrid rv" id="xigrid"></div>
+    </div>
+  </div>
+</section>
+
+<section id="quicksnaps" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">STATE HIGH COMMITTEE</span>
+    <h2 class="dh rv">MEET THE HIGHCOM</h2>
+    <p class="lede rv">Chief Architect, Deputy, Secretary, Finance, Logistics, Marketing, Community, Public Outreach, and the four Anchors who look after volunteers on the day.</p><div class="btnrow rv">
+<div class="gvgold"><a class="btn btn-gold" href="highcom.html"><span>APPLY FOR HIGHCOM</span></a></div>
+    </div>
+
+    <button class="acc rv" id="hcAcc" aria-expanded="false" aria-controls="hcBody">
+      <span><b id="hcAccTitle">SHOW THE LINE-UPS</b><small id="hcAccSub"></small></span>
+      <span class="cx" aria-hidden="true">+</span>
+    </button>
+    <div class="accbody" id="hcBody" hidden>
+      <div class="hcgrid" id="hcgrid"></div>
+      <p class="lede rv" style="margin-top:18px;font-size:14px" id="hcNote"></p>
+    </div>
+  </div>
+</section>
+
+<section id="trust" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">ACCOUNTABILITY</span>
+    <h2 class="dh rv">HOW WE ARE HELD TO ACCOUNT</h2>
+    <div class="tr rv">
+      <div class="trc"><h3>WHO WE ARE</h3><p id="whoWe"></p></div>
+      <div class="trc"><h3>NO COLLABORATION WITHOUT A SIGNED DOCUMENT</h3><p>Every partnership rests on an MOU, an LOI or an official letter. Partner names appear on this page only after signing.</p></div>
+      <div class="trc"><h3>MONEY IS SEPARATED AND REPORTED</h3><p>Cash, in kind contributions and surplus are reported as three separate figures, never merged.</p></div>
+      <div class="trc"><h3>CHILDREN ARE PROTECTED ON SITE</h3><p>No photography of beneficiaries without confirmed consent. Images of children are published only with written permission from the guardian and the school. We never collect or publish location data of children.</p></div>
+    </div>
+    <div class="notice rv" id="privacy">
+      <h3>PRIVACY NOTICE</h3>
+      <p id="pv1"></p>
+      <p>Your details are seen by the committee members running the intake. Where a programme is delivered with a partner or needs approval from a government agency, we share only what that requires, and only once the agreement with that partner is signed.</p>
+      <p>If you are under 18, a parent or guardian must consent in writing before you are placed on a programme.</p>
+      <p>We keep your record while you are an active volunteer and for two years after. You may ask to see, correct or delete your details at any time by writing to us.</p>
+    </div>
+  </div>
+</section>
+
+<section id="rights" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="eye rv">INTELLECTUAL PROPERTY</span>
+    <h2 class="dh rv">OUR NAME, OUR MARKS, OUR WORK</h2>
+    <div class="rights rv">
+      <h3>Do not use our materials without written consent</h3>
+      <p>The <strong>GengVolunteers</strong> and <strong>Geng Scholars</strong> names and logos, every state squad emblem, all High Committee artwork, and every project report, photograph and figure published on this site are the property of <strong>Persatuan Belia Cendekia Holistik</strong>.</p>
+      <p>They may not be copied, reproduced, edited, re-uploaded, sold, or used to represent any other organisation, campaign, fundraiser or event without <strong>formal written consent</strong> from the association. Fundraising or soliciting donations in our name without that consent is a misuse of our identity and will be treated as such.</p>
+      <p>Requests for permission go to <a href="mailto:persatuanbeliacendekiaholistik@gmail.com">persatuanbeliacendekiaholistik@gmail.com</a>. Misuse will be reported to the platform concerned and, where warranted, to the relevant authorities.</p>
+      <div class="bm">
+        <p><strong>AMARAN.</strong> Semua nama, logo, lambang skuad, laporan projek dan gambar di laman ini adalah hak milik Persatuan Belia Cendekia Holistik. Penggunaan tanpa kebenaran bertulis rasmi adalah dilarang sama sekali, termasuk penyalinan, pengubahsuaian, penyiaran semula, atau penggunaan bagi mewakili mana-mana pihak, kutipan dana atau program lain.</p>
+        <p class="warn">SEBARANG PENYALAHGUNAAN HARTA INTELEK KAMI AKAN DIAMBIL TINDAKAN &middot; PELAKU AKAN DIHUKUM</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <div>
+        <img id="footLogo" alt="Cendekia">
+        <p style="margin-top:14px;max-width:40ch;font-size:14px;color:var(--mu)">GengVolunteers is the volunteering line of <span id="entName"></span>.</p>
+        <div class="vblk" id="visBox" style="display:none">
+          <div class="live"><b><span class="vdot"></span><span id="visNum">—</span></b><small>TOTAL VISITS</small></div>
+          <div><b id="visToday">—</b><small>TODAY</small></div>
+        </div>
+      </div>
+      <div class="fl" id="fl"></div>
+    </div>
+    <div class="fb2"><span id="regLine"></span><span id="yr"></span></div>
+  </div>
+</footer>
+
+<div id="dos" role="dialog" aria-modal="true" aria-labelledby="dosCode">
+  <div class="veil"></div>
+  <div class="panel">
+    <div class="dosx">
+      <span class="code" id="dosCode"></span>
+      <button id="dosClose" type="button" aria-label="Close dossier">&#10005;</button>
+    </div>
+    <div class="dosin" id="dosBody"></div>
+  </div>
+</div>
+
+<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="shName">
+  <div class="veil" data-shut="1"></div>
+  <div class="card">
+    <div class="grab"></div>
+    <button class="x" id="shX" aria-label="Close">✕</button>
+    <div class="shhead">
+      <span class="badge" id="shBadge"></span>
+      <span>
+        <h3 id="shName"></h3>
+        <span class="zchip" id="shZone"></span>
+      </span>
+    </div>
+    <div id="shBody"></div>
+    <div class="shbtns" id="shBtns"></div>
+    <div class="shnav">
+      <button id="shPrev">‹ Previous squad</button>
+      <button id="shNext">Next squad ›</button>
+    </div>
+  </div>
+</div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Committee poster">
+  <button id="lbClose" aria-label="Close">✕</button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption><span id="lbCap"></span><span id="lbCount"></span></figcaption>
+  </figure>
+</div>
+<div id="toast"><span id="toastTxt"></span><span class="xpp" id="toastXp"></span></div>
+<iframe name="sink" id="sink" style="display:none" title="submission target"></iframe>
+
+<script src="site-config.js"></script>
+<script src="gv.js"></script>
+</body>
+</html>
