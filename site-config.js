@@ -25,11 +25,12 @@ const CFG = {
 
   /* 5 · SOCIAL. Leave url blank to hide a card. */
   social: [
-    { key:"ig", name:"INSTAGRAM", handle:"@gengvolunteers", url:"https://www.instagram.com/gengvolunteers/" },
-    { key:"ig2",name:"GENG SCHOLARS", handle:"@gengscholars", url:"https://www.instagram.com/gengscholars/" },
-    { key:"tt", name:"TIKTOK",    handle:"@gengscholars",  url:"" },
-    { key:"fb", name:"FACEBOOK",  handle:"GengVolunteers", url:"" },
-    { key:"th", name:"THREADS",   handle:"@gengvolunteers",url:"" }
+    { key:"ig", name:"INSTAGRAM",     handle:"@gengvolunteers", url:"https://instagram.com/gengvolunteers" },
+    { key:"tt", name:"TIKTOK",        handle:"@gengvolunteers", url:"https://tiktok.com/@gengvolunteers" },
+    { key:"th", name:"THREADS",       handle:"@gengvolunteers", url:"https://threads.net/@gengvolunteers" },
+    { key:"fb", name:"FACEBOOK",      handle:"@gengvolunteers", url:"https://facebook.com/gengvolunteers" },
+    { key:"yt", name:"YOUTUBE",       handle:"@gengvolunteers", url:"https://youtube.com/@gengvolunteers" },
+    { key:"ig2",name:"GENG SCHOLARS", handle:"@gengscholars",   url:"https://instagram.com/gengscholars" }
   ],
 
   /* 6 · INSTAGRAM EMBEDS
