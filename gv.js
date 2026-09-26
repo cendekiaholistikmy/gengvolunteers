@@ -49,8 +49,9 @@ $('#introLogo').src=GV; $('#barLogo').src=GV; $('#heroLogo').src=GV; $('#footLog
    plays or the page can be scrolled. No browser storage used,
    so the notice is served fresh to every visitor every time. */
 (function(){
-  var gate=$('#gate'), chk=$('#gateChk'), go=$('#gateGo');
+  var gate=document.getElementById('gate');
   if(!gate)return;
+  var chk=$('#gateChk'), go=$('#gateGo');
   document.body.classList.add('lock');
   chk.addEventListener('change',function(){ go.classList.toggle('on',chk.checked) });
   go.addEventListener('click',function(e){
@@ -120,7 +121,8 @@ $('#introLogo').src=GV; $('#barLogo').src=GV; $('#heroLogo').src=GV; $('#footLog
 })();
 /* ═══ INTRO ═══ */
 (function(){
-  var intro=$('#intro');
+  var intro=document.getElementById('intro');
+  if(!intro){ document.body.classList.remove('lock'); return }
   var kill=function(){
     if(!intro)return;
     intro.classList.add('out');
@@ -136,7 +138,6 @@ $('#introLogo').src=GV; $('#barLogo').src=GV; $('#heroLogo').src=GV; $('#footLog
   };
   var sk=$('#skip');
   if(sk)sk.addEventListener('click',kill);
-  if(!intro || intro===GVNULL) return;
   intro.addEventListener('click',kill);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')kill()});
   if(window.__gateDone||!document.getElementById('gate')){start()}
@@ -1864,6 +1865,28 @@ window.addEventListener('scroll',function(){
         if(res && res.status === 'saved') go(); else relay() })
       .catch(function(){ clearTimeout(t); relay() });
   });
+})();
+
+/* ═══ NOTHING MAY LEAVE THE PAGE UNSCROLLABLE ══════════════════
+   body.lock exists for the consent gate, the intro splash and the
+   open dialogs. If none of those are on screen the lock must not
+   be there, whatever else happened. Checked on load and again a
+   moment later, in case something applied it late. */
+(function(){
+  function unlock(){
+    var gate  = document.getElementById('gate');
+    var intro = document.getElementById('intro');
+    var open  = document.querySelector('#sheet.on, #lb.on, #dos.on');
+    if(gate || intro || open) return;
+    if(document.body.classList.contains('lock')){
+      document.body.classList.remove('lock');
+    }
+  }
+  unlock();
+  document.addEventListener('DOMContentLoaded', unlock);
+  window.addEventListener('load', unlock);
+  setTimeout(unlock, 900);
+  setTimeout(unlock, 3500);
 })();
 
 /* ═══ READING PROGRESS + BACK TO TOP ═══════════════════════════ */
