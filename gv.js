@@ -2498,21 +2498,31 @@ var GVBOT = {
 
 })();
 
-/* ═══ SPOKEN WELCOME ════════════════════════════════════════════
-   Fires once the consent gate is accepted, over the intro. Muteable,
-   and the mute is remembered. Silence is always an acceptable outcome:
-   nothing else on the page waits on this. */
+/* ═══ WELCOME CHIME + SPOKEN GREETING ═══════════════════════════
+   Fires on the ENTER click of the consent gate. That click is what
+   earns the browser's permission to make sound at all; before it,
+   every audio API is refused. Muteable, and the mute is remembered. */
 (function(){
-  var VOICE = {
-    text : 'Welcome to Geng Volunteers, Future Leaders!',
-    /* Drop a real recording in and set this to its path, e.g.
-       'assets/welcome.mp3'. It takes priority over the synthetic
-       voice. Keep it under ~150 KB and mono. */
+
+  var SAY = {
+    /* "Gheng" forces a hard g and the ng of "length". If your device
+       still says it wrong, try in this order:
+         'Gheng'  'Geng'  'Gaeng'  'Guh-eng'                        */
+    name : 'Gheng Volunteers',
+
+    /* Two phrases, spoken back to back. Splitting them is what makes it
+       sound spoken rather than read: the second lifts in pitch, which is
+       what a person does when they welcome someone.                 */
+    lines: [
+      { text: 'Welcome to {name},', rate: 0.92, pitch: 1.18 },
+      { text: 'future leaders!',    rate: 0.88, pitch: 1.34 }
+    ],
+
+    /* A real recording beats any of this. Drop one in, point here, done. */
     file : '',
-    delay: 620,      /* ms after the gate clears, so it lands on the intro */
-    rate : 0.96,     /* a shade under normal: the name survives better */
-    pitch: 1.0,
-    lang : 'en-GB'   /* en-GB reads "Geng" closer to the Malay vowel than en-US */
+
+    chime: true,
+    delay: 260        /* ms between the chime starting and the first word */
   };
 
   var KEY = 'gv.voice.muted';
@@ -2520,80 +2530,170 @@ var GVBOT = {
   try { muted = localStorage.getItem(KEY) === '1' } catch(e){}
 
   var synth = window.speechSynthesis || null;
-  var audio = null;
-  var primed = false;
-  var spoken = false;
+  var audio = null, actx = null, primed = false, done = false;
 
-  /* iOS will only speak if synthesis was touched inside a real gesture,
-     so an empty utterance during the click buys the right to speak later. */
-  function prime(){
-    if(primed) return;
-    primed = true;
-    if(VOICE.file){
-      try{
-        audio = new Audio(VOICE.file);
-        audio.preload = 'auto';
-        audio.load();
-      }catch(e){ audio = null }
-    }
-    if(!synth) return;
+  /* ── the chime ───────────────────────────────────────────────
+     A rising third with a soft shimmer over it: bright enough to
+     feel like an arrival, short enough not to be a fanfare. */
+  function chime(){
+    if(!SAY.chime) return;
     try{
-      var u = new SpeechSynthesisUtterance(' ');
-      u.volume = 0;
-      synth.speak(u);
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      actx = actx || new AC();
+      if(actx.state === 'suspended') actx.resume();
+
+      var t0 = actx.currentTime;
+      var out = actx.createGain();
+      out.gain.value = 0.16;
+      out.connect(actx.destination);
+
+      /* E5, G#5, B5 - a major triad, each a beat after the last */
+      [[659.25, 0.00], [830.61, 0.09], [987.77, 0.18]].forEach(function(n){
+        var f = n[0], at = t0 + n[1];
+        var o = actx.createOscillator();
+        var g = actx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, at);
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(0.9, at + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + 0.95);
+        o.connect(g); g.connect(out);
+        o.start(at); o.stop(at + 1.0);
+      });
+
+      /* a quiet octave above, to give it air */
+      var s = actx.createOscillator(), sg = actx.createGain();
+      s.type = 'triangle';
+      s.frequency.setValueAtTime(1975.53, t0 + 0.18);
+      sg.gain.setValueAtTime(0.0001, t0 + 0.18);
+      sg.gain.exponentialRampToValueAtTime(0.22, t0 + 0.23);
+      sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.1);
+      s.connect(sg); sg.connect(out);
+      s.start(t0 + 0.18); s.stop(t0 + 1.15);
     }catch(e){}
   }
 
-  function pickVoice(){
+  /* ── choosing a voice ────────────────────────────────────────
+     Browsers do not report gender, so the practical route is to
+     match the names of the voices that actually ship. Anything
+     unmatched still speaks - it just will not be the best one. */
+  var FEMALE = ['samantha','karen','moira','tessa','victoria','fiona','serena',
+                'allison','ava','susan','zoe','nicky','kate','stephanie',
+                'zira','hazel','eva','catherine','linda','heera','female',
+                'amelie','joana','luciana','tessa','sinji','google uk english female'];
+  var MALE   = ['daniel','alex','fred','oliver','thomas','male','rishi','aaron',
+                'david','mark','george','james','arthur','gordon','lee'];
+
+  /* "female" ends in "male", so a substring test marks every voice named
+     Female as male too - and Chrome's voices are called exactly that.
+     Match female first and only fall through to male if it did not, and
+     require a word boundary so "female" can never satisfy "male". */
+  function hit(name, list){
+    for(var i=0;i<list.length;i++){
+      var w = list[i];
+      if(new RegExp('(^|[^a-z])' + w + '([^a-z]|$)').test(name)) return true;
+      if(w.indexOf(' ') < 0 && name.indexOf(w) >= 0 && w.length > 4) return true;
+    }
+    return false;
+  }
+
+  function score(v){
+    var n = (v.name || '').toLowerCase();
+    var l = (v.lang || '').replace('_','-').toLowerCase();
+    var s = 0;
+    if(hit(n, FEMALE))      s += 60;
+    else if(hit(n, MALE))   s -= 50;
+    if(l.indexOf('en-my') === 0 || l.indexOf('en-sg') === 0) s += 22;
+    else if(l.indexOf('en-gb') === 0) s += 18;
+    else if(l.indexOf('en-au') === 0) s += 14;
+    else if(l.indexOf('en') === 0)    s += 8;
+    else s -= 40;
+    /* the premium voices read far more naturally than the compact ones */
+    if(n.indexOf('premium') >= 0 || n.indexOf('enhanced') >= 0 ||
+       n.indexOf('natural') >= 0 || n.indexOf('neural')   >= 0) s += 18;
+    if(v.localService === false) s += 4;
+    return s;
+  }
+
+  function bestVoice(){
     if(!synth || !synth.getVoices) return null;
     var vs = synth.getVoices() || [];
     if(!vs.length) return null;
-    var want = ['en-MY','en-GB','en-AU','en-SG','en-US','en'];
-    for(var i=0;i<want.length;i++){
-      for(var j=0;j<vs.length;j++){
-        if(vs[j].lang && vs[j].lang.replace('_','-').indexOf(want[i]) === 0) return vs[j];
-      }
+    var best = null, bs = -1e9;
+    for(var i=0;i<vs.length;i++){
+      var s = score(vs[i]);
+      if(s > bs){ bs = s; best = vs[i] }
     }
-    return vs[0] || null;
+    return best;
   }
 
-  function speak(){
-    if(spoken || muted) return;
-    spoken = true;
+  /* ── speaking ────────────────────────────────────────────────
+     Utterances are queued back to back. speechSynthesis plays a
+     queue in order, so the two phrases run together as one line. */
+  function say(){
+    if(!synth) return;
+    var v = bestVoice();
+    try{ synth.cancel() }catch(e){}
+    SAY.lines.forEach(function(ln){
+      try{
+        var u = new SpeechSynthesisUtterance(
+          ln.text.replace('{name}', SAY.name));
+        u.rate   = ln.rate;
+        u.pitch  = ln.pitch;
+        u.volume = 1;
+        u.lang   = (v && v.lang) || 'en-GB';
+        /* A bad voice object must not cost us the whole greeting: assign it
+           separately so a throw here still leaves the line speakable on the
+           device default. */
+        if(v){ try{ u.voice = v }catch(e){} }
+        synth.speak(u);
+      }catch(e){}
+    });
+  }
 
+  function greet(){
+    if(done || muted) return;
+    done = true;
+    chime();
     if(audio){
       var p = audio.play();
-      if(p && p.catch) p.catch(function(){ synthesise() });
+      if(p && p.catch) p.catch(function(){ setTimeout(say, SAY.delay) });
       return;
     }
-    synthesise();
-  }
-
-  function synthesise(){
-    if(!synth) return;
-    try{
-      var u = new SpeechSynthesisUtterance(VOICE.text);
-      u.lang  = VOICE.lang;
-      u.rate  = VOICE.rate;
-      u.pitch = VOICE.pitch;
-      var v = pickVoice();
-      if(v) u.voice = v;
-      synth.cancel();
-      synth.speak(u);
-    }catch(e){}
+    setTimeout(say, SAY.delay);
   }
 
   function stop(){
     try{ if(synth) synth.cancel() }catch(e){}
     if(audio){ try{ audio.pause(); audio.currentTime = 0 }catch(e){} }
+    if(actx){ try{ actx.close(); actx = null }catch(e){} }
   }
 
-  /* Some browsers only populate the voice list asynchronously. */
+  /* Must happen INSIDE the click: this is what unlocks audio on iOS. */
+  function prime(){
+    if(primed) return;
+    primed = true;
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(AC){ actx = new AC(); if(actx.state === 'suspended') actx.resume() }
+    }catch(e){}
+    if(SAY.file){
+      try{ audio = new Audio(SAY.file); audio.preload = 'auto'; audio.load() }
+      catch(e){ audio = null }
+    }
+    if(synth){
+      try{ var u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u) }
+      catch(e){}
+    }
+  }
+
+  /* voice lists arrive asynchronously on most browsers */
   if(synth && synth.addEventListener){
     synth.addEventListener('voiceschanged', function(){}, {once:true});
   }
 
-  /* ── the mute button ─────────────────────────────────────── */
+  /* ── mute control ────────────────────────────────────────────── */
   var SPK = '<svg viewBox="0 0 24 24" aria-hidden="true">'
     + '<path class="cone" d="M4 9v6h4l5 4V5L8 9H4z"/>'
     + '<path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>'
@@ -2604,8 +2704,8 @@ var GVBOT = {
   btn.className = 'gvspk' + (muted ? ' off' : '');
   btn.innerHTML = SPK;
   function label(){
-    btn.setAttribute('aria-label', muted ? 'Turn the spoken welcome on'
-                                         : 'Turn the spoken welcome off');
+    btn.setAttribute('aria-label', muted ? 'Turn the welcome sound on'
+                                         : 'Turn the welcome sound off');
     btn.setAttribute('aria-pressed', muted ? 'true' : 'false');
   }
   label();
@@ -2615,29 +2715,19 @@ var GVBOT = {
     label();
     try{ localStorage.setItem(KEY, muted ? '1' : '0') }catch(e){}
     if(muted){ stop() }
-    else if(!spoken){ prime(); speak() }
+    else { prime(); done = false; greet() }   /* unmuting plays it, so you hear what you turned on */
   });
 
-  /* ── wire it to the gate ─────────────────────────────────── */
+  /* ── wired to the gate: sound starts on the click itself ─────── */
   var go = document.getElementById('gateGo');
   if(go){
-    /* inside the gesture: this is what unlocks audio on iOS */
     go.addEventListener('click', function(){
       var chk = document.getElementById('gateChk');
-      if(chk && !chk.checked) return;
+      if(chk && !chk.checked) return;       /* button is inert until ticked */
       prime();
+      if(!document.body.contains(btn)) document.body.appendChild(btn);
+      greet();
     });
-  }
-
-  document.addEventListener('gv:entered', function(){
-    if(!document.body.contains(btn)) document.body.appendChild(btn);
-    setTimeout(speak, VOICE.delay);
-  });
-
-  /* No gate on this page (every page but the home page): show the
-     control only if a greeting could still be triggered by hand. */
-  if(!go && !document.getElementById('intro')){
-    /* nothing to greet; the button would be a control for nothing */
   }
 
   /* Never leave a voice talking into an empty room. */

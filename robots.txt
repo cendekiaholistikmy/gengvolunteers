@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # No crawl traps here: the site is five static pages.
-Sitemap: https://gengvolunteers.my/sitemap.xml
+Sitemap: https://cendekiaholistikmy.github.io/gengvolunteers/sitemap.xml
