@@ -1599,3 +1599,132 @@ html{scroll-behavior:smooth}
 @media (pointer:coarse){
   .sbtn.sm{min-height:44px;width:44px}
 }
+
+
+/* ═══ VOICES ════════════════════════════════════════════════════
+   Testimony from the GV 2026 evaluation. Star ratings, then the
+   words. No full names: see impact.py for why. */
+.iv{padding:clamp(56px,9vw,104px) 0}
+.ivhead{max-width:64ch;margin-bottom:34px}
+.ivhead h2{font-family:var(--fd);font-weight:800;line-height:1.06;
+  font-size:clamp(28px,5.2vw,50px);letter-spacing:-.02em;margin:0 0 16px;color:var(--tx)}
+.ivlede{color:var(--mu);font-size:clamp(15px,2vw,17.5px);line-height:1.75;margin:0}
+
+.ivtiles{display:grid;gap:12px;margin:0 0 18px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.ivtile{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:20px 20px 18px;min-width:0}
+.ivtile .n{font-family:var(--fd);font-weight:800;font-size:clamp(32px,4.6vw,44px);
+  line-height:1;letter-spacing:-.03em;color:var(--o);display:flex;align-items:baseline;gap:2px}
+.ivtile .n s{text-decoration:none;font-size:.42em;color:var(--mu);font-weight:600}
+.ivtile .l{font-size:14px;color:var(--tx);margin-top:11px;line-height:1.45;font-weight:600}
+.ivtile .s{font-family:var(--fm);font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--mu);margin-top:7px;line-height:1.5}
+
+.ivrates{display:grid;gap:14px;margin:14px 0 6px;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.ivrate{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:22px 22px 18px;min-width:0}
+.ivk{font-family:var(--fm);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mu);margin:0 0 15px;font-weight:600}
+.ivsline{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.ivnum{font-family:var(--fd);font-weight:800;font-size:clamp(27px,3.6vw,36px);
+  line-height:1;letter-spacing:-.03em;color:var(--tx)}
+.ivnum s{text-decoration:none;font-size:.44em;color:var(--mu);font-weight:600}
+.ivsub{font-family:var(--fm);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--mu);margin:12px 0 0}
+
+.ivstars{position:relative;display:inline-block;line-height:0;flex:0 0 auto}
+.ivrow{display:flex;gap:3px;line-height:0}
+.ivfill{position:absolute;inset:0 auto 0 0;overflow:hidden;white-space:nowrap}
+.ivstars svg{width:var(--sz,22px);height:var(--sz,22px);flex:0 0 auto;display:block}
+.ivrow.trk svg path{fill:color-mix(in srgb,var(--mu) 34%,transparent)}
+.ivfill svg path{fill:var(--o)}
+
+.ivhist{display:flex;align-items:flex-end;gap:4px;height:118px;margin:18px 0 0}
+.ivcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;
+  justify-content:flex-end;align-items:stretch;gap:5px;height:100%}
+.ivcol b{font-family:var(--fm);font-size:10.5px;color:var(--mu);text-align:center;
+  font-weight:500;height:12px;line-height:1}
+.ivcol i{display:block;border-radius:5px 5px 0 0;
+  background:color-mix(in srgb,var(--mu) 26%,transparent)}
+.ivcol.mid i{background:var(--bl)}
+.ivcol.on i{background:var(--o)}
+.ivax{display:flex;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.ivax span{flex:1 1 0;min-width:0;text-align:center;font-family:var(--fm);
+  font-size:10.5px;color:var(--mu)}
+
+.ivh{font-family:var(--fd);font-weight:800;font-size:clamp(20px,3vw,28px);
+  letter-spacing:-.015em;color:var(--tx);margin:48px 0 10px}
+.ivp{color:var(--mu);font-size:15.5px;line-height:1.72;max-width:68ch;margin:0 0 22px}
+
+.ivqgrid{display:grid;gap:13px;grid-template-columns:repeat(auto-fit,minmax(282px,1fr))}
+.ivq{margin:0;background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:22px 23px;min-width:0;display:flex;flex-direction:column}
+.ivq blockquote{margin:0 0 15px;font-size:15.5px;line-height:1.68;color:var(--tx);flex:1 1 auto}
+.ivq figcaption{font-family:var(--fm);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--o);padding-top:14px;
+  border-top:1px solid var(--line)}
+
+.ivwall{display:grid;gap:13px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.ivleg{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--o);
+  border-radius:16px;padding:24px 25px;min-width:0;display:flex;flex-direction:column}
+.ivleg.wide{grid-column:1/-1;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--o) 9%,var(--card)),var(--card))}
+.ivleg blockquote{margin:0;flex:1 1 auto}
+.ivleg blockquote p{margin:0 0 .85em;font-size:16px;line-height:1.66;color:var(--tx)}
+.ivleg.wide blockquote p{font-size:clamp(16px,2.1vw,18px)}
+.ivleg blockquote p:last-child{margin-bottom:0}
+.ivleg footer{margin-top:17px;padding-top:14px;border-top:1px solid var(--line);
+  display:flex;flex-direction:column;gap:3px}
+.ivleg footer b{font-size:14px;font-weight:700;color:var(--tx)}
+.ivleg footer span{font-family:var(--fm);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mu)}
+
+.ivnote{margin:40px 0 0;padding:22px 24px;border-radius:16px;
+  border:1px solid var(--line);background:var(--card2)}
+.ivnote h4{display:flex;align-items:center;gap:10px;margin:0 0 10px;
+  font-size:14.5px;font-weight:700;color:var(--tx)}
+.ivnote h4 i{width:9px;height:9px;border-radius:50%;background:var(--o);flex:0 0 auto}
+.ivnote p{margin:0;font-size:14px;line-height:1.72;color:var(--mu);max-width:78ch}
+.ivnote b{color:var(--tx)}
+
+.ivcta{margin:40px 0 0;padding:30px 28px;border-radius:20px;text-align:center;
+  border:1px solid var(--line);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--o) 13%,var(--card)),var(--card))}
+.ivcta p{margin:0 0 18px;font-family:var(--fd);font-weight:800;color:var(--tx);
+  font-size:clamp(18px,2.6vw,24px);letter-spacing:-.015em}
+.ivcta a{display:inline-block;margin:5px 6px;padding:14px 28px;border-radius:99px;
+  text-decoration:none;font-weight:700;font-size:15px;min-height:44px;line-height:1.2}
+.ivcta .btn-o{background:var(--o);color:#0B0F1E}
+.ivcta .btn-g{background:transparent;color:var(--tx);border:1px solid var(--line)}
+.ivcta a:hover{opacity:.9}
+
+@media (max-width:640px){
+  .ivhist{height:96px}
+  .ivcol b{font-size:9.5px}
+  .ivax span{font-size:9.5px}
+}
+
+
+/* ═══ SPOKEN WELCOME · mute control ═════════════════════════════ */
+.gvspk{position:fixed;left:16px;bottom:16px;z-index:60;
+  width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid var(--line);background:color-mix(in srgb,var(--card) 88%,transparent);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  color:var(--tx);cursor:pointer;padding:0;
+  transition:border-color .2s ease,transform .2s ease,opacity .2s ease}
+.gvspk svg{width:20px;height:20px;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.gvspk .cone{fill:currentColor;stroke:none}
+.gvspk .cross{opacity:0}
+.gvspk.off{color:var(--mu)}
+.gvspk.off .wave{opacity:0}
+.gvspk.off .cross{opacity:1}
+.gvspk:hover{border-color:var(--o);transform:translateY(-2px)}
+.gvspk:focus-visible{outline:2px solid var(--o);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){
+  .gvspk,.gvspk:hover{transition:none;transform:none}
+}
+/* keep clear of the back-to-top button and the chat launcher */
+@media (max-width:640px){ .gvspk{left:12px;bottom:12px;width:42px;height:42px} }

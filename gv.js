@@ -2497,3 +2497,153 @@ var GVBOT = {
 })();
 
 })();
+
+/* ═══ SPOKEN WELCOME ════════════════════════════════════════════
+   Fires once the consent gate is accepted, over the intro. Muteable,
+   and the mute is remembered. Silence is always an acceptable outcome:
+   nothing else on the page waits on this. */
+(function(){
+  var VOICE = {
+    text : 'Welcome to Geng Volunteers, Future Leaders!',
+    /* Drop a real recording in and set this to its path, e.g.
+       'assets/welcome.mp3'. It takes priority over the synthetic
+       voice. Keep it under ~150 KB and mono. */
+    file : '',
+    delay: 620,      /* ms after the gate clears, so it lands on the intro */
+    rate : 0.96,     /* a shade under normal: the name survives better */
+    pitch: 1.0,
+    lang : 'en-GB'   /* en-GB reads "Geng" closer to the Malay vowel than en-US */
+  };
+
+  var KEY = 'gv.voice.muted';
+  var muted = false;
+  try { muted = localStorage.getItem(KEY) === '1' } catch(e){}
+
+  var synth = window.speechSynthesis || null;
+  var audio = null;
+  var primed = false;
+  var spoken = false;
+
+  /* iOS will only speak if synthesis was touched inside a real gesture,
+     so an empty utterance during the click buys the right to speak later. */
+  function prime(){
+    if(primed) return;
+    primed = true;
+    if(VOICE.file){
+      try{
+        audio = new Audio(VOICE.file);
+        audio.preload = 'auto';
+        audio.load();
+      }catch(e){ audio = null }
+    }
+    if(!synth) return;
+    try{
+      var u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      synth.speak(u);
+    }catch(e){}
+  }
+
+  function pickVoice(){
+    if(!synth || !synth.getVoices) return null;
+    var vs = synth.getVoices() || [];
+    if(!vs.length) return null;
+    var want = ['en-MY','en-GB','en-AU','en-SG','en-US','en'];
+    for(var i=0;i<want.length;i++){
+      for(var j=0;j<vs.length;j++){
+        if(vs[j].lang && vs[j].lang.replace('_','-').indexOf(want[i]) === 0) return vs[j];
+      }
+    }
+    return vs[0] || null;
+  }
+
+  function speak(){
+    if(spoken || muted) return;
+    spoken = true;
+
+    if(audio){
+      var p = audio.play();
+      if(p && p.catch) p.catch(function(){ synthesise() });
+      return;
+    }
+    synthesise();
+  }
+
+  function synthesise(){
+    if(!synth) return;
+    try{
+      var u = new SpeechSynthesisUtterance(VOICE.text);
+      u.lang  = VOICE.lang;
+      u.rate  = VOICE.rate;
+      u.pitch = VOICE.pitch;
+      var v = pickVoice();
+      if(v) u.voice = v;
+      synth.cancel();
+      synth.speak(u);
+    }catch(e){}
+  }
+
+  function stop(){
+    try{ if(synth) synth.cancel() }catch(e){}
+    if(audio){ try{ audio.pause(); audio.currentTime = 0 }catch(e){} }
+  }
+
+  /* Some browsers only populate the voice list asynchronously. */
+  if(synth && synth.addEventListener){
+    synth.addEventListener('voiceschanged', function(){}, {once:true});
+  }
+
+  /* ── the mute button ─────────────────────────────────────── */
+  var SPK = '<svg viewBox="0 0 24 24" aria-hidden="true">'
+    + '<path class="cone" d="M4 9v6h4l5 4V5L8 9H4z"/>'
+    + '<path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>'
+    + '<path class="cross" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>';
+
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'gvspk' + (muted ? ' off' : '');
+  btn.innerHTML = SPK;
+  function label(){
+    btn.setAttribute('aria-label', muted ? 'Turn the spoken welcome on'
+                                         : 'Turn the spoken welcome off');
+    btn.setAttribute('aria-pressed', muted ? 'true' : 'false');
+  }
+  label();
+  btn.addEventListener('click', function(){
+    muted = !muted;
+    btn.classList.toggle('off', muted);
+    label();
+    try{ localStorage.setItem(KEY, muted ? '1' : '0') }catch(e){}
+    if(muted){ stop() }
+    else if(!spoken){ prime(); speak() }
+  });
+
+  /* ── wire it to the gate ─────────────────────────────────── */
+  var go = document.getElementById('gateGo');
+  if(go){
+    /* inside the gesture: this is what unlocks audio on iOS */
+    go.addEventListener('click', function(){
+      var chk = document.getElementById('gateChk');
+      if(chk && !chk.checked) return;
+      prime();
+    });
+  }
+
+  document.addEventListener('gv:entered', function(){
+    if(!document.body.contains(btn)) document.body.appendChild(btn);
+    setTimeout(speak, VOICE.delay);
+  });
+
+  /* No gate on this page (every page but the home page): show the
+     control only if a greeting could still be triggered by hand. */
+  if(!go && !document.getElementById('intro')){
+    /* nothing to greet; the button would be a control for nothing */
+  }
+
+  /* Never leave a voice talking into an empty room. */
+  window.addEventListener('pagehide', stop);
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden) stop();
+  });
+})();
+
