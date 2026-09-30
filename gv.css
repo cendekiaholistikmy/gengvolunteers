@@ -1740,6 +1740,180 @@ html{scroll-behavior:smooth}
 @media (max-width:820px){ .hvtop{grid-template-columns:minmax(0,1fr)} }
 
 
+/* ═══ VOICES · a conversation, not a grid of boxes ══════════════ */
+.iv{padding:clamp(56px,9vw,104px) 0}
+.ivhead{max-width:64ch;margin-bottom:34px}
+.ivhead h2{font-family:var(--fd);font-weight:800;line-height:1.06;
+  font-size:clamp(28px,5.2vw,50px);letter-spacing:-.02em;margin:0 0 16px;color:var(--tx)}
+.ivlede{color:var(--mu);font-size:clamp(15px,2vw,17.5px);line-height:1.75;margin:0}
+
+/* ── reveal ──────────────────────────────────────────────────── */
+[data-rev]{opacity:0;transform:translateY(22px) scale(.985);
+  transition:opacity .62s cubic-bezier(.22,.9,.28,1),
+             transform .62s cubic-bezier(.22,.9,.28,1)}
+[data-rev].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  [data-rev]{opacity:1;transform:none;transition:none}
+}
+
+/* ── tiles + ratings ─────────────────────────────────────────── */
+.ivtiles{display:grid;gap:12px;margin:0 0 18px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.ivtile{background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:20px;min-width:0;position:relative;overflow:hidden}
+.ivtile::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;
+  background:linear-gradient(90deg,var(--o),var(--pink),var(--vio))}
+.ivtile .n{font-family:var(--fd);font-weight:800;font-size:clamp(32px,4.6vw,44px);
+  line-height:1;letter-spacing:-.03em;color:var(--o);display:flex;align-items:baseline;gap:2px}
+.ivtile .n s{text-decoration:none;font-size:.42em;color:var(--mu);font-weight:600}
+.ivtile .l{font-size:14px;color:var(--tx);margin-top:11px;line-height:1.45;font-weight:600}
+.ivtile .s{font-family:var(--fm);font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--mu);margin-top:7px;line-height:1.5}
+
+.ivrates{display:grid;gap:14px;margin:14px 0 6px;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.ivrate{background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:22px 22px 18px;min-width:0}
+.ivk{font-family:var(--fm);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mu);margin:0 0 15px;font-weight:600}
+.ivsline{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.ivnum{font-family:var(--fd);font-weight:800;font-size:clamp(27px,3.6vw,36px);
+  line-height:1;letter-spacing:-.03em;color:var(--tx)}
+.ivnum s{text-decoration:none;font-size:.44em;color:var(--mu);font-weight:600}
+.ivsub{font-family:var(--fm);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--mu);margin:12px 0 0}
+
+.ivstars{position:relative;display:inline-block;line-height:0;flex:0 0 auto}
+.ivrow{display:flex;gap:3px;line-height:0}
+.ivfill{position:absolute;inset:0 auto 0 0;overflow:hidden;white-space:nowrap}
+.ivstars svg{width:var(--sz,22px);height:var(--sz,22px);flex:0 0 auto;display:block}
+.ivrow.trk svg path{fill:color-mix(in srgb,var(--mu) 34%,transparent)}
+.ivfill svg path{fill:var(--o)}
+
+.ivhist{display:flex;align-items:flex-end;gap:4px;height:118px;margin:18px 0 0}
+.ivcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;
+  justify-content:flex-end;align-items:stretch;gap:5px;height:100%}
+.ivcol b{font-family:var(--fm);font-size:10.5px;color:var(--mu);text-align:center;
+  font-weight:500;height:12px;line-height:1}
+.ivcol i{display:block;border-radius:5px 5px 0 0;
+  background:color-mix(in srgb,var(--mu) 26%,transparent);
+  transition:filter .2s ease}
+.ivcol.mid i{background:linear-gradient(180deg,var(--bl),color-mix(in srgb,var(--bl) 70%,#000))}
+.ivcol.on  i{background:linear-gradient(180deg,var(--o),var(--pink))}
+.ivcol:hover i{filter:brightness(1.18)}
+.ivax{display:flex;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.ivax span{flex:1 1 0;min-width:0;text-align:center;font-family:var(--fm);
+  font-size:10.5px;color:var(--mu)}
+
+.ivh{font-family:var(--fd);font-weight:800;font-size:clamp(20px,3vw,28px);
+  letter-spacing:-.015em;color:var(--tx);margin:52px 0 10px}
+.ivp{color:var(--mu);font-size:15.5px;line-height:1.72;max-width:68ch;margin:0 0 26px}
+
+/* ── the thread ──────────────────────────────────────────────── */
+.thread{display:grid;gap:18px;
+  grid-template-columns:repeat(auto-fit,minmax(min(400px,100%),1fr));align-items:start}
+.msg{display:flex;flex-direction:column;align-items:center;min-width:0;
+  padding-top:4px}
+
+.ava{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--fm);font-weight:600;font-size:16px;letter-spacing:.06em;
+  color:#0B0F1E;flex:0 0 auto;position:relative;z-index:2;
+  background:linear-gradient(140deg,var(--hue),color-mix(in srgb,var(--hue) 55%,#fff));
+  box-shadow:0 0 0 4px var(--bg),0 8px 22px color-mix(in srgb,var(--hue) 40%,transparent);
+  transition:transform .3s cubic-bezier(.22,.9,.28,1)}
+.msg:hover .ava{transform:translateY(-3px) scale(1.06)}
+
+.who{margin-top:11px;font-weight:700;font-size:15px;color:var(--tx);
+  text-align:center;line-height:1.3}
+.whr{margin-top:3px;font-family:var(--fm);font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--hue);text-align:center}
+
+/* the bubble, with a tail pointing up at the speaker */
+.bub{position:relative;margin-top:14px;width:100%;
+  background:var(--card);border:1px solid var(--line);
+  border-top:2px solid var(--hue);
+  border-radius:4px 4px 18px 18px;padding:24px 26px 20px;
+  container-type:inline-size;
+  transition:transform .3s cubic-bezier(.22,.9,.28,1),
+             box-shadow .3s ease,border-color .3s ease}
+.bub::before{content:"";position:absolute;top:-9px;left:50%;
+  width:16px;height:16px;margin-left:-8px;transform:rotate(45deg);
+  background:var(--card);border-left:2px solid var(--hue);
+  border-top:2px solid var(--hue);border-radius:3px}
+.msg:hover .bub{transform:translateY(-4px);border-color:var(--hue);
+  box-shadow:0 18px 44px color-mix(in srgb,var(--hue) 22%,transparent)}
+/* Justified text needs a line long enough to absorb the spacing. Under
+   about 360px the gaps tear into rivers, so the bubble asks its OWN width
+   rather than the window's: a narrow column reads ragged-right even on a
+   wide screen. */
+.bub p{margin:0 0 .85em;font-size:15.5px;line-height:1.78;color:var(--tx);
+  text-align:left;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+.bub p:last-child{margin-bottom:0}
+@container (min-width:360px){
+  .bub p{text-align:justify}
+}
+@supports not (container-type:inline-size){
+  .bub p{text-align:justify}
+  @media (max-width:520px){ .bub p{text-align:left;hyphens:manual} }
+}
+
+.msg.big,.msg.lead{grid-column:1/-1}
+.msg.lead .bub{background:linear-gradient(150deg,
+  color-mix(in srgb,var(--hue) 10%,var(--card)),var(--card))}
+.msg.lead .bub p{font-size:clamp(15.5px,2vw,17px)}
+
+/* ── reactions ───────────────────────────────────────────────── */
+.rxrow{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap;justify-content:center}
+.rx{display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+  min-height:36px;padding:7px 14px;border-radius:99px;
+  border:1px solid var(--line);background:var(--card2);color:var(--mu);
+  font-size:12.5px;font-weight:600;font-family:inherit;
+  transition:color .2s ease,border-color .2s ease,background .2s ease,transform .18s ease}
+.rx svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.rx:hover{color:var(--tx);border-color:var(--hue);transform:translateY(-2px)}
+.rx.on{color:var(--hue);border-color:var(--hue);
+  background:color-mix(in srgb,var(--hue) 15%,transparent)}
+.rx.on svg{fill:color-mix(in srgb,var(--hue) 34%,transparent)}
+.rx:focus-visible{outline:2px solid var(--hue);outline-offset:2px}
+@keyframes rxpop{0%{transform:scale(1)}42%{transform:scale(1.22)}100%{transform:scale(1)}}
+.rx.pop{animation:rxpop .34s cubic-bezier(.22,.9,.28,1)}
+@media (prefers-reduced-motion:reduce){
+  .rx,.rx:hover,.bub,.msg:hover .bub,.ava,.msg:hover .ava{transition:none;transform:none}
+  .rx.pop{animation:none}
+}
+@media (pointer:coarse){ .rx{min-height:44px;padding:10px 16px} }
+
+/* ── note + cta ──────────────────────────────────────────────── */
+.ivnote{margin:46px 0 0;padding:22px 24px;border-radius:18px;
+  border:1px solid var(--line);background:var(--card2)}
+.ivnote h4{display:flex;align-items:center;gap:10px;margin:0 0 10px;
+  font-size:14.5px;font-weight:700;color:var(--tx)}
+.ivnote h4 i{width:9px;height:9px;border-radius:50%;background:var(--o);flex:0 0 auto}
+.ivnote p{margin:0;font-size:14px;line-height:1.72;color:var(--mu);max-width:78ch}
+.ivnote b{color:var(--tx)}
+
+.ivcta{margin:40px 0 0;padding:34px 28px;border-radius:24px;text-align:center;
+  border:1px solid var(--line);position:relative;overflow:hidden;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--o) 15%,var(--card)),
+                                     color-mix(in srgb,var(--vio) 10%,var(--card)))}
+.ivcta p{margin:0 0 18px;font-family:var(--fd);font-weight:800;color:var(--tx);
+  font-size:clamp(18px,2.6vw,25px);letter-spacing:-.015em}
+.ivcta a{display:inline-block;margin:5px 6px;padding:14px 28px;border-radius:99px;
+  text-decoration:none;font-weight:700;font-size:15px;min-height:44px;line-height:1.2;
+  transition:transform .2s ease,box-shadow .2s ease}
+.ivcta .btn-o{background:var(--o);color:#0B0F1E;
+  box-shadow:0 10px 30px color-mix(in srgb,var(--o) 42%,transparent)}
+.ivcta .btn-g{background:transparent;color:var(--tx);border:1px solid var(--line)}
+.ivcta a:hover{transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){ .ivcta a,.ivcta a:hover{transform:none;transition:none} }
+
+@media (max-width:640px){
+  .ivhist{height:96px}
+  .ivcol b,.ivax span{font-size:9.5px}
+}
+
+
 /* ═══ WELCOME SOUND · mute control ══════════════════════════════ */
 .gvspk{position:fixed;left:16px;bottom:16px;z-index:60;
   width:44px;height:44px;border-radius:50%;display:grid;place-items:center;

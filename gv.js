@@ -134,7 +134,7 @@ $('#introLogo').src=GV; $('#barLogo').src=GV; $('#heroLogo').src=GV; $('#footLog
       if(intro.parentNode)intro.parentNode.removeChild(intro);
       document.body.classList.remove('lock');return;
     }
-    setTimeout(kill,2600);
+    setTimeout(kill,5200);
   };
   var sk=$('#skip');
   if(sk)sk.addEventListener('click',kill);
@@ -2514,8 +2514,8 @@ var GVBOT = {
        sound spoken rather than read: the second lifts in pitch, which is
        what a person does when they welcome someone.                 */
     lines: [
-      { text: 'Welcome to {name},', rate: 0.92, pitch: 1.18 },
-      { text: 'future leaders!',    rate: 0.88, pitch: 1.34 }
+      { text: 'Welcome to {name},', rate: 1.02, pitch: 1.12 },
+      { text: 'future leaders!',    rate: 0.98, pitch: 1.26 }
     ],
 
     /* A real recording beats any of this. Drop one in, point here, done. */
@@ -2734,6 +2734,60 @@ var GVBOT = {
   window.addEventListener('pagehide', stop);
   document.addEventListener('visibilitychange', function(){
     if(document.hidden) stop();
+  });
+})();
+
+
+/* ═══ VOICES · reveal on scroll + reaction chips ════════════════ */
+(function(){
+  /* Reveal. Anything marked data-rev rises into place once, when it
+     first comes into view. If the browser has no observer, or the
+     visitor asked for less motion, everything is simply visible. */
+  var items = document.querySelectorAll('[data-rev]');
+  if(!items.length) return;
+
+  var still = window.matchMedia &&
+              window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if(still || !('IntersectionObserver' in window)){
+    for(var i=0;i<items.length;i++) items[i].classList.add('in');
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el = e.target;
+        /* stagger siblings so a row arrives as a run, not a block */
+        var sibs = el.parentNode ? el.parentNode.children : [el];
+        var n = Array.prototype.indexOf.call(sibs, el);
+        setTimeout(function(){ el.classList.add('in') }, Math.min(n,6) * 70);
+        io.unobserve(el);
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    for(var j=0;j<items.length;j++) io.observe(items[j]);
+  }
+
+  /* Reactions. The visitor's own mark, kept in their own browser.
+     No counts: a number here would be invented or shared, and an
+     invented one would be a fake endorsement on a page of real ones. */
+  var KEY = 'gv.react';
+  var mine = {};
+  try { mine = JSON.parse(localStorage.getItem(KEY) || '{}') || {} } catch(e){}
+
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(mine)) }catch(e){} }
+
+  var chips = document.querySelectorAll('.rx');
+  Array.prototype.forEach.call(chips, function(btn){
+    var id = btn.getAttribute('data-q') + ':' + btn.getAttribute('data-r');
+    if(mine[id]){ btn.classList.add('on'); btn.setAttribute('aria-pressed','true') }
+    btn.addEventListener('click', function(){
+      var on = !btn.classList.contains('on');
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if(on){ mine[id] = 1; btn.classList.remove('pop');
+              void btn.offsetWidth; btn.classList.add('pop') }
+      else delete mine[id];
+      save();
+    });
   });
 })();
 
