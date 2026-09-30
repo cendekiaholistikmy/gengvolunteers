@@ -1562,3 +1562,40 @@ html{scroll-behavior:smooth}
   50%{filter:drop-shadow(0 0 34px rgba(255,170,40,.72))
              drop-shadow(0 0 92px rgba(255,80,0,.42))}}
 @media (prefers-reduced-motion:reduce){#cmLogo{animation:none}}
+
+
+/* ═══ REAL SOCIAL BRAND MARKS ═══════════════════════════════════
+   Inline SVG, so the marks render with no network and no CSP
+   trouble. Threads and TikTok are black marks by design, so they
+   take the page's text colour instead and stay visible in both
+   themes. */
+.sintro{margin:0 0 14px !important}
+.sgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
+.sbtn{display:flex;align-items:center;gap:11px;min-height:44px;
+  padding:9px 12px;border:1px solid var(--line);border-radius:12px;
+  background:color-mix(in srgb,var(--card2) 70%,transparent);
+  text-decoration:none !important;color:var(--tx) !important;
+  transition:border-color .18s ease,transform .18s ease,background .18s ease}
+.sbtn svg{width:21px;height:21px;flex:0 0 auto;display:block}
+.sbtn .sname{font-size:13.5px;font-weight:600;letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbtn .tkfg,.sbtn .thfg{fill:var(--tx)}
+.sbtn:hover,.sbtn:focus-visible{background:var(--card2);transform:translateY(-2px)}
+.s-instagram:hover,.s-instagram:focus-visible{border-color:#E1306C}
+.s-tiktok:hover,.s-tiktok:focus-visible{border-color:#25F4EE}
+.s-threads:hover,.s-threads:focus-visible{border-color:var(--tx)}
+.s-facebook:hover,.s-facebook:focus-visible{border-color:#1877F2}
+.s-youtube:hover,.s-youtube:focus-visible{border-color:#FF0000}
+@media (prefers-reduced-motion:reduce){
+  .sbtn,.sbtn:hover,.sbtn:focus-visible{transform:none;transition:none}
+}
+.salso{margin:14px 0 0 !important;font-size:13.5px}
+
+/* footer variant: marks only, no wordmark */
+.sgrid.sm{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.sbtn.sm{min-height:38px;width:38px;padding:0;justify-content:center;border-radius:10px}
+.sbtn.sm svg{width:18px;height:18px}
+.srow .sfl{display:block}
+@media (pointer:coarse){
+  .sbtn.sm{min-height:44px;width:44px}
+}
