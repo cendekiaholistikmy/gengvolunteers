@@ -345,6 +345,50 @@ footer .legal,.tier span,.srow .b span{
   body::after{content:"This document is not available for printing.";display:block;
     font-family:sans-serif;padding:40px}}
 </style>
+/* ── intake closed: apply by hand ─────────────────────────── */
+.mclosed{border:1px solid color-mix(in srgb,var(--amber) 45%,var(--line));
+  border-radius:14px;padding:20px 22px;margin:0 0 26px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--amber) 12%,var(--ink2)),var(--ink2))}
+.mc-tag{display:inline-block;font-family:var(--fm);font-size:10px;letter-spacing:.16em;
+  padding:5px 11px;border-radius:99px;background:var(--amber);color:#071023;
+  font-weight:700;margin-bottom:12px}
+.mclosed h3{font-family:var(--fd);font-weight:800;color:var(--chalk);margin:0 0 8px;
+  font-size:clamp(17px,2.4vw,22px);line-height:1.2}
+.mclosed p{margin:0;color:var(--chalk2);font-size:14.5px;line-height:1.7}
+.mclosed a{color:var(--amber2);font-weight:700;text-decoration:none}
+.mclosed a:hover{text-decoration:underline}
+
+.mout{margin-top:20px;border:1px solid color-mix(in srgb,var(--amber) 42%,var(--line));
+  border-radius:14px;padding:22px;background:var(--ink2)}
+.mout-h{display:flex;align-items:center;gap:10px;margin-bottom:9px;
+  font-size:16px;color:var(--chalk);font-weight:700}
+.mout-dot{width:10px;height:10px;border-radius:50%;background:var(--amber);flex:0 0 auto;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--amber) 22%,transparent)}
+.mout p{margin:0 0 14px;color:var(--chalk2);font-size:14px;line-height:1.7}
+.mout p b{color:var(--chalk)}
+.mout textarea{width:100%;border-radius:10px;border:1px solid var(--line);
+  background:var(--ink);color:var(--chalk);padding:14px 15px;
+  font-family:var(--fm);font-size:12.5px;line-height:1.72;resize:vertical}
+.mout-b{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}
+.mout-b a,.mout-b button{display:inline-flex;align-items:center;justify-content:center;
+  min-height:46px;padding:13px 23px;border-radius:99px;font-weight:700;font-size:15px;
+  text-decoration:none;cursor:pointer;font-family:inherit;border:1px solid var(--line)}
+.mout-go{background:var(--amber);color:#071023;border-color:var(--amber)}
+.mout-cp{background:transparent;color:var(--chalk)}
+.mout-b a:hover,.mout-b button:hover{filter:brightness(1.08)}
+
+.mc-or{margin:14px 0 12px !important;font-size:14px}
+.mc-dl{display:flex;gap:10px;flex-wrap:wrap}
+.mc-btn{display:inline-flex;align-items:center;gap:9px;min-height:44px;
+  padding:11px 20px;border-radius:99px;text-decoration:none !important;
+  border:1px solid color-mix(in srgb,var(--amber) 50%,var(--line));
+  background:color-mix(in srgb,var(--amber) 12%,transparent);
+  color:var(--chalk) !important;font-weight:700;font-size:14px}
+.mc-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.mc-btn:hover{background:color-mix(in srgb,var(--amber) 22%,transparent);
+  border-color:var(--amber);text-decoration:none !important}
+
 </head>
 <body>
 <a class="skip" href="#apply">Skip to the application</a>
