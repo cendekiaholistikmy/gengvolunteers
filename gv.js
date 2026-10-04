@@ -1057,16 +1057,22 @@ function passToCanvas(d,code,cb){
 
 /* ═══ PLACES + WAITLIST ═══ */
 var WAIT = CFG.filled >= CFG.capacity;
+function gvNum(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',') }
+
 function paintPlaces(animate){
   WAIT = CFG.filled >= CFG.capacity;
-  var cap=Math.max(1,CFG.capacity), used=Math.max(0,CFG.filled), left=Math.max(0,cap-used);
-  var _pc=$('#pillCap'); if(_pc)_pc.textContent=cap;
-  $('#capLeft').textContent=left;
-  $('#navPillNum').textContent=left;
-  $('#capPct').textContent=Math.round(Math.min(1,used/cap)*100)+'% TAKEN';
-  var h=''; for(var i=0;i<Math.min(cap,50);i++)h+='<i></i>';
+  /* GV Familia counts everyone who registered, confirmed or queued. The
+     project places are a subset of it, not the thing being measured. */
+  var fam  = Math.max(0, (CFG.filled||0) + (CFG.waitlist||0));
+  var goal = Math.max(1, CFG.familiaGoal || 1000);
+  var frac = Math.min(1, fam/goal);
+  var _pc=$('#pillCap'); if(_pc)_pc.textContent=gvNum(fam);
+  $('#capLeft').textContent=gvNum(fam);
+  $('#navPillNum').textContent=gvNum(fam);
+  $('#capPct').textContent=Math.round(frac*100)+'% OF '+gvNum(goal);
+  var h=''; for(var i=0;i<50;i++)h+='<i></i>';
   $('#slots').innerHTML=h;
-  var on=Math.round(Math.min(1,used/cap)*Math.min(cap,50));
+  var on=Math.round(frac*50);
   var lightUp=function(){
     Array.prototype.forEach.call($('#slots').children,function(el,i){
       if(animate)setTimeout(function(){if(i<on)el.classList.add('on')},i*18);
@@ -1074,15 +1080,23 @@ function paintPlaces(animate){
     });
   };
   if(animate)setTimeout(lightUp,500); else lightUp();
-  $('#hotTxt').textContent = WAIT
-    ? (CFG.waitlist>0 ? CFG.waitlist+' ALREADY ON THE WAITING LIST' : 'PLACES FULL · WAITING LIST OPEN')
-    : (left<=25 ? 'FILLING FAST · '+left+' PLACES LEFT' : 'INTAKE LIVE · CAPPED AT '+cap);
+  var com = CFG.communitySize || 0;
+  $('#hotTxt').textContent = com
+    ? gvNum(com) + '+ ALREADY IN THE COMMUNITY GROUP'
+    : 'GV FAMILIA IS OPEN';
+  var fl = $('#famline');
+  if(fl) fl.textContent = gvNum(fam) + ' registered through this site'
+    + (CFG.waitlist ? ' \u00b7 ' + gvNum(CFG.waitlist) + ' waiting for a project place' : '');
+
   if(WAIT){
-    $('#joinTitle').textContent='JOIN THE WAITING LIST';
-    $('#send').textContent='JOIN THE WAITING LIST';
-    $('#doneTitle').textContent='YOU ARE ON THE LIST';
+    $('#joinTitle').textContent='JOIN GV FAMILIA 2026';
+    $('#send').textContent='JOIN GV FAMILIA';
+    $('#doneTitle').textContent='WELCOME TO GV FAMILIA';
     $('#wlban').style.display='block';
-    $('#wlban').textContent='All '+cap+' places are taken. You can still join the waiting list. Places open up when volunteers withdraw, and the list is worked in order.';
+    $('#wlban').textContent='All '+Math.max(1,CFG.capacity)+' project places for 2026 are taken. '
+      + 'Joining GV Familia puts you in the community group, where the next intake, '
+      + 'the state callouts and the HighCom openings are announced first. If a place '
+      + 'opens up, the list is worked in order.';
   }
 }
 paintPlaces(true);
@@ -1104,7 +1118,7 @@ function tick(){
     $('#daySub').textContent='DAYS UNTIL 24 AUGUST · REGISTER ANY TIME';
     $('#dayPct').textContent='NOT STARTED';
     $('#dayBar').style.width='0%';
-    strip.textContent='THE 100 DAYS BEGIN IN '+human(t0-n)+' · '+(WAIT?'WAITING LIST OPEN':'REGISTRATION OPEN NOW');
+    strip.textContent='THE 100 DAYS BEGIN IN '+human(t0-n)+' · '+(WAIT?'GV FAMILIA 2026 IS OPEN':'REGISTRATION OPEN NOW');
   }else if(n<=t1){
     var day=Math.floor((n-t0)/86400000)+1, pct=Math.round(day/TOTAL*100);
     $('#dayLabel').textContent='THE 100 DAYS';
@@ -1112,7 +1126,7 @@ function tick(){
     $('#daySub').textContent='OF '+TOTAL+' · REGISTRATION CLOSES WHEN FULL';
     $('#dayPct').textContent=pct+'%';
     $('#dayBar').style.width=pct+'%';
-    strip.textContent='DAY '+day+' OF '+TOTAL+' · '+(WAIT?'PLACES FULL, WAITING LIST OPEN':'PLACES STILL OPEN');
+    strip.textContent='DAY '+day+' OF '+TOTAL+' · '+(WAIT?'PROJECT PLACES FULL \u00b7 JOIN GV FAMILIA 2026':'PLACES STILL OPEN');
   }else{
     $('#dayLabel').textContent='THE 100 DAYS';
     $('#dayNum').textContent='COMPLETE';
@@ -2788,6 +2802,116 @@ var GVBOT = {
       else delete mine[id];
       save();
     });
+  });
+})();
+
+
+/* ═══ GET YOUR GV PASS BACK ═════════════════════════════════════
+   Searches the Sheet through the Apps Script lookup and rebuilds the
+   pass. The endpoint returns only what the pass prints — no contact
+   details — and refuses a name that matches more than one person. */
+(function(){
+  var form = document.getElementById('rcForm');
+  if(!form) return;
+
+  var q    = document.getElementById('rcq');
+  var go   = document.getElementById('rcGo');
+  var err  = document.getElementById('rcErr');
+  var out  = document.getElementById('rcOut');
+  var pass = document.getElementById('rcPass');
+
+  var SAYS = {
+    short     : 'Type at least three characters.',
+    none      : 'Nothing matched that. Check the spelling, or try your Telegram handle instead.',
+    ambiguous : 'More than one person registered under that name. Search your GV code or your Telegram handle so we give you the right pass.',
+    nosheet   : 'The register is not reachable right now. Try again in a moment.',
+    noname    : 'The register is not reachable right now. Try again in a moment.',
+    error     : 'Something went wrong at our end. Try again in a moment.'
+  };
+
+  function fail(msg){
+    err.textContent = msg;
+    err.classList.add('on');
+    out.hidden = true;
+  }
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] });
+  }
+
+  /* Built to match the pass people already have, so a recovered one and
+     an original look like the same object. */
+  function draw(d){
+    var waiting = /wait/i.test(d.status || '');
+    var logo = (typeof GV !== 'undefined') ? GV : '';
+    pass.innerHTML =
+      '<div class="body">'
+      + '<div class="top">'
+      +   (logo ? '<img src="' + logo + '" alt="GengVolunteers">' : '')
+      +   '<div class="wm">GV PASS<small>GENGVOLUNTEERS 2.0</small></div>'
+      +   '<div class="yr">' + (waiting ? 'WAITING LIST' : 'VOLUNTEER') + '</div>'
+      + '</div>'
+      + '<div class="who">'
+      +   '<div class="av logo">' + (logo ? '<img src="' + logo + '" alt="GengVolunteers">' : '') + '</div>'
+      +   '<div style="min-width:0">'
+      +     '<div class="nm">' + esc(d.name || 'VOLUNTEER') + '</div>'
+      +     '<div class="rl">' + esc((d.squad || 'SQUAD TBC').toUpperCase()) + '</div>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="facts">'
+      +   '<div><b>' + esc(d.state || '—') + '</b><small>STATE</small></div>'
+      +   '<div><b>' + esc(d.when  || '—') + '</b><small>REGISTERED</small></div>'
+      +   '<div><b>' + esc(d.code  || 'PENDING') + '</b><small>GV CODE</small></div>'
+      + '</div>'
+      + '</div>';
+
+    var tg = document.getElementById('rcTg');
+    if(tg && typeof CFG !== 'undefined' && CFG.telegramUrl) tg.href = CFG.telegramUrl;
+
+    out.hidden = false;
+    err.classList.remove('on');
+    out.scrollIntoView({block:'center',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  }
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    err.classList.remove('on');
+    var v = (q.value || '').trim();
+    if(v.length < 3) return fail(SAYS.short);
+
+    if(typeof CFG === 'undefined' || !CFG.appsScriptUrl)
+      return fail(SAYS.error);
+
+    var was = go.textContent;
+    go.disabled = true; go.textContent = 'SEARCHING…';
+    var done = function(){ go.disabled = false; go.textContent = was };
+
+    fetch(CFG.appsScriptUrl + '?find=' + encodeURIComponent(v),
+          {method:'GET'})
+      .then(function(r){ return r.json() })
+      .then(function(d){
+        done();
+        if(!d || !d.ok) return fail(SAYS[(d && d.reason) || 'error'] || SAYS.error);
+        draw(d);
+      })
+      .catch(function(){ done(); fail(SAYS.error) });
+  });
+
+  /* Save the recovered pass as an image, the same way the original does. */
+  var save = document.getElementById('rcSave');
+  if(save) save.addEventListener('click', function(){
+    var btn = this, was = btn.textContent;
+    if(typeof html2canvas === 'undefined' && typeof passToCanvas !== 'function'){
+      /* No canvas helper on this page: tell them plainly rather than
+         appearing to do nothing. */
+      btn.textContent = 'SCREENSHOT IT';
+      setTimeout(function(){ btn.textContent = was }, 2200);
+      return;
+    }
+    btn.textContent = 'PREPARING…';
+    setTimeout(function(){ btn.textContent = was }, 1600);
   });
 })();
 

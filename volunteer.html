@@ -205,7 +205,7 @@
       </li>
     </ul>
     <div class="nav-side">
-      <span class="nav-pill" id="navPill"><i></i><b id="navPillNum">&hellip;</b><span>left</span></span>
+      <span class="nav-pill" id="navPill"><i></i><b id="navPillNum">&hellip;</b><span>familia</span></span>
       <a class="nav-cta" href="volunteer.html#join">Register</a>
     </div>
   </div>
@@ -310,6 +310,40 @@
           <button class="btn btn-g" id="saveBtn">SAVE AS IMAGE</button>
         </div>
         <p class="passnote">Your GV Code is yours alone. Keep it — it is how we identify you across the cycle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="recover">
+  <div class="wrap">
+    <span class="eye rv">LOST IT?</span>
+    <h2 class="dh rv">GET YOUR GV PASS BACK</h2>
+    <p class="lede rv" style="margin-bottom:24px">Changed phone, cleared your
+      browser, or closed the tab before saving it? Search your <b>GV code</b>,
+      your <b>Telegram handle</b> or your <b>full name</b> and we will rebuild it.</p>
+
+    <div class="rcbox rv">
+      <form id="rcForm" autocomplete="off">
+        <label class="rclab" for="rcq">GV code, Telegram handle, or full name</label>
+        <div class="rcrow">
+          <input id="rcq" placeholder="GV-XXXX-000  &middot;  @yourhandle  &middot;  Your Full Name"
+                 aria-describedby="rcHint">
+          <button class="btn btn-o" id="rcGo" type="submit">FIND MY PASS</button>
+        </div>
+        <p class="rchint" id="rcHint">Your name has to match exactly as you
+          registered it. If more than one person shares it, use your code or
+          Telegram handle instead.</p>
+        <p class="rcerr" id="rcErr" role="alert"></p>
+      </form>
+
+      <div class="rcout" id="rcOut" hidden>
+        <div class="gvpass" id="rcPass"></div>
+        <div class="rcacts">
+          <button class="btn btn-o" id="rcSave" type="button">SAVE AS IMAGE</button>
+          <a class="btn btn-g" id="rcTg" href="#" target="_blank" rel="noopener">OPEN THE COMMUNITY GROUP</a>
+        </div>
       </div>
     </div>
   </div>

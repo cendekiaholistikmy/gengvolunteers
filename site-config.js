@@ -16,6 +16,9 @@ const CFG = {
   capacity  : 500,   // hard cap on volunteer places
   filled    : 159,   // first-paint fallback only; the Sheet is the real count
   waitlist  : 0,     // how many are already queued
+  familiaGoal     : 1000,   // GV Familia bar fills toward this
+  communitySize   : 1000,   // Telegram group size - set by hand; Telegram
+                            // publishes no member count a web page can read
   forceOpen : true,  // true = form always visible
 
   /* 4 · VISITOR COUNTER

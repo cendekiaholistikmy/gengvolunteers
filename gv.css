@@ -1914,6 +1914,32 @@ html{scroll-behavior:smooth}
 }
 
 
+/* ═══ GV FAMILIA counter ════════════════════════════════════════ */
+.famw{font-size:.46em;letter-spacing:.1em;color:var(--mu);font-weight:700}
+.famline{font-family:var(--fm);font-size:11px;letter-spacing:.06em;
+  color:var(--mu);margin:10px 0 0;line-height:1.6}
+
+
+/* ═══ GET YOUR PASS BACK ════════════════════════════════════════ */
+#recover{padding:clamp(48px,7vw,86px) 0}
+.rcbox{background:var(--card);border:1px solid var(--line);border-radius:20px;
+  padding:clamp(20px,3vw,30px)}
+.rclab{display:block;font-family:var(--fm);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--mu);margin:0 0 10px;font-weight:600}
+.rcrow{display:flex;gap:10px;flex-wrap:wrap}
+.rcrow input{flex:1 1 260px;min-width:0;min-height:50px;border-radius:12px;
+  border:1px solid var(--line);background:var(--bg);color:var(--tx);
+  padding:13px 16px;font-size:15.5px;font-family:inherit}
+.rcrow input:focus{outline:2px solid var(--o);outline-offset:1px;border-color:var(--o)}
+.rcrow .btn{flex:0 0 auto;min-height:50px}
+.rchint{margin:12px 0 0;font-size:13.5px;line-height:1.65;color:var(--mu)}
+.rcerr{margin:12px 0 0;font-size:14px;line-height:1.6;color:#FF6B6B;display:none}
+.rcerr.on{display:block}
+.rcout{margin-top:24px}
+.rcacts{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+@media (pointer:coarse){ .rcrow input,.rcrow .btn{min-height:52px} }
+
+
 /* ═══ WELCOME SOUND · mute control ══════════════════════════════ */
 .gvspk{position:fixed;left:16px;bottom:16px;z-index:60;
   width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
