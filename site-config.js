@@ -12,10 +12,11 @@ const CFG = {
   startsAt : "2026-08-24T00:00:00+08:00",
   endsAt   : "2026-12-01T23:59:00+08:00",
 
-  /* 3 · PLACES + WAITING LIST */
+  /* 3 · PLACES + GV FAMILIA */
   capacity  : 500,   // hard cap on volunteer places
   filled    : 159,   // first-paint fallback only; the Sheet is the real count
-  waitlist  : 0,     // how many are already queued
+  waitlist  : 0,     // registered beyond the project cap. All are
+                   // confirmed in GV Familia; nobody is queued.
   familiaGoal     : 1000,   // GV Familia bar fills toward this
   communitySize   : 1000,   // Telegram group size - set by hand; Telegram
                             // publishes no member count a web page can read

@@ -942,7 +942,7 @@ function renderPass(d,code,opts){
      '<div class="top">'+
        '<img src="'+GV+'" alt="GengVolunteers">'+
        '<div class="wm">GV PASS<small>GENGVOLUNTEERS 2.0</small></div>'+
-       '<div class="yr">'+(wait?'WAITING LIST':'VOLUNTEER')+'</div>'+
+       '<div class="yr">VOLUNTEER</div>'+
      '</div>'+
      '<div class="who">'+av+
        '<div style="min-width:0">'+
@@ -1002,7 +1002,7 @@ function passToCanvas(d,code,cb,opts){
     txt('GENGVOLUNTEERS 2.0',24,'500',250,206,'rgba(255,255,255,.86)',3.2);
 
     x.strokeStyle='rgba(255,255,255,.45)';x.lineWidth=2;
-    var lbl=wait?'WAITING LIST':'VOLUNTEER';
+    var lbl='VOLUNTEER';
     x.font='500 24px Inter,Helvetica,Arial,sans-serif';
     var lw=x.measureText(lbl).width+56;
     if(x.roundRect){x.beginPath();x.roundRect(W-84-lw,124,lw,54,27);x.stroke()}
@@ -1065,15 +1065,23 @@ function passToCanvas(d,code,cb,opts){
 
 window.passToCanvas = passToCanvas;
 
-/* ═══ PLACES + WAITLIST ═══ */
-var WAIT = CFG.filled >= CFG.capacity;
+/* ═══ GV FAMILIA ═══ */
+/* FAM: the project places are full, so the page speaks about GV
+   Familia instead. WAIT: nobody is ever on a waiting list — every
+   registration is confirmed — so it is pinned false and kept only
+   because the pass renderer and the submit payload both read it. */
+var FAM = CFG.filled >= CFG.capacity;
+var WAIT = false;
 function gvNum(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',') }
 
 function paintPlaces(animate){
-  WAIT = CFG.filled >= CFG.capacity;
-  /* GV Familia counts everyone who registered, confirmed or queued. The
+  /* FAM says the project places are full, which is what switches the page
+     into GV Familia framing. It is NOT a waiting list: everyone who
+     registers is confirmed into GV Familia, so WAIT stays false. */
+  FAM = CFG.filled >= CFG.capacity;
+  /* GV Familia counts everyone who registered, all of them confirmed. The
      project places are a subset of it, not the thing being measured. */
-  var fam  = Math.max(0, (CFG.filled||0) + (CFG.waitlist||0));
+  var fam  = Math.max(0, (CFG.filled||0) + (CFG.waitlist||0));   /* all confirmed */
   var goal = Math.max(1, CFG.familiaGoal || 1000);
   var frac = Math.min(1, fam/goal);
   var _pc=$('#pillCap'); if(_pc)_pc.textContent=gvNum(fam);
@@ -1095,18 +1103,17 @@ function paintPlaces(animate){
     ? gvNum(com) + '+ ALREADY IN THE COMMUNITY GROUP'
     : 'GV FAMILIA IS OPEN';
   var fl = $('#famline');
-  if(fl) fl.textContent = gvNum(fam) + ' registered through this site'
-    + (CFG.waitlist ? ' \u00b7 ' + gvNum(CFG.waitlist) + ' waiting for a project place' : '');
+  if(fl) fl.textContent = gvNum(fam) + ' registered through this site';
 
-  if(WAIT){
+  if(FAM){
     $('#joinTitle').textContent='JOIN GV FAMILIA 2026';
     $('#send').textContent='JOIN GV FAMILIA';
     $('#doneTitle').textContent='WELCOME TO GV FAMILIA';
     $('#wlban').style.display='block';
-    $('#wlban').textContent='All '+Math.max(1,CFG.capacity)+' project places for 2026 are taken. '
-      + 'Joining GV Familia puts you in the community group, where the next intake, '
-      + 'the state callouts and the HighCom openings are announced first. If a place '
-      + 'opens up, the list is worked in order.';
+    $('#wlban').textContent='The 2026 project places are filled, but GV Familia is open '
+      + 'and your place in it is confirmed the moment you register. That puts you in the '
+      + 'community group, where the next intake, the state callouts and the HighCom '
+      + 'openings are announced first.';
   }
 }
 paintPlaces(true);
@@ -1128,7 +1135,7 @@ function tick(){
     $('#daySub').textContent='DAYS UNTIL 24 AUGUST · REGISTER ANY TIME';
     $('#dayPct').textContent='NOT STARTED';
     $('#dayBar').style.width='0%';
-    strip.textContent='THE 100 DAYS BEGIN IN '+human(t0-n)+' · '+(WAIT?'GV FAMILIA 2026 IS OPEN':'REGISTRATION OPEN NOW');
+    strip.textContent='THE 100 DAYS BEGIN IN '+human(t0-n)+' · '+(FAM?'GV FAMILIA 2026 IS OPEN':'REGISTRATION OPEN NOW');
   }else if(n<=t1){
     var day=Math.floor((n-t0)/86400000)+1, pct=Math.round(day/TOTAL*100);
     $('#dayLabel').textContent='THE 100 DAYS';
@@ -1136,7 +1143,7 @@ function tick(){
     $('#daySub').textContent='OF '+TOTAL+' · REGISTRATION CLOSES WHEN FULL';
     $('#dayPct').textContent=pct+'%';
     $('#dayBar').style.width=pct+'%';
-    strip.textContent='DAY '+day+' OF '+TOTAL+' · '+(WAIT?'PROJECT PLACES FULL \u00b7 JOIN GV FAMILIA 2026':'PLACES STILL OPEN');
+    strip.textContent='DAY '+day+' OF '+TOTAL+' · '+(FAM?'GV FAMILIA 2026 IS OPEN':'PLACES STILL OPEN');
   }else{
     $('#dayLabel').textContent='THE 100 DAYS';
     $('#dayNum').textContent='COMPLETE';
@@ -1272,7 +1279,7 @@ function confetti(){
   var fail=function(m){err.textContent=m;err.classList.add('on');btn.disabled=false;btn.textContent=original};
   form.addEventListener('submit',function(ev){
     ev.preventDefault(); err.classList.remove('on');
-    var d={form:'gv2-intake', status:WAIT?'waitlist':'confirmed',
+    var d={form:'gv2-intake', status:'confirmed',
       name:$('#name').value.trim(), email:$('#email').value.trim(),
       phone:"'"+$('#phone').value.trim(), telegram:$('#tg').value.trim(),
       age:$('#age').value.trim(), state:$('#state').value, district:$('#district').value,
@@ -1308,7 +1315,7 @@ function confetti(){
       $('#doneBody').textContent='Welcome to the GengVolunteers Familia. Join our community group on Telegram now for the latest updates. Stay tuned, future leaders!';
       renderPass(d,MYCODE);
       if(!MYCODE)$('.passnote').textContent='Your GV Code is being issued. We will send it to you in the community group.';
-      if(WAIT)$('#doneBody').textContent='You are queued. Join the community group so we can reach you the moment a place opens up.';
+      /* no queue: every registration is confirmed, so the congratulations text stands as written */
       var done=$('#done'); done.classList.add('on');
       done.scrollIntoView({block:'center',behavior:reduced?'auto':'smooth'});
       var n=5, el=$('#tgCount');
@@ -2070,10 +2077,10 @@ var GVBOT = {
 
   { id:'places', k:'places left seat slot available kosong tempat baki penuh full quota capacity waitlist senarai menunggu berapa lagi',
     en:function(){ return left() <= 0
-      ? 'All ' + cap() + ' places are taken, but the waiting list is open. Places free up when volunteers withdraw and the list is worked through in order.\n\n<a href="volunteer.html#join">Join the waiting list</a>'
+      ? 'All ' + cap() + ' project places for 2026 are taken, but GV Familia is open and your place in it is confirmed the moment you register. That is how you hear about the next intake, the state callouts and the HighCom openings first.\n\n<a href="volunteer.html#join">Join GV Familia 2026</a>'
       : 'There are <b>' + left() + ' places left</b> out of ' + cap() + '.\n\nThere is no closing date. Registration closes the moment the last place goes.\n\n<a href="volunteer.html#join">Claim your place</a>' },
     bm:function(){ return left() <= 0
-      ? 'Semua ' + cap() + ' tempat dah penuh, tapi senarai menunggu masih terbuka. Tempat akan terbuka bila ada yang tarik diri, dan senarai diuruskan ikut giliran.\n\n<a href="volunteer.html#join">Masuk senarai menunggu</a>'
+      ? 'Semua ' + cap() + ' tempat projek 2026 dah penuh, tapi GV Familia masih terbuka dan tempat korang disahkan sebaik je daftar. Itu cara korang dapat tahu dulu pasal intake seterusnya, callout negeri dan bukaan HighCom.\n\n<a href="volunteer.html#join">Sertai GV Familia 2026</a>'
       : 'Tinggal <b>' + left() + ' tempat</b> daripada ' + cap() + '.\n\nTakde tarikh tutup. Pendaftaran tutup sebaik je tempat terakhir diambil. Jangan tunggu lama.\n\n<a href="volunteer.html#join">Ambil tempat korang</a>' } },
 
   { id:'register', k:'how to register sign up join apply daftar mendaftar borang form cara masuk',
@@ -2859,9 +2866,12 @@ var GVBOT = {
     renderPass(
       { name:d.name, squad:d.squad, state:d.state },
       d.code || '',
+      /* waiting:false always. Everyone in GV Familia is confirmed, so a
+         stale "waitlist" left in the sheet must not come back as a chip
+         on somebody's ticket. */
       { box     : pass,
         photo   : d.photo || '',
-        waiting : /wait/i.test(d.status || ''),
+        waiting : false,
         when    : (d.when || '').toUpperCase(),
         rank    : d.rank || '' }
     );
@@ -2915,7 +2925,7 @@ var GVBOT = {
             if(b) then(b);
           }, 'image/png');
         },
-        { photo:LAST.photo || '', waiting:/wait/i.test(LAST.status||''),
+        { photo:LAST.photo || '', waiting:false,
           when:(LAST.when||'').toUpperCase(), rank:LAST.rank || '' });
     }catch(e){ btn.disabled = false; btn.textContent = was }
   }
