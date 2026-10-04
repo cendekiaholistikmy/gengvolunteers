@@ -1823,9 +1823,12 @@ html{scroll-behavior:smooth}
   transition:transform .3s cubic-bezier(.22,.9,.28,1)}
 .msg:hover .ava{transform:translateY(-3px) scale(1.06)}
 
-.who{margin-top:11px;font-weight:700;font-size:15px;color:var(--tx);
+/* Scoped to .msg on purpose. A bare .who{color:…} also caught the GV Pass,
+   whose markup uses the same word for the photo-and-name row, and painted
+   the volunteer's name in page ink on the dark ticket. */
+.msg .who{margin-top:11px;font-weight:700;font-size:15px;color:var(--tx);
   text-align:center;line-height:1.3}
-.whr{margin-top:3px;font-family:var(--fm);font-size:10px;letter-spacing:.13em;
+.msg .whr{margin-top:3px;font-family:var(--fm);font-size:10px;letter-spacing:.13em;
   text-transform:uppercase;color:var(--hue);text-align:center}
 
 /* the bubble, with a tail pointing up at the speaker */
@@ -1919,6 +1922,14 @@ html{scroll-behavior:smooth}
 .famline{font-family:var(--fm);font-size:11px;letter-spacing:.06em;
   color:var(--mu);margin:10px 0 0;line-height:1.6}
 
+
+/* ═══ THE TICKET OWNS ITS OWN INK ═══════════════════════════════
+   The pass is white text on a dark gradient whatever the page theme is.
+   Its inner class names are short and generic, so a later rule elsewhere
+   on the site can match one of them and quietly repaint a volunteer's own
+   name in page ink. These say the ticket's colour is the ticket's. */
+.gvp,.gvp .body,.gvp .who,.gvp .who>div,.gvp .nm,.gvp .rl,
+.gvp .top,.gvp .wm,.gvp .facts,.gvp .facts div,.gvp .stub,.gvp .cd{color:#fff}
 
 /* ═══ GET YOUR PASS BACK ════════════════════════════════════════ */
 #recover{padding:clamp(48px,7vw,86px) 0}

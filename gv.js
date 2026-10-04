@@ -925,14 +925,17 @@ function barcodeBars(seed){
   return out;
 }
 
-function renderPass(d,code){
-  var box=$('#gvPass'); if(!box)return;
-  var wait=(typeof WAIT!=='undefined')&&WAIT;
-  var av=MYSHOT
-    ? '<div class="av"><img src="'+MYSHOT+'" alt="'+esc(d.name)+'"></div>'
+function renderPass(d,code,opts){
+  opts = opts || {};
+  var box=opts.box || $('#gvPass'); if(!box)return;
+  var wait=(opts.waiting!==undefined) ? opts.waiting
+         : ((typeof WAIT!=='undefined')&&WAIT);
+  var shot=(opts.photo!==undefined) ? opts.photo : MYSHOT;
+  var av=shot
+    ? '<div class="av"><img src="'+shot+'" alt="'+esc(d.name)+'"></div>'
     : '<div class="av logo"><img src="'+GV+'" alt="GengVolunteers"></div>';
   var dt=new Date();
-  var human=dt.getDate()+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][dt.getMonth()]+' '+dt.getFullYear();
+  var human=opts.when || (dt.getDate()+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][dt.getMonth()]+' '+dt.getFullYear());
 
   box.innerHTML=
    '<div class="body">'+
@@ -950,7 +953,7 @@ function renderPass(d,code){
      '<div class="facts">'+
        '<div><b>'+esc(d.state||'—')+'</b><small>STATE</small></div>'+
        '<div><b>'+esc(human)+'</b><small>REGISTERED</small></div>'+
-       '<div><b>'+esc(typeof rank==='function'?rank():'ROOKIE')+'</b><small>RANK</small></div>'+
+       '<div><b>'+esc(opts.rank || (typeof rank==='function'?rank():'ROOKIE'))+'</b><small>RANK</small></div>'+
      '</div>'+
    '</div>'+
    '<div class="rip"><i></i><i></i></div>'+
@@ -960,8 +963,12 @@ function renderPass(d,code){
    '</div>';
 }
 
+window.renderPass = renderPass;
+window.gvPassLogo = GV;
+
 /* Paint the same ticket onto a canvas so it can be shared as an image. */
-function passToCanvas(d,code,cb){
+function passToCanvas(d,code,cb,opts){
+  opts = opts || {};
   var W=1080,H=1350,c=document.createElement('canvas');
   c.width=W;c.height=H;var x=c.getContext('2d');
 
@@ -973,9 +980,9 @@ function passToCanvas(d,code,cb){
   r.addColorStop(0,'rgba(255,138,58,.42)');r.addColorStop(1,'rgba(255,138,58,0)');
   x.fillStyle=r;x.fillRect(0,0,W,H);
 
-  var wait=(typeof WAIT!=='undefined')&&WAIT;
+  var wait=(opts.waiting!==undefined) ? opts.waiting : ((typeof WAIT!=='undefined')&&WAIT);
   var dt=new Date();
-  var human=dt.getDate()+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][dt.getMonth()]+' '+dt.getFullYear();
+  var human=opts.when || (dt.getDate()+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][dt.getMonth()]+' '+dt.getFullYear());
 
   function txt(s,size,weight,cx,cy,col,track){
     x.fillStyle=col||'#fff';
@@ -1016,7 +1023,7 @@ function passToCanvas(d,code,cb){
     txt(name,fs,'800',318,462,'#fff');
     txt(String(d.squad||'SQUAD TBC').toUpperCase(),24,'500',318,508,'rgba(255,255,255,.9)',2.6);
 
-    var items=[[d.state||'—','STATE'],[human,'REGISTERED'],[(typeof rank==='function'?rank():'ROOKIE'),'RANK']];
+    var items=[[d.state||'—','STATE'],[human,'REGISTERED'],[(opts.rank || (typeof rank==='function'?rank():'ROOKIE')),'RANK']];
     var bw=(W-168-40)/3;
     items.forEach(function(it,i){
       var bx=84+i*(bw+20);
@@ -1052,8 +1059,11 @@ function passToCanvas(d,code,cb){
   }
   function tick(){if(++got>=need)draw()}
   logo.onload=tick; logo.onerror=tick; logo.src=GV;
-  if(MYSHOT){need=2;shot=new Image();shot.onload=tick;shot.onerror=function(){shot=null;tick()};shot.src=MYSHOT}
+  var _shot=(opts.photo!==undefined)?opts.photo:MYSHOT;
+  if(_shot){need=2;shot=new Image();shot.onload=tick;shot.onerror=function(){shot=null;tick()};shot.src=_shot}
 }
+
+window.passToCanvas = passToCanvas;
 
 /* ═══ PLACES + WAITLIST ═══ */
 var WAIT = CFG.filled >= CFG.capacity;
@@ -2819,6 +2829,7 @@ var GVBOT = {
   var err  = document.getElementById('rcErr');
   var out  = document.getElementById('rcOut');
   var pass = document.getElementById('rcPass');
+  var LAST = null;
 
   var SAYS = {
     short     : 'Type at least three characters.',
@@ -2840,35 +2851,25 @@ var GVBOT = {
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] });
   }
 
-  /* Built to match the pass people already have, so a recovered one and
-     an original look like the same object. */
+  /* The site already knows how to draw a GV Pass. Calling its renderer
+     with overrides guarantees a recovered pass is the SAME ticket, not a
+     lookalike that drifts the next time the design changes. */
   function draw(d){
-    var waiting = /wait/i.test(d.status || '');
-    var logo = (typeof GV !== 'undefined') ? GV : '';
-    pass.innerHTML =
-      '<div class="body">'
-      + '<div class="top">'
-      +   (logo ? '<img src="' + logo + '" alt="GengVolunteers">' : '')
-      +   '<div class="wm">GV PASS<small>GENGVOLUNTEERS 2.0</small></div>'
-      +   '<div class="yr">' + (waiting ? 'WAITING LIST' : 'VOLUNTEER') + '</div>'
-      + '</div>'
-      + '<div class="who">'
-      +   '<div class="av logo">' + (logo ? '<img src="' + logo + '" alt="GengVolunteers">' : '') + '</div>'
-      +   '<div style="min-width:0">'
-      +     '<div class="nm">' + esc(d.name || 'VOLUNTEER') + '</div>'
-      +     '<div class="rl">' + esc((d.squad || 'SQUAD TBC').toUpperCase()) + '</div>'
-      +   '</div>'
-      + '</div>'
-      + '<div class="facts">'
-      +   '<div><b>' + esc(d.state || '—') + '</b><small>STATE</small></div>'
-      +   '<div><b>' + esc(d.when  || '—') + '</b><small>REGISTERED</small></div>'
-      +   '<div><b>' + esc(d.code  || 'PENDING') + '</b><small>GV CODE</small></div>'
-      + '</div>'
-      + '</div>';
+    if(typeof renderPass !== 'function') return fail(SAYS.error);
+    renderPass(
+      { name:d.name, squad:d.squad, state:d.state },
+      d.code || '',
+      { box     : pass,
+        photo   : d.photo || '',
+        waiting : /wait/i.test(d.status || ''),
+        when    : (d.when || '').toUpperCase(),
+        rank    : d.rank || '' }
+    );
 
     var tg = document.getElementById('rcTg');
     if(tg && typeof CFG !== 'undefined' && CFG.telegramUrl) tg.href = CFG.telegramUrl;
 
+    LAST = d;
     out.hidden = false;
     err.classList.remove('on');
     out.scrollIntoView({block:'center',
@@ -2899,19 +2900,53 @@ var GVBOT = {
       .catch(function(){ done(); fail(SAYS.error) });
   });
 
-  /* Save the recovered pass as an image, the same way the original does. */
+  /* Save and share go through the same canvas painter the live pass uses,
+     so the image a recovered pass produces is identical to the original. */
+  function withCanvas(btn, then){
+    if(typeof passToCanvas !== 'function' || !LAST) return;
+    var was = btn.textContent;
+    btn.disabled = true; btn.textContent = 'PREPARING\u2026';
+    try{
+      passToCanvas({ name:LAST.name, squad:LAST.squad, state:LAST.state },
+                   LAST.code || '',
+        function(cv){
+          cv.toBlob(function(b){
+            btn.disabled = false; btn.textContent = was;
+            if(b) then(b);
+          }, 'image/png');
+        },
+        { photo:LAST.photo || '', waiting:/wait/i.test(LAST.status||''),
+          when:(LAST.when||'').toUpperCase(), rank:LAST.rank || '' });
+    }catch(e){ btn.disabled = false; btn.textContent = was }
+  }
+
   var save = document.getElementById('rcSave');
   if(save) save.addEventListener('click', function(){
-    var btn = this, was = btn.textContent;
-    if(typeof html2canvas === 'undefined' && typeof passToCanvas !== 'function'){
-      /* No canvas helper on this page: tell them plainly rather than
-         appearing to do nothing. */
-      btn.textContent = 'SCREENSHOT IT';
-      setTimeout(function(){ btn.textContent = was }, 2200);
-      return;
-    }
-    btn.textContent = 'PREPARING…';
-    setTimeout(function(){ btn.textContent = was }, 1600);
+    var btn = this;
+    withCanvas(btn, function(b){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(b);
+      a.download = 'GV-Pass-' + String(LAST.code || LAST.name || 'volunteer')
+        .replace(/[^A-Za-z0-9.-]/g,'_') + '.png';
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove() }, 1500);
+    });
+  });
+
+  var share = document.getElementById('rcShare');
+  if(share) share.addEventListener('click', function(){
+    var btn = this;
+    withCanvas(btn, function(b){
+      var f = new File([b], 'gv-pass.png', {type:'image/png'});
+      if(navigator.canShare && navigator.canShare({files:[f]})){
+        navigator.share({files:[f], title:'GV Pass'}).catch(function(){});
+      } else {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(b); a.download = 'gv-pass.png';
+        document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove() }, 1500);
+      }
+    });
   });
 })();
 
