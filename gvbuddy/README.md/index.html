@@ -1,0 +1,1345 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061733">
+<title>GVBuddy · GengVolunteers 2.0</title>
+<meta name="description" content="GVBuddy ialah wakil kampus GengVolunteers 2.0. Lihat peta kampus dan kluster, kalendar GVBuddy, GV Playbook dan mohon untuk menjadi GVBuddy.">
+<meta property="og:title" content="GVBuddy · GengVolunteers 2.0">
+<meta property="og:description" content="GV anda, di kampus anda. Peta kluster, kalendar dan permohonan GVBuddy.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cendekiaholistikmy.github.io/gengvolunteers/gvbuddy/">
+<meta property="og:image" content="https://cendekiaholistikmy.github.io/gengvolunteers/gvbuddy/logo.webp">
+<meta property="og:locale" content="ms_MY">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="apple-touch-icon" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* GV dark look. Navy ground, orange only for action, one gold accent for the star. */
+:root{
+  --bg:#061733; --bg2:#081D40; --panel:#0B2448; --panel2:#0F2E5A; --line:#1E4378; --line2:#16365F;
+  --navy:#0B3C7A; --orange:#E8631A; --orange2:#FF8A3D; --gold:#FFC23A; --sky:#3A86FF;
+  --fg:#EEF3FB; --muted:#9DB0CC; --dim:#6A82A6;
+  --ok:#3BB273; --warn:#E6B13A; --bad:#E5484D;
+  --z-tengah:#E8631A; --z-selatan:#3A86FF; --z-utara:#2BB673; --z-timur:#FFC23A; --z-borneo:#B48CFF;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:16px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.locked{overflow:hidden}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
+p{margin:0}
+a{color:var(--orange2)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+.just{text-align:justify;text-justify:inter-word;hyphens:none;-webkit-hyphens:none}
+.mono{font-family:var(--mono)}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:900;background:rgba(6,23,51,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line2);padding-top:env(safe-area-inset-top,0)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);font:800 19px var(--display);flex:none}
+.brand img{width:36px;height:36px;border-radius:10px;display:block}
+.nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-left:auto;min-width:0}
+.nav::-webkit-scrollbar{display:none}
+.nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:8px 11px;border-radius:999px;white-space:nowrap}
+.nav a:hover{color:var(--fg);background:rgba(255,255,255,.06)}
+.nav a.cta{background:var(--orange);color:#fff}
+@media(max-width:440px){.nav a.wide2{display:none}}
+@media(max-width:720px){.nav a.wide{display:none}.nav a{padding:8px 9px;font-size:13.5px}.brand span{font-size:17px}}
+
+.announce{background:linear-gradient(90deg,rgba(232,99,26,.22),rgba(255,194,58,.12));border-bottom:1px solid var(--line2);
+  font-size:14px;padding:9px 0;text-align:center}
+
+/* sections */
+section{padding:72px 0;position:relative}
+section.alt{background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.eyebrow{font:700 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--orange2);display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:22px;height:2px;background:linear-gradient(90deg,var(--orange),var(--gold));border-radius:2px}
+.h2{font-size:clamp(28px,4.6vw,46px);font-weight:800;letter-spacing:-.02em;margin-top:14px;max-width:22ch}
+.lead{color:var(--muted);font-size:clamp(16px,1.6vw,18px);max-width:68ch;margin-top:16px}
+.note{font:500 12.5px/1.5 var(--mono);color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;min-width:0}
+.card h3{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.card p{color:var(--muted);margin-top:8px}
+.grid{display:grid;gap:14px}
+@media(min-width:760px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:12px 20px;
+  background:var(--orange);color:#fff;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;line-height:1.2}
+.btn:hover{background:#F47224}
+.btn:disabled{opacity:.55;cursor:progress}
+.btn.ghost{background:transparent;border:1.5px solid rgba(255,255,255,.28);color:var(--fg)}
+.btn.ghost:hover{border-color:var(--fg)}
+.btn.sm{padding:8px 13px;font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  border-radius:999px;padding:5px 9px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.open{color:var(--orange2);border-color:rgba(232,99,26,.5)}
+.pill.wip{color:var(--gold);border-color:rgba(255,194,58,.45)}
+.pill.done{color:var(--ok);border-color:rgba(59,178,115,.5)}
+.pill.tent{color:var(--gold);border-color:rgba(255,194,58,.4)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+
+/* hero */
+.hero{padding:64px 0 56px;background:radial-gradient(1000px 520px at 82% 10%,rgba(18,58,134,.85),transparent 65%),var(--bg);overflow:hidden}
+.hero .wrap{display:grid;gap:36px;align-items:center}
+@media(min-width:880px){.hero .wrap{grid-template-columns:1.2fr .8fr}}
+.hero h1{font-size:clamp(60px,11vw,124px);font-weight:800;letter-spacing:-.045em;line-height:.92;margin-top:16px}
+.hero h1 b{background:linear-gradient(100deg,var(--gold),var(--orange) 55%,#D6402A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{font:700 clamp(22px,3vw,32px)/1.2 var(--display);margin-top:16px}
+.desc{font:500 13px/1.5 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+.emblem{justify-self:center;width:min(360px,80vw);aspect-ratio:1;border-radius:24%;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 30px 80px rgba(58,134,255,.32),0 0 120px rgba(232,99,26,.22);animation:float 7s ease-in-out infinite}
+.emblem img{width:100%;height:100%;display:block}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media(prefers-reduced-motion:reduce){.emblem{animation:none}html{scroll-behavior:auto}}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:30px}
+@media(min-width:620px){.stats{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{display:block;font:800 clamp(26px,3.6vw,36px)/1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{display:block;color:var(--muted);font-size:13px;margin-top:6px;line-height:1.3}
+.stat.hot b{color:var(--orange2)}
+.countdown{margin-top:18px;font:600 14px var(--body);color:var(--muted)}
+.countdown b{color:var(--gold);font-family:var(--mono)}
+
+/* map */
+.zones{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}
+.zones button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 14px;cursor:pointer;
+  font-weight:600;font-size:14px;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+.zones button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.mapgrid{display:grid;gap:14px;margin-top:16px}
+@media(min-width:960px){.mapgrid{grid-template-columns:minmax(0,1fr) 360px}}
+#map{height:62vh;min-height:380px;max-height:620px;border-radius:var(--r);border:1px solid var(--line);background:#0A1426;overflow:hidden;z-index:1}
+.mapfail{display:grid;place-items:center;height:100%;padding:20px;text-align:center;color:var(--muted)}
+.side{display:flex;flex-direction:column;min-height:0;max-height:620px}
+.side input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:16px;color:var(--fg)}
+.clist{margin-top:10px;overflow:auto;display:grid;gap:8px;padding-right:2px;max-height:560px}
+@media(max-width:959px){.clist{max-height:420px}}
+.citem{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 13px;cursor:pointer;text-align:left;width:100%}
+.citem:hover,.citem.on{border-color:var(--orange)}
+.citem .t{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+.citem .m{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:7px;color:var(--muted);font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;color:var(--muted);font-size:13px;align-items:center}
+.legend i{display:inline-block;border-radius:50%;background:var(--muted);vertical-align:middle;margin-right:6px}
+.slotpin{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#081428;
+  font:800 13px/1 var(--mono);border:2.5px solid #fff;box-shadow:0 0 0 3px rgba(0,0,0,.35),0 0 18px var(--c)}
+.slotpin.full{background:#fff;color:var(--ok);border-color:var(--ok)}
+.leaflet-popup-content-wrapper{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:14px}
+.leaflet-popup-tip{background:var(--panel)}
+.leaflet-popup-content{margin:14px 16px;font:14px/1.5 var(--body);min-width:220px}
+.leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
+.leaflet-container{font-family:var(--body)}
+.pop .pz{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.pop h4{font-size:18px;margin:4px 0 8px}
+.pop .pr{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line2);padding:5px 0;font-size:13.5px}
+.pop .pr span{color:var(--muted)}
+.pop ul{margin:6px 0 10px;padding-left:18px;font-size:13px;color:var(--muted)}
+.pop li b{color:var(--fg);font-weight:600}
+.pop .btn{width:100%;margin-top:6px}
+table.zt{width:100%;border-collapse:collapse;margin-top:18px;font-size:14.5px}
+.zt th,.zt td{padding:10px 8px;border-bottom:1px solid var(--line2);text-align:left}
+.zt th{font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.zt td.n,.zt th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* target */
+.prog{margin-top:12px}
+.prog .lbl{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted)}
+.prog .lbl b{color:var(--fg);font-family:var(--mono)}
+.prog .track{height:12px;border-radius:999px;background:var(--line2);overflow:hidden;margin-top:6px}
+.prog .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--orange),var(--gold));width:0;transition:width 1s ease}
+.zonebar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:14px}
+.zb{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;font-size:13px;color:var(--muted)}
+.zb b{display:block;font:800 18px var(--display);color:var(--fg);margin-top:2px}
+.zb.yes{border-color:var(--ok);background:rgba(59,178,115,.1)}
+@media(max-width:520px){.zonebar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* SOP path */
+.path{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:0;counter-reset:s}
+.path li{position:relative;padding:0 0 26px 62px;counter-increment:s}
+.path li::before{content:counter(s);position:absolute;left:0;top:0;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:var(--panel);border:1.5px solid var(--line);font:700 14px var(--mono);color:var(--fg)}
+.path li::after{content:"";position:absolute;left:20px;top:46px;bottom:4px;width:2px;background:var(--line)}
+.path li:last-child::after{display:none}
+.path li.key::before{background:var(--orange);border-color:var(--orange);color:#fff}
+.path li.star::before{background:var(--gold);border-color:var(--gold);color:#1A0E00;box-shadow:0 0 22px rgba(255,194,58,.5)}
+.path h3{font-size:19px;font-weight:800;padding-top:9px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.path p{color:var(--muted);margin-top:6px;max-width:70ch}
+.path .when{font:700 12px var(--mono);color:var(--gold);letter-spacing:.04em}
+.jk{margin-top:10px;display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:760px){.jk{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.jk div{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel)}
+.jk b{display:block;font:800 17px var(--display)}
+.jk span{font-size:13px;color:var(--muted)}
+
+/* roles */
+.ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:600;background:var(--bg)}
+.nots{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.nots li{display:flex;gap:10px;color:var(--muted);font-size:15px}
+.nots li::before{content:"✕";color:var(--bad);font-weight:700;flex:none}
+.oks li::before{content:"✓";color:var(--ok)}
+.squads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+@media(min-width:760px){.squads{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.squads div{border-left:3px solid var(--orange);background:var(--bg);border-radius:8px;padding:10px 12px;font-size:14px}
+.squads b{display:block}
+.squads span{color:var(--muted);font-size:13px}
+
+/* tiers */
+.tier{position:relative;overflow:hidden}
+.tier::before{content:"";position:absolute;inset:0 0 auto 0;height:5px}
+.t1::before{background:var(--ok)}.t2::before{background:var(--gold)}.t3::before{background:var(--orange)}
+.tier .lv{font:700 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.tier h3{margin-top:6px}
+.who{display:flex;justify-content:space-between;gap:10px;margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:14px}
+.who span{color:var(--muted)}
+.rule{margin-top:14px;border:1px solid rgba(232,99,26,.5);background:rgba(232,99,26,.08);border-radius:var(--r);padding:16px 18px}
+.rule b{color:var(--orange2)}
+.fw{display:grid;gap:10px;margin-top:12px}
+@media(min-width:760px){.fw{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.fw div{background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:12px}
+.fw b{font-family:var(--mono);color:var(--gold)}
+.fw p{font-size:14px;margin-top:4px}
+
+/* calendar */
+.cal{display:grid;gap:10px;margin-top:26px}
+.ev{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+@media(min-width:760px){.ev{grid-template-columns:86px minmax(0,1fr) auto;align-items:center}}
+.ev.past{opacity:.5}
+.ev.next{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange) inset}
+.dbox{border-radius:12px;background:var(--bg);border:1px solid var(--line2);text-align:center;padding:8px 4px}
+.dbox b{display:block;font:800 26px/1 var(--display)}
+.dbox span{display:block;font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--orange2);margin-top:4px}
+.dbox small{display:block;font-size:11px;color:var(--dim);margin-top:2px}
+.ev h3{font-size:17px;font-weight:800}
+.ev .meta{color:var(--muted);font-size:13.5px;margin-top:4px}
+.ev .acts{display:flex;gap:8px;flex-wrap:wrap;grid-column:1/-1}
+@media(min-width:760px){.ev .acts{grid-column:auto;justify-content:flex-end}}
+
+/* playbook */
+.shelf{display:grid;gap:22px;align-items:center;margin-top:26px}
+@media(min-width:760px){.shelf{grid-template-columns:260px minmax(0,1fr)}}
+.cover{aspect-ratio:1/1.414;border-radius:6px;background:linear-gradient(160deg,#0B3C7A,#061733 70%);border:1px solid var(--line);
+  padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;box-shadow:0 22px 50px rgba(0,0,0,.45);max-width:260px;width:100%}
+.cover small{font:700 10px var(--mono);letter-spacing:.12em;color:var(--gold);text-transform:uppercase}
+.cover h3{font-size:24px;font-weight:800;margin-top:10px}
+.cover p{color:var(--muted);font-size:13px}
+.guard{margin-top:16px;border:1px dashed var(--line);border-radius:12px;padding:12px 14px;color:var(--muted);font-size:14px}
+dl.bm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0}
+dl.bm div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+dl.bm dt{font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+dl.bm dd{margin:4px 0 0;font-weight:600}
+#reader{position:fixed;inset:0;z-index:2000;background:#0A1426;display:none}
+#reader.on{display:grid;grid-template-rows:auto minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr)}
+.rtop{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0) + 9px) 13px 9px;border-bottom:1px solid var(--line2);position:relative}
+.rtop .rt{flex:1;min-width:0;font:600 11px var(--mono);letter-spacing:.05em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#prog{position:absolute;left:0;bottom:-1px;height:2px;background:var(--orange);width:0;transition:width .3s}
+.rstage{overflow:auto;display:flex;justify-content:center;padding:16px;-webkit-overflow-scrolling:touch}
+.sheetwrap{position:relative;width:min(100%,780px);user-select:none;-webkit-user-select:none;align-self:flex-start}
+.sheetwrap img{width:100%;display:block;border-radius:3px;background:#fff;box-shadow:0 22px 60px rgba(0,0,0,.6);-webkit-user-drag:none;pointer-events:none}
+.wm{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font:600 clamp(12px,2.2vw,18px) var(--body);letter-spacing:.2em;
+  color:rgba(20,40,80,.07);transform:rotate(-26deg);text-align:center;line-height:2.6}
+.rnav{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 12px calc(env(safe-area-inset-bottom,0) + 10px);border-top:1px solid var(--line2);flex-wrap:wrap}
+.rnav button,.rtop button{background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:14px}
+.rnav button:disabled{opacity:.3}
+.rnav .cnt{font:600 12px var(--mono);color:var(--muted);min-width:110px;text-align:center}
+.rload{display:grid;place-items:center;color:var(--muted);height:100%}
+
+/* buddies */
+.buddies{display:grid;gap:10px;margin-top:24px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.bud{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center}
+.bud .av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 18px var(--display);color:#081428;flex:none}
+.bud b{display:block}
+.bud span{color:var(--muted);font-size:13px}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:22px;color:var(--muted);text-align:center;margin-top:24px}
+
+/* forms */
+form{margin-top:26px}
+.fcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;margin-bottom:12px}
+.fcard h3{font-size:17px;font-weight:800;display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.fcard h3 .n{font:700 12px var(--mono);color:var(--orange2);border:1px solid var(--orange);border-radius:6px;padding:3px 6px}
+.fields{display:grid;gap:12px}
+@media(min-width:620px){.fields.two{grid-template-columns:1fr 1fr}}
+label{display:grid;gap:6px;font-size:13.5px;font-weight:600;color:var(--muted)}
+label small{font-weight:500;color:var(--dim)}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;color:var(--fg);min-width:0}
+input[type=checkbox]{width:20px;height:20px;flex:none;margin:2px 0 0;accent-color:var(--orange)}
+textarea{min-height:96px;resize:vertical}
+.req::after{content:" *";color:var(--orange2)}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:500;color:var(--fg);font-size:14.5px;grid-template-columns:none}
+.bad{border-color:var(--bad)!important;box-shadow:0 0 0 1px var(--bad)}
+.err{color:#FF8B8F;font-weight:600;min-height:1.4em;margin:8px 0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.done{background:linear-gradient(160deg,rgba(59,178,115,.16),var(--panel));border:1px solid var(--ok);border-radius:var(--r);padding:24px 20px;margin-top:26px}
+.done h3{font-size:24px}
+.done .ref{font:800 22px var(--mono);color:var(--gold);margin-top:8px}
+details.more{margin-top:16px}
+details.more>summary{cursor:pointer;list-style:none;font-weight:700;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::after{content:"+";font:700 22px var(--mono);color:var(--orange2)}
+details.more[open]>summary::after{content:"−"}
+
+/* trust */
+.trust .card h3{font-size:18px}
+.principles{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+
+/* review mode */
+#semak{background:#1A1206;border-bottom:2px solid var(--gold);padding:28px 0}
+#semak h2{font-size:26px}
+.stabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
+.stabs button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600}
+.stabs button[aria-selected="true"]{background:var(--gold);color:#1A0E00;border-color:var(--gold)}
+table.adm{width:100%;border-collapse:collapse;font-size:13.5px;min-width:820px}
+.adm th,.adm td{border-bottom:1px solid var(--line2);padding:8px 6px;text-align:left;vertical-align:top}
+.adm th{font:700 11px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;background:#1A1206}
+.adm select,.adm input{padding:6px 8px;font-size:13.5px;border-radius:8px}
+.adm .long{max-width:280px;color:var(--muted);white-space:pre-wrap}
+.adm tr.hl td{background:rgba(255,194,58,.06)}
+.admwrap{max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:12px}
+
+/* footer */
+footer{padding:48px 0 calc(env(safe-area-inset-bottom,0) + 48px);border-top:1px solid var(--line2);color:var(--muted);font-size:14px}
+footer .motto{font:700 20px var(--display);color:var(--gold)}
+footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0) + 18px);transform:translateX(-50%);background:var(--fg);color:var(--bg);
+  padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;z-index:3000;opacity:0;transition:opacity .25s;pointer-events:none;max-width:92vw;text-align:center}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="logo.webp" alt="" width="36" height="36"><span>GVBuddy</span></a>
+    <nav class="nav" aria-label="Navigasi">
+      <a href="#peta">Peta</a>
+      <a href="#laluan" class="wide">Laluan</a>
+      <a href="#peranan" class="wide">Peranan</a>
+      <a href="#projek" class="wide">Projek</a>
+      <a href="#kalendar">Kalendar</a>
+      <a href="#playbook" class="wide2">Playbook</a>
+      <a href="#daftar" class="cta">Mohon</a>
+    </nav>
+  </div>
+</header>
+<div class="announce" id="announce" hidden></div>
+
+<div id="semak" hidden>
+  <div class="wrap">
+    <div class="eyebrow" style="color:var(--gold)">Mod semak · Project Leader sahaja</div>
+    <h2 style="margin-top:10px">Semakan GVBuddy</h2>
+    <div id="semakGate" class="row" style="margin-top:14px">
+      <input id="semakKey" type="password" placeholder="Kunci semak (ADMIN_KEY)" autocomplete="current-password" style="max-width:320px">
+      <button class="btn" id="semakGo">Buka</button>
+      <span class="err" id="semakErr"></span>
+    </div>
+    <div id="semakBody" hidden>
+      <div class="row" style="justify-content:space-between">
+        <div class="stabs" role="tablist">
+          <button role="tab" data-t="apps" aria-selected="true">Permohonan</button>
+          <button role="tab" data-t="clus" aria-selected="false">Kluster dan slot</button>
+          <button role="tab" data-t="camp" aria-selected="false">Kampus</button>
+          <button role="tab" data-t="proj" aria-selected="false">Projek</button>
+        </div>
+        <div class="row"><button class="btn ghost sm" id="semakReload">Muat semula</button><button class="btn ghost sm" id="semakOut">Keluar</button></div>
+      </div>
+      <div id="semakView"></div>
+      <p class="note" style="margin-top:10px">Perubahan disimpan terus ke Google Sheet. Data peribadi di sini tidak dipaparkan kepada umum. Jangan tangkap layar atau kongsi jadual ini.</p>
+    </div>
+  </div>
+</div>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">GengVolunteers 2.0 · Wakil Kampus</div>
+      <h1><b>GV</b>Buddy</h1>
+      <p class="desc">Wakil Kampus · Mentor · Penyelia Projek</p>
+      <p class="tag">GV anda, di kampus anda.</p>
+      <p class="lead just">GVBuddy ialah pelajar terpilih dan terlatih yang mewakili GengVolunteers di kampus. GVBuddy menyambut ahli baharu, membimbing idea menjadi projek sebenar dan mencungkil pemimpin seterusnya. Sasaran kita jelas: sebelum 31 Disember 2026, setiap kluster mempunyai sekurangnya satu projek yang dipimpin oleh GVBuddy sendiri.</p>
+      <div class="row" style="margin-top:24px">
+        <a class="btn" href="#daftar">Mohon jadi GVBuddy</a>
+        <a class="btn ghost" href="#peta">Lihat peta kampus</a>
+      </div>
+      <p class="countdown" id="countdown"></p>
+    </div>
+    <div class="emblem"><img src="logo.webp" alt="Logo GVBuddy" width="520" height="520"></div>
+  </div>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b>460+</b><span>sukarelawan GV 2.0 disahkan</span></div>
+      <div class="stat"><b>74</b><span>institusi pengajian</span></div>
+      <div class="stat hot"><b id="stClusters">58</b><span>kluster kampus</span></div>
+      <div class="stat hot"><b id="stSlots">63</b><span>slot GVBuddy</span></div>
+      <div class="stat"><b id="stCert">0</b><span>GVBuddy disahkan</span></div>
+    </div>
+    <p class="note" style="margin-top:12px">Sumber: Profil Sukarelawan GV 2.0, data sehingga 7 Oktober 2026. Angka agregat sahaja. <span id="liveStamp"></span></p>
+  </div>
+</section>
+
+<!-- MAP -->
+<section id="peta" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Peta kampus</div>
+    <h2 class="h2">Sekurangnya seorang GVBuddy bagi setiap kampus dan kluster.</h2>
+    <p class="lead just">Setiap bulatan ialah kampus yang mempunyai sukarelawan GV 2.0. Kampus yang hanya mempunyai seorang sukarelawan digabungkan dengan kampus berhampiran dalam zon yang sama supaya tiada sesiapa tertinggal. Nombor pada penanda utama ialah jumlah slot GVBuddy bagi kluster itu: minimum satu, dan satu slot tambahan bagi setiap 15 sukarelawan.</p>
+    <div class="zones" id="zones" role="group" aria-label="Tapis zon"></div>
+    <div class="mapgrid">
+      <div id="map" role="region" aria-label="Peta kampus GVBuddy"></div>
+      <div class="side">
+        <input id="q" type="search" placeholder="Cari kampus, institusi atau kluster" aria-label="Cari kampus">
+        <div class="clist" id="clist"></div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><span class="slotpin" style="--c:var(--orange);width:22px;height:22px;font-size:11px;display:inline-grid;vertical-align:middle;margin-right:6px">1</span>Kampus utama dan slot GVBuddy</span>
+      <span><i style="width:16px;height:16px"></i>10 sukarelawan ke atas</span>
+      <span><i style="width:12px;height:12px"></i>5 hingga 9</span>
+      <span><i style="width:8px;height:8px"></i>bawah 5</span>
+      <span>Garis putus: kampus yang digabungkan</span>
+    </div>
+    <div class="tablewrap">
+      <table class="zt" id="zoneTable"></table>
+    </div>
+    <p class="note" style="margin-top:12px" id="unplacedNote">Sekitar 120 sukarelawan belum dipetakan kerana kampus tidak dinyatakan semasa pendaftaran. Mereka akan dimasukkan ke kluster selepas pengesahan. Sekolah dan pusat tingkatan enam dirangkum ke kluster terdekat dan tidak dipaparkan secara berasingan.</p>
+  </div>
+</section>
+
+<!-- TARGET -->
+<section id="sasaran">
+  <div class="wrap">
+    <div class="eyebrow">Sasaran hujung tahun</div>
+    <h2 class="h2">Bukan sekadar tiga siri JOMKORA.</h2>
+    <p class="lead just">JOMKORA 2026 penting, tetapi GVBuddy dibina untuk lebih daripada itu. Sebelum 31 Disember 2026, setiap kluster dan setiap zon perlu mempunyai satu projek yang dipimpin oleh GVBuddy, dirancang mengikut GV Playbook dan diluluskan secara bertulis sebelum diumumkan.</p>
+    <div class="grid g2" style="margin-top:26px">
+      <div class="card">
+        <h3>Kemajuan semasa</h3>
+        <div class="prog"><div class="lbl"><span>Kluster dengan GVBuddy disahkan</span><b id="pgBuddy">0 / 58</b></div><div class="track"><div class="fill" id="fgBuddy"></div></div></div>
+        <div class="prog"><div class="lbl"><span>Kluster dengan projek diluluskan</span><b id="pgProj">0 / 58</b></div><div class="track"><div class="fill" id="fgProj"></div></div></div>
+        <div class="prog"><div class="lbl"><span>Projek kluster selesai dengan laporan penutup</span><b id="pgDone">0 / 58</b></div><div class="track"><div class="fill" id="fgDone"></div></div></div>
+        <div class="zonebar" id="zoneBar"></div>
+        <p class="note" style="margin-top:10px">Zon bertanda hijau sudah mempunyai sekurangnya satu projek diluluskan.</p>
+      </div>
+      <div class="card">
+        <h3>GVBuddy turut menggerakkan JOMKORA 2026</h3>
+        <p class="just">Jelajah Orang Muda Prihatin Bersama Komuniti Orang Asli. GVBuddy membantu menghubungkan sukarelawan di kampus dengan setiap siri, kemudian membawa semangat yang sama ke projek kluster sendiri.</p>
+        <div class="jk" id="jkDates"></div>
+        <div id="projList" style="margin-top:16px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOP -->
+<section id="laluan" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">SOP GVBuddy</div>
+    <h2 class="h2">Dipilih, dilatih, disahkan, kemudian diamanahkan.</h2>
+    <p class="lead just">Tiada sesiapa menjadi GVBuddy secara automatik. Setiap GVBuddy melalui ToT GV, iaitu latihan rasmi bersama Project Leader, sebelum disijilkan dan diumumkan. Hanya selepas itu GVBuddy boleh membuat susulan dengan sukarelawan di kluster mereka secara sah.</p>
+    <ol class="path" id="path"></ol>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section id="peranan">
+  <div class="wrap">
+    <div class="eyebrow">Siapa GVBuddy</div>
+    <h2 class="h2">Tiga peranan, satu amanah.</h2>
+    <p class="lead just">Rujukan utama GVBuddy ialah GV Playbook. Setiap keputusan dinilai dengan tiga prinsip yang tidak boleh dirunding, sama seperti Architect dan Anchor.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="ic" style="background:var(--navy)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></div>
+        <h3>Wakil Kampus</h3><p class="just">Wakil rasmi GV di kampus. Menyambut ahli, menghubungkan mereka dengan program GV, GV Familia dan JOMKORA.</p></div>
+      <div class="card"><div class="ic" style="background:var(--orange)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2M17 3a4 4 0 0 1 0 8M22 21v-2a5 5 0 0 0-3-4.6"/></svg></div>
+        <h3>Mentor</h3><p class="just">Perbualan ringkas secara peribadi. Membantu setiap ahli menetapkan satu matlamat bagi penggal ini.</p></div>
+      <div class="card"><div class="ic" style="background:var(--sky)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <h3>Penyelia Projek</h3><p class="just">Pintu pertama bagi setiap idea. Menyemak tahap projek, membimbing perancangan dan memantau sehingga laporan penutup.</p></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card">
+        <h3>Kerja seminggu, sekitar 4 jam</h3>
+        <div class="chips"><span class="chip">Hubungkan ahli</span><span class="chip">GV Circle bulanan</span><span class="chip">Kenal pasti bakat</span><span class="chip">Bimbing idea projek</span><span class="chip">Bina komuniti kampus</span><span class="chip">Laporan bulanan satu muka</span><span class="chip">Patuhi matriks kuasa</span></div>
+        <h3 style="margin-top:22px">Tiga prinsip tidak boleh dirunding</h3>
+        <ul class="nots oks">
+          <li><span><b>Komuniti didahulukan.</b> Adakah ini berkhidmat kepada komuniti, atau kepada kita?</span></li>
+          <li><span><b>Telus secara lalai.</b> Setiap ringgit diakaunkan, setiap keputusan boleh didokumenkan.</span></li>
+          <li><span><b>Cemerlang tanpa pengecualian.</b> Standard Cendekia, bukan standard purata.</span></li>
+        </ul>
+      </div>
+      <div class="card" style="background:var(--panel2)">
+        <h3>GVBuddy bukan</h3>
+        <ul class="nots">
+          <li>Promoter yang dinilai melalui jumlah pendaftaran</li>
+          <li>Presiden automatik bagi sebarang kelab</li>
+          <li>Pemilik pangkalan data sukarelawan</li>
+          <li>Penandatangan MoU atau surat rasmi</li>
+          <li>Pemungut wang tanpa kelulusan bertulis HQ</li>
+          <li>Ahli Highcom secara automatik</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Di mana GVBuddy dalam struktur GV 2.0</h3>
+      <p class="just">GVBuddy melapor terus kepada Project Leader, bekerja bersama Architect dan Anchor mengikut carta organisasi rasmi dalam GV Playbook, dan menggerakkan pasukan projek kampus melalui empat squad GV.</p>
+      <div class="squads">
+        <div><b>Squad Khidmat</b><span>Tugasan khidmat fizikal</span></div>
+        <div><b>Squad Kreativiti</b><span>Kandungan mengikut protokol persetujuan</span></div>
+        <div><b>Squad Komuniti</b><span>Hubungan dan maklum balas komuniti</span></div>
+        <div><b>Squad Logistik</b><span>Peralatan, pengangkutan, keselamatan</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projek" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Laluan projek</div>
+    <h2 class="h2">Setiap idea melalui GVBuddy dahulu.</h2>
+    <p class="lead just">Tahap projek menentukan siapa yang meluluskan. Projek kecil bergerak pantas, manakala projek luar kampus, berisiko atau melibatkan wang dibawa ke HQ.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card tier t1"><div class="lv">Tahap 1</div><h3>Projek mikro kampus</h3>
+        <p class="just">Sesi kemahiran, kumpulan belajar, gotong royong kampus. Tiada yuran dan tiada kutipan dana.</p>
+        <div class="who"><span>Lulus oleh</span><b>GVBuddy</b></div><div class="who"><span>Tempoh</span><b>Minggu yang sama</b></div></div>
+      <div class="card tier t2"><div class="lv">Tahap 2</div><h3>Kolaborasi kampus</h3>
+        <p class="just">Fasiliti kampus, penceramah jemputan, sesi bersama kelab, sehingga 80 orang.</p>
+        <div class="who"><span>Lulus oleh</span><b>Penyelaras Nasional</b></div><div class="who"><span>Tempoh</span><b>5 hari bekerja</b></div></div>
+      <div class="card tier t3"><div class="lv">Tahap 3</div><h3>Luar kampus atau berisiko</h3>
+        <p class="just">Rakan kongsi, penaja, sekolah, komuniti Orang Asli, perjalanan bermalam, media atau sebarang kutipan dana.</p>
+        <div class="who"><span>Lulus oleh</span><b>Majlis Kepimpinan Cendekia</b></div><div class="who"><span>Tempoh</span><b>10 hari bekerja</b></div></div>
+    </div>
+    <div class="rule just"><b>Wajib mengikut GV Playbook.</b> Cadangan projek mesti diluluskan secara bertulis oleh Majlis Kepimpinan Cendekia sebelum sebarang kutipan dana atau pengumuman kepada komuniti, melalui <span id="mailRule" style="word-break:break-all">persatuanbeliacendekiaholistik@gmail.com</span>. Laporan Ketelusan Kewangan diterbitkan dalam 7 hari selepas kutipan ditutup. Isu keselamatan dan perlindungan dilaporkan kepada HQ pada hari yang sama, pada sebarang peringkat.</div>
+    <div class="card" style="margin-top:14px">
+      <h3>Empat kerangka perancangan Cendekia</h3>
+      <div class="fw">
+        <div><b>CAF</b><p>Kenapa, siapa, apa dan bagaimana dijawab sepenuhnya sebelum merancang.</p></div>
+        <div><b>EFF</b><p>Salurkan tenaga pasukan ke tugasan berimpak tinggi, buang titik geseran.</p></div>
+        <div><b>TEOF</b><p>Daftar risiko dan langkah pencegahan sebelum hari projek.</p></div>
+        <div><b>TMOF</b><p>Semakan berperingkat sehingga Log Pengajaran selepas projek.</p></div>
+      </div>
+      <p class="note" style="margin-top:10px">Kerangka ini harta intelek Cendekia. Butiran penuh dalam GV Playbook, Seksyen G.</p>
+    </div>
+
+    <details class="more" id="projForm">
+      <summary>Hantar cadangan projek kluster (GVBuddy disahkan sahaja)</summary>
+      <form id="pForm" novalidate>
+        <div class="fcard">
+          <div class="fields two">
+            <label><span class="req">No sijil GVBuddy</span><input id="p_cert" placeholder="GVB-2026-001" autocomplete="off"></label>
+            <label><span class="req">Emel berdaftar</span><input id="p_email" type="email" autocomplete="email"></label>
+            <label style="grid-column:1/-1"><span class="req">Tajuk projek</span><input id="p_title" maxlength="120"></label>
+            <label><span class="req">Kategori (Playbook Seksyen F)</span><select id="p_cat"></select></label>
+            <label><span class="req">Tahap</span><select id="p_tier"><option value="">Pilih</option><option>Tahap 1</option><option>Tahap 2</option><option>Tahap 3</option></select></label>
+            <label><span class="req">Tarikh cadangan</span><input id="p_date" type="date" min="2026-11-01" max="2026-12-31"></label>
+            <label><span class="req">Anggaran peserta</span><input id="p_size" type="number" min="1" max="500" inputmode="numeric"></label>
+            <label style="grid-column:1/-1"><span class="req">Kenapa komuniti ini memerlukan projek ini? (CAF)</span><textarea id="p_why" maxlength="1500"></textarea></label>
+            <label style="grid-column:1/-1"><span>Tiga risiko utama dan langkah pencegahan (TEOF)</span><textarea id="p_risk" maxlength="1500"></textarea></label>
+            <label><span class="req">Kutipan dana</span><select id="p_funds"><option value="">Pilih</option><option>Tiada</option><option>Ada, menunggu kelulusan bertulis</option></select></label>
+          </div>
+        </div>
+        <p class="err" id="pErr" role="alert"></p>
+        <button class="btn" type="submit" id="pBtn">Hantar cadangan</button>
+      </form>
+      <div class="done" id="pDone" hidden><h3>Cadangan diterima</h3><div class="ref" id="pRef"></div><p style="margin-top:8px;color:var(--muted)">Jangan umumkan atau kutip dana sehingga menerima kelulusan bertulis.</p></div>
+    </details>
+  </div>
+</section>
+
+<!-- CALENDAR -->
+<section id="kalendar">
+  <div class="wrap">
+    <div class="eyebrow">Kalendar GVBuddy</div>
+    <h2 class="h2">Simpan tarikh ini dalam kalendar anda.</h2>
+    <p class="lead just">Tekan Google Calendar untuk menambah terus, atau muat turun fail .ics untuk iPhone, Outlook dan aplikasi kalendar lain. Tarikh bertanda sementara akan disahkan kemudian, jadi semak semula laman ini.</p>
+    <div class="row" style="margin-top:18px"><button class="btn ghost" id="icsAll">Tambah semua tarikh (.ics)</button></div>
+    <div class="cal" id="cal"></div>
+  </div>
+</section>
+
+<!-- PLAYBOOK -->
+<section id="playbook" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Rujukan utama</div>
+    <h2 class="h2">GV Playbook, dibaca terus di sini.</h2>
+    <p class="lead just">Setiap GVBuddy bekerja daripada dokumen yang sama dengan Architect dan Anchor: falsafah, carta organisasi, garis masa, katalog aktiviti dan empat kerangka strategik. Baca sebelum ToT GV.</p>
+    <div class="shelf">
+      <div class="cover" id="coverBtn" role="button" tabindex="0" aria-label="Buka GV Playbook">
+        <div><small>Edisi 2 · 2026</small><h3>Anchors &amp; Architects Operational Playbook</h3></div>
+        <p>GengVolunteers 2.0 · Persatuan Belia Cendekia Holistik</p>
+      </div>
+      <div>
+        <dl class="bm">
+          <div><dt>Dokumen</dt><dd>GV Playbook</dd></div>
+          <div><dt>Edisi</dt><dd>Edisi 2 · September 2026</dd></div>
+          <div><dt>Panjang</dt><dd>17 muka surat</dd></div>
+          <div><dt>Pemilik</dt><dd>Persatuan Belia Cendekia Holistik</dd></div>
+        </dl>
+        <div class="row" style="margin-top:16px"><button class="btn" id="openBook">Buka Playbook</button></div>
+        <div class="guard just"><b style="color:var(--fg)">Baca sahaja.</b> Dokumen ini terhad kepada GVBuddy, Architect dan Anchor. Ia dipaparkan untuk dibaca di laman ini sahaja. Tiada muat turun, dan ia tidak boleh disalin, diedarkan atau diterbitkan semula tanpa kebenaran bertulis Cendekia.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANNOUNCED -->
+<section id="disahkan">
+  <div class="wrap">
+    <div class="eyebrow">Pengumuman rasmi</div>
+    <h2 class="h2">GVBuddy yang disahkan.</h2>
+    <p class="lead just">Senarai ini dikemas kini selepas setiap ToT GV. Hanya nama paparan, kluster dan nombor sijil dipaparkan. Butiran peribadi kekal dengan HQ.</p>
+    <div id="buddies"></div>
+  </div>
+</section>
+
+<!-- APPLY -->
+<section id="daftar" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Permohonan GVBuddy 2026</div>
+    <h2 class="h2">Mohon jadi GVBuddy.</h2>
+    <p class="lead just">Terbuka kepada pelajar berumur 18 tahun ke atas dari sebarang kampus. Pilih kampus anda dan kluster akan ditentukan secara automatik. Jika kampus anda tiada dalam senarai, tulis nama institusi dan kami akan memadankan anda dengan kluster terdekat.</p>
+    <div id="closedBox" class="empty" hidden></div>
+    <form id="aForm" novalidate>
+      <div class="hp" aria-hidden="true"><label>Laman web<input id="a_website" tabindex="-1" autocomplete="off"></label></div>
+      <div class="fcard">
+        <h3><span class="n">01</span>Tentang anda</h3>
+        <div class="fields two">
+          <label><span class="req">Nama penuh</span><input id="a_name" autocomplete="name" maxlength="120"><small>Untuk sijil sahaja. Tidak dipaparkan kepada umum.</small></label>
+          <label><span class="req">Nama paparan</span><input id="a_display" maxlength="40" placeholder="Contoh: Aina"><small>Nama ini sahaja dipaparkan jika anda diumumkan.</small></label>
+          <label><span class="req">Emel</span><input id="a_email" type="email" autocomplete="email" maxlength="120"><small>Guna emel yang sama dengan pendaftaran GV 2.0 jika ada.</small></label>
+          <label><span class="req">No telefon</span><input id="a_phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="0123456789"></label>
+          <label><span>Username Telegram</span><input id="a_telegram" maxlength="40" placeholder="@username"></label>
+          <label><span class="req">Umur</span><input id="a_age" type="number" min="18" max="40" inputmode="numeric"></label>
+          <label><span class="req">Ikhwah atau akhwat</span><select id="a_gender"><option value="">Pilih</option><option>Ikhwah</option><option>Akhwat</option></select></label>
+          <label><span class="req">Negeri kampus</span><select id="a_state"></select></label>
+        </div>
+      </div>
+      <div class="fcard">
+        <h3><span class="n">02</span>Kampus dan pengajian</h3>
+        <div class="fields two">
+          <label style="grid-column:1/-1"><span class="req">Kampus</span><select id="a_campus"></select><small id="a_clusterHint"></small></label>
+          <label class="other" hidden><span class="req">Nama institusi</span><input id="a_otherInst" maxlength="120"></label>
+          <label class="other" hidden><span>Kampus atau lokasi</span><input id="a_otherCampus" maxlength="120"></label>
+          <label><span class="req">Kursus atau bidang</span><input id="a_course" maxlength="120"></label>
+          <label><span class="req">Tahun pengajian</span><select id="a_year"><option value="">Pilih</option><option>Asasi atau Matrikulasi</option><option>Diploma tahun 1</option><option>Diploma tahun 2 atau 3</option><option>Ijazah tahun 1</option><option>Ijazah tahun 2</option><option>Ijazah tahun 3 ke atas</option><option>Pascasiswazah</option><option>Lain</option></select></label>
+          <label><span class="req">Dijangka tamat pengajian</span><input id="a_grad" type="month" min="2026-11"><small>Membantu kami merancang penggantian GVBuddy.</small></label>
+          <label><span class="req">Penglibatan GV</span><select id="a_involve"><option value="">Pilih</option><option>Sukarelawan GV 2.0</option><option>Highcom GV 2.0</option><option>Bekas sukarelawan GV</option><option>Bekas Highcom GV</option><option>Ahli GV Familia sahaja</option><option>Belum terlibat</option></select></label>
+        </div>
+      </div>
+      <div class="fcard">
+        <h3><span class="n">03</span>Kenapa anda, dan apa projek anda</h3>
+        <div class="fields">
+          <label><span class="req">Kenapa anda mahu menjadi GVBuddy?</span><textarea id="a_why" maxlength="1500"></textarea></label>
+          <label><span class="req">Satu idea projek untuk kluster anda sebelum 31 Disember</span><textarea id="a_idea" maxlength="1500" placeholder="Siapa komuniti yang dibantu, apa masalahnya, apa yang anda mahu buat"></textarea></label>
+          <div class="fields two">
+            <label><span class="req">Kategori idea</span><select id="a_cat"></select></label>
+            <label><span class="req">Masa yang boleh diberi seminggu</span><select id="a_hours"><option value="">Pilih</option><option>2 hingga 3 jam</option><option>Sekitar 4 jam</option><option>5 jam ke atas</option></select></label>
+          </div>
+          <label><span class="req">ToT GV bersama Project Leader</span><select id="a_tot"><option value="">Pilih</option><option>Boleh hadir pada tarikh ToT</option><option>Boleh hadir, perlu sesi dalam talian</option><option>Tidak pasti, perlu tarikh lain</option></select><small id="totHint"></small></label>
+        </div>
+      </div>
+      <div class="fcard">
+        <h3><span class="n">04</span>Pengakuan</h3>
+        <div class="fields">
+          <label class="check"><input type="checkbox" id="a_ok1"><span>Saya bersetuju data saya diproses oleh Persatuan Belia Cendekia Holistik untuk pemilihan dan pengurusan GVBuddy mengikut Akta Perlindungan Data Peribadi 2010 (Akta 709).</span></label>
+          <label class="check"><input type="checkbox" id="a_ok2"><span>Saya akan menjaga Ikrar Maruah GV dan tiga prinsip GV Playbook: komuniti didahulukan, telus secara lalai, cemerlang tanpa pengecualian.</span></label>
+          <label class="check"><input type="checkbox" id="a_ok3"><span>Saya faham GVBuddy bukan pemilik pangkalan data sukarelawan. Akses hanya diberi selepas disahkan, secara minimum, dan tamat apabila tempoh tamat.</span></label>
+          <label class="check"><input type="checkbox" id="a_ok4"><span>Saya faham saya hanya menjadi GVBuddy selepas menghadiri ToT GV dan disahkan secara rasmi oleh Project Leader.</span></label>
+        </div>
+      </div>
+      <p class="err" id="aErr" role="alert"></p>
+      <div class="row"><button class="btn" type="submit" id="aBtn">Hantar permohonan</button><span class="note" id="draftNote"></span></div>
+    </form>
+    <div class="done" id="aDone" hidden>
+      <h3>Permohonan diterima.</h3>
+      <div class="ref" id="aRef"></div>
+      <p class="just" style="margin-top:10px;color:var(--muted)">Simpan nombor rujukan ini. Pengesahan dihantar ke emel anda. Langkah seterusnya ialah saringan ringkas, kemudian ToT GV bersama Project Leader.</p>
+      <div class="row" style="margin-top:16px" id="aDoneActs"></div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA TRUST -->
+<section id="amanah" class="trust">
+  <div class="wrap">
+    <div class="eyebrow">Amanah data</div>
+    <h2 class="h2">Data ahli ialah amanah, bukan senarai.</h2>
+    <p class="lead just">Susulan oleh GVBuddy hanya sah selepas pensijilan dan direkodkan dalam log akses HQ, selaras dengan Akta Perlindungan Data Peribadi 2010 (Akta 709).</p>
+    <div class="grid g4" style="margin-top:26px">
+      <div class="card"><h3>Pilih masuk dahulu</h3><p class="just">GVBuddy hanya menghubungi sukarelawan yang memilih untuk menyertai GV Circle kluster mereka.</p></div>
+      <div class="card"><h3>Akses minimum</h3><p class="just">Nama pertama, kursus dan minat sahaja. Lihat sahaja, tiada muat turun.</p></div>
+      <div class="card"><h3>Dipulangkan</h3><p class="just">Akses tamat dalam tempoh 7 hari selepas penggal atau tempoh khidmat berakhir.</p></div>
+      <div class="card"><h3>Bawah 18 kekal dengan HQ</h3><p class="just">Tiada data sukarelawan bawah 18 tahun diberikan kepada GVBuddy. Wajah peserta bawah umur dalam media sentiasa dikaburkan.</p></div>
+    </div>
+    <div class="principles"><span class="chip">Amanah didahulukan</span><span class="chip">Pemilikan, bukan kehadiran</span><span class="chip">Manusia sebelum projek</span><span class="chip">Hadir dan mudah dihubungi</span><span class="chip">Kecil tetapi nyata</span><span class="chip">Khidmat komuniti, bukan suapan media</span><span class="chip">Serah tugas dengan baik</span></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="motto">Membina Generasi Holistik, Berilmu, Berakhlak dan Berbakti</p>
+    <p style="margin-top:10px">GVBuddy · GengVolunteers 2.0 · Persatuan Belia Cendekia Holistik dengan kerjasama HeartSpace Malaysia.</p>
+    <div class="row" style="margin-top:14px">
+      <a class="btn ghost sm" href="../">Laman utama GV</a>
+      <a class="btn ghost sm" id="tgLink" href="#" target="_blank" rel="noopener">GV Familia di Telegram</a>
+      <a class="btn ghost sm" href="https://instagram.com/gengvolunteers" target="_blank" rel="noopener">@gengvolunteers</a>
+      <a class="btn ghost sm" id="mailLink" href="#">Emel kami</a>
+    </div>
+    <p class="legal just"><b>Harta intelek.</b> Nama dan logo GengVolunteers, GVBuddy dan Cendekia, struktur organisasi Architect, Anchor dan Squad GV, empat kerangka strategik serta GV Playbook yang dipaparkan di laman ini adalah milik Persatuan Belia Cendekia Holistik, dilindungi di bawah Akta Hak Cipta 1987 (Akta 332). Ia tidak boleh disalin, diubah suai atau diedarkan tanpa kebenaran bertulis. Peta dasar: OpenStreetMap dan CARTO.</p>
+  </div>
+</footer>
+
+<div id="reader" role="dialog" aria-modal="true" aria-label="GV Playbook">
+  <div class="rtop">
+    <span class="rt">GV Playbook · Anchors &amp; Architects Operational Playbook · Edisi 2 · 2026</span>
+    <button id="rClose">Tutup</button>
+    <div id="prog"></div>
+  </div>
+  <div class="rstage" id="rstage">
+    <div class="sheetwrap"><img id="sheet" alt="Muka surat Playbook" draggable="false"><div class="wm" id="wm"></div></div>
+  </div>
+  <div class="rnav">
+    <button id="rPrev">&larr; Sebelum</button>
+    <span class="cnt" id="rCnt">…</span>
+    <button id="rNext">Seterusnya &rarr;</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   EDIT HANYA BLOK INI
+   ═══════════════════════════════════════════════════════════════ */
+var CFG = {
+  /* URL /exec daripada backend GVBuddy (GVBuddy_Code.gs, Sheet berasingan).
+     KOSONG = borang dipaparkan tetapi tidak menghantar. Wajib diisi sebelum lancar. */
+  appsScriptUrl : "",
+  contactEmail  : "persatuanbeliacendekiaholistik@gmail.com",
+  telegramUrl   : "https://t.me/+ouIRupHdiuQ2MjZl",
+  closeAt       : "2026-10-26T23:59:00+08:00",   // tarikh tutup permohonan (Sheet Config boleh ganti)
+  ratio         : 15,                            // 1 slot GVBuddy bagi setiap 15 sukarelawan, minimum 1
+
+  /* Kalendar sandaran. Selepas backend disambung, tab Kalendar dalam Sheet yang digunakan.
+     s = mula, e = tamat (YYYY-MM-DD). Kosongkan s jika tarikh belum disahkan. tent = sementara. */
+  events: [
+    { id:"jk-tot",       t:"JOMKORA: ToT Sukarelawan", s:"2026-10-24", e:"2026-10-24", time:"", where:"Akan dimaklumkan", who:"Sukarelawan JOMKORA", note:"Latihan sebelum Siri 1.", tent:false },
+    { id:"gvb-tutup",    t:"Permohonan GVBuddy ditutup", s:"2026-10-26", e:"2026-10-26", time:"23:59", where:"Dalam talian", who:"Pemohon GVBuddy", note:"Saringan bermula keesokan hari.", tent:true },
+    { id:"gvb-tot",      t:"ToT GV: Latihan Rasmi GVBuddy bersama Project Leader", s:"2026-10-31", e:"2026-10-31", time:"", where:"Akan dimaklumkan", who:"GVBuddy tersenarai pendek", note:"Wajib hadir untuk pensijilan.", tent:true },
+    { id:"gvb-umum",     t:"Pensijilan dan Pengumuman Rasmi GVBuddy", s:"2026-11-07", e:"2026-11-07", time:"", where:"@gengvolunteers dan laman GVBuddy", who:"Semua", note:"Nama paparan, kluster dan kampus sahaja.", tent:true },
+    { id:"jk-1",         t:"JOMKORA Siri 1", s:"2026-11-21", e:"2026-11-21", time:"", where:"Akan dimaklumkan", who:"Sukarelawan JOMKORA", note:"", tent:false },
+    { id:"gvb-cadangan", t:"Tarikh akhir cadangan projek kluster", s:"2026-11-30", e:"2026-11-30", time:"23:59", where:"Laman GVBuddy", who:"GVBuddy", note:"Kelulusan bertulis diperlukan sebelum sebarang pengumuman atau kutipan dana.", tent:true },
+    { id:"jk-2",         t:"JOMKORA Siri 2", s:"2026-12-25", e:"2026-12-27", time:"", where:"Akan dimaklumkan", who:"Sukarelawan JOMKORA", note:"", tent:false },
+    { id:"gvb-projek",   t:"Tarikh akhir projek GVBuddy setiap kluster", s:"2026-12-31", e:"2026-12-31", time:"", where:"Kampus setiap kluster", who:"GVBuddy", note:"Sasaran: satu projek bagi setiap kluster.", tent:false },
+    { id:"gvb-laporan",  t:"Tarikh akhir laporan penutup projek", s:"2027-01-07", e:"2027-01-07", time:"23:59", where:"Laman GVBuddy", who:"GVBuddy", note:"Laporan kewangan dalam 7 hari selepas kutipan ditutup.", tent:true },
+    { id:"jk-3",         t:"JOMKORA Siri 3", s:"", e:"", time:"", where:"Akan dimaklumkan", who:"Sukarelawan JOMKORA", note:"Januari 2027. Tarikh akan disahkan.", tent:true }
+  ]
+};
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Data kampus dan kluster. Jalur sahaja (tiada kiraan tepat). Backend menggantikan data ini apabila disambung. */
+var PUB = {"clusters":[{"id":"ukm-bangi","name":"Kluster UKM Bangi","zone":"tengah","slots":2,"b":4},{"id":"uiam-gombak","name":"Kluster UIAM Gombak","zone":"tengah","slots":2,"b":4},{"id":"um","name":"Kluster UM","zone":"tengah","slots":2,"b":4},{"id":"usim","name":"Kluster USIM Nilai","zone":"tengah","slots":2,"b":4},{"id":"uitm-dengkil","name":"Kluster UiTM Pusat Asasi Dengkil","zone":"tengah","slots":2,"b":4},{"id":"uniten-putrajaya","name":"Kluster UNITEN Putrajaya","zone":"tengah","slots":1,"b":4},{"id":"uitm-shahalam","name":"Kluster UiTM Shah Alam","zone":"tengah","slots":1,"b":4},{"id":"upm","name":"Kluster UPM Serdang","zone":"tengah","slots":1,"b":3},{"id":"msu","name":"Kluster MSU Shah Alam","zone":"tengah","slots":1,"b":3},{"id":"uptm","name":"Kluster UPTM Cheras","zone":"tengah","slots":1,"b":3},{"id":"mmu","name":"Kluster Cyberjaya","zone":"tengah","slots":1,"b":3},{"id":"unikl-ubis","name":"Kluster UniKL Business School","zone":"tengah","slots":1,"b":3},{"id":"kpm-beranang","name":"Kluster Beranang","zone":"tengah","slots":1,"b":2},{"id":"gmi","name":"Kluster Kajang","zone":"tengah","slots":1,"b":2},{"id":"km-n9","name":"Kluster Kuala Pilah dan Rembau","zone":"tengah","slots":1,"b":2},{"id":"sunway-college","name":"Kluster Sunway College","zone":"tengah","slots":1,"b":2},{"id":"uitm-puncakalam","name":"Kluster UiTM Puncak Alam","zone":"tengah","slots":1,"b":2},{"id":"unikl-miit","name":"Kluster UniKL MIIT","zone":"tengah","slots":1,"b":2},{"id":"km-selangor","name":"Kluster Banting","zone":"tengah","slots":1,"b":2},{"id":"intec","name":"Kluster INTEC Shah Alam","zone":"tengah","slots":1,"b":2},{"id":"unitar","name":"Kluster Kelana Jaya","zone":"tengah","slots":1,"b":2},{"id":"kmara-seremban","name":"Kluster Seremban","zone":"tengah","slots":1,"b":2},{"id":"upnm","name":"Kluster UPNM Sungai Besi","zone":"tengah","slots":1,"b":2},{"id":"kptm-bangi","name":"Kluster KPTM Bangi","zone":"tengah","slots":1,"b":2},{"id":"poli-psis","name":"Kluster Sabak Bernam","zone":"tengah","slots":1,"b":2},{"id":"sunway-uni","name":"Kluster Sunway University","zone":"tengah","slots":1,"b":2},{"id":"uis","name":"Kluster UIS Bangi","zone":"tengah","slots":1,"b":2},{"id":"g-darulquran","name":"Kluster Kuala Kubu Bharu","zone":"tengah","slots":1,"b":2},{"id":"utm-skudai","name":"Kluster UTM Skudai","zone":"selatan","slots":1,"b":4},{"id":"km-melaka","name":"Kluster Matrikulasi Melaka","zone":"selatan","slots":1,"b":4},{"id":"utem","name":"Kluster UTeM Durian Tunggal","zone":"selatan","slots":1,"b":3},{"id":"poli-merlimau","name":"Kluster Merlimau dan Muar","zone":"selatan","slots":1,"b":2},{"id":"uitm-segamat","name":"Kluster UiTM Segamat","zone":"selatan","slots":1,"b":2},{"id":"kpm-ayermolek","name":"Kluster Ayer Molek","zone":"selatan","slots":1,"b":2},{"id":"manipal","name":"Kluster Manipal Melaka","zone":"selatan","slots":1,"b":2},{"id":"unikl-mitec","name":"Kluster Pasir Gudang","zone":"selatan","slots":1,"b":2},{"id":"uthm","name":"Kluster UTHM Parit Raja","zone":"selatan","slots":1,"b":2},{"id":"g-uiam-pagoh","name":"Kluster Pagoh","zone":"selatan","slots":1,"b":2},{"id":"km-penang","name":"Kluster Seberang Perai dan Kedah Selatan","zone":"utara","slots":1,"b":3},{"id":"unikl-rcmp","name":"Kluster Ipoh dan Seri Iskandar","zone":"utara","slots":1,"b":3},{"id":"usm","name":"Kluster USM Pulau Pinang","zone":"utara","slots":1,"b":3},{"id":"unimap","name":"Kluster UniMAP Perlis","zone":"utara","slots":1,"b":2},{"id":"disted","name":"Kluster George Town","zone":"utara","slots":1,"b":2},{"id":"upsi","name":"Kluster UPSI Tanjong Malim","zone":"utara","slots":1,"b":2},{"id":"uum","name":"Kluster UUM Sintok","zone":"utara","slots":1,"b":2},{"id":"uitm-arau","name":"Kluster UiTM Arau","zone":"utara","slots":1,"b":2},{"id":"g-aiu","name":"Kluster Alor Setar","zone":"utara","slots":1,"b":2},{"id":"poli-puo","name":"Kluster Politeknik Ungku Omar","zone":"utara","slots":1,"b":2},{"id":"g-ikm-lenggong","name":"Kluster Lenggong","zone":"utara","slots":1,"b":2},{"id":"g-uitm-tapah","name":"Kluster Tapah","zone":"utara","slots":1,"b":2},{"id":"km-kelantan","name":"Kluster Kelantan","zone":"timur","slots":1,"b":3},{"id":"unisza","name":"Kluster Kuala Terengganu","zone":"timur","slots":1,"b":3},{"id":"km-pahang","name":"Kluster Kuantan dan Gambang","zone":"timur","slots":1,"b":3},{"id":"uniten-muadzam","name":"Kluster Muadzam Shah","zone":"timur","slots":1,"b":2},{"id":"g-ikm-kemaman","name":"Kluster Dungun dan Kemaman","zone":"timur","slots":1,"b":2},{"id":"g-uitm-jengka","name":"Kluster Jengka","zone":"timur","slots":1,"b":2},{"id":"unimas","name":"Kluster Kuching dan Samarahan","zone":"borneo","slots":1,"b":2},{"id":"g-jesselton","name":"Kluster Kota Kinabalu","zone":"borneo","slots":1,"b":2}],"campuses":[{"id":"uitm-dengkil","i":"UiTM","c":"Pusat Asasi Dengkil","s":"Selangor","z":"tengah","la":2.8634,"ln":101.6876,"k":"uitm-dengkil","t":"ua","b":4,"d":0},{"id":"uitm-shahalam","i":"UiTM","c":"Shah Alam","s":"Selangor","z":"tengah","la":3.0698,"ln":101.5037,"k":"uitm-shahalam","t":"ua","b":4,"d":0},{"id":"uitm-puncakalam","i":"UiTM","c":"Puncak Alam","s":"Selangor","z":"tengah","la":3.229,"ln":101.429,"k":"uitm-puncakalam","t":"ua","b":2,"d":0},{"id":"uitm-arau","i":"UiTM","c":"Arau","s":"Perlis","z":"utara","la":6.4497,"ln":100.2786,"k":"uitm-arau","t":"ua","b":2,"d":0},{"id":"uitm-segamat","i":"UiTM","c":"Segamat","s":"Johor","z":"selatan","la":2.443,"ln":102.696,"k":"uitm-segamat","t":"ua","b":2,"d":0},{"id":"uitm-alorgajah","i":"UiTM","c":"Alor Gajah","s":"Melaka","z":"selatan","la":2.224,"ln":102.454,"k":"poli-merlimau","t":"ua","b":2,"d":9.1},{"id":"uitm-dungun","i":"UiTM","c":"Dungun","s":"Terengganu","z":"timur","la":4.769,"ln":103.419,"k":"g-ikm-kemaman","t":"ua","b":2,"d":0},{"id":"uitm-jengka","i":"UiTM","c":"Jengka","s":"Pahang","z":"timur","la":3.743,"ln":102.549,"k":"g-uitm-jengka","t":"ua","b":2,"d":0},{"id":"uitm-kt","i":"UiTM","c":"Kuala Terengganu","s":"Terengganu","z":"timur","la":5.264,"ln":103.185,"k":"unisza","t":"ua","b":2,"d":18.5},{"id":"uitm-rembau","i":"UiTM","c":"Rembau","s":"Negeri Sembilan","z":"tengah","la":2.585,"ln":102.095,"k":"km-n9","t":"ua","b":2,"d":24.1},{"id":"uitm-seremban3","i":"UiTM","c":"Seremban 3","s":"Negeri Sembilan","z":"tengah","la":2.687,"ln":101.907,"k":"kmara-seremban","t":"ua","b":2,"d":6.9},{"id":"uitm-sgpetani","i":"UiTM","c":"Sungai Petani","s":"Kedah","z":"utara","la":5.638,"ln":100.499,"k":"km-penang","t":"ua","b":2,"d":15.0},{"id":"uitm-tapah","i":"UiTM","c":"Tapah","s":"Perak","z":"utara","la":4.184,"ln":101.262,"k":"g-uitm-tapah","t":"ua","b":2,"d":0},{"id":"ukm-bangi","i":"UKM","c":"Bangi","s":"Selangor","z":"tengah","la":2.929,"ln":101.777,"k":"ukm-bangi","t":"ua","b":4,"d":0},{"id":"ukm-kl","i":"UKM","c":"Kuala Lumpur (HUKM)","s":"WP Kuala Lumpur","z":"tengah","la":3.099,"ln":101.725,"k":"uptm","t":"ua","b":2,"d":1.9},{"id":"um","i":"UM","c":"Kuala Lumpur","s":"WP Kuala Lumpur","z":"tengah","la":3.121,"ln":101.654,"k":"um","t":"ua","b":4,"d":0},{"id":"uiam-gombak","i":"UIAM","c":"Gombak","s":"Selangor","z":"tengah","la":3.252,"ln":101.735,"k":"uiam-gombak","t":"ua","b":4,"d":0},{"id":"uiam-pagoh","i":"UIAM","c":"Pagoh","s":"Johor","z":"selatan","la":2.149,"ln":102.734,"k":"g-uiam-pagoh","t":"ua","b":2,"d":0},{"id":"uiam-gambang","i":"UIAM","c":"Pusat Asasi Gambang","s":"Pahang","z":"timur","la":3.707,"ln":103.1,"k":"km-pahang","t":"ua","b":2,"d":2.5},{"id":"usim","i":"USIM","c":"Nilai","s":"Negeri Sembilan","z":"tengah","la":2.843,"ln":101.783,"k":"usim","t":"ua","b":4,"d":0},{"id":"utm-skudai","i":"UTM","c":"Skudai","s":"Johor","z":"selatan","la":1.559,"ln":103.638,"k":"utm-skudai","t":"ua","b":4,"d":0},{"id":"upm","i":"UPM","c":"Serdang","s":"Selangor","z":"tengah","la":2.999,"ln":101.707,"k":"upm","t":"ua","b":3,"d":0},{"id":"usm","i":"USM","c":"Pulau Pinang","s":"Pulau Pinang","z":"utara","la":5.356,"ln":100.302,"k":"usm","t":"ua","b":3,"d":0},{"id":"utem","i":"UTeM","c":"Durian Tunggal","s":"Melaka","z":"selatan","la":2.314,"ln":102.318,"k":"utem","t":"ua","b":2,"d":0},{"id":"unisza","i":"UniSZA","c":"Gong Badak","s":"Terengganu","z":"timur","la":5.397,"ln":103.084,"k":"unisza","t":"ua","b":2,"d":0},{"id":"unimas","i":"UNIMAS","c":"Kota Samarahan","s":"Sarawak","z":"borneo","la":1.466,"ln":110.429,"k":"unimas","t":"ua","b":2,"d":0},{"id":"upnm","i":"UPNM","c":"Sungai Besi","s":"WP Kuala Lumpur","z":"tengah","la":3.051,"ln":101.724,"k":"upnm","t":"ua","b":2,"d":0},{"id":"upsi","i":"UPSI","c":"Tanjong Malim","s":"Perak","z":"utara","la":3.694,"ln":101.516,"k":"upsi","t":"ua","b":2,"d":0},{"id":"uthm","i":"UTHM","c":"Parit Raja","s":"Johor","z":"selatan","la":1.858,"ln":103.085,"k":"uthm","t":"ua","b":2,"d":0},{"id":"uum","i":"UUM","c":"Sintok","s":"Kedah","z":"utara","la":6.463,"ln":100.505,"k":"uum","t":"ua","b":2,"d":0},{"id":"unimap","i":"UniMAP","c":"Pauh Putra","s":"Perlis","z":"utara","la":6.46,"ln":100.35,"k":"unimap","t":"ua","b":2,"d":0},{"id":"umk","i":"UMK","c":"Kota Bharu","s":"Kelantan","z":"timur","la":6.165,"ln":102.283,"k":"km-kelantan","t":"ua","b":2,"d":24.1},{"id":"umpsa","i":"UMPSA","c":"Gambang","s":"Pahang","z":"timur","la":3.725,"ln":103.12,"k":"km-pahang","t":"ua","b":2,"d":5.4},{"id":"umt","i":"UMT","c":"Kuala Nerus","s":"Terengganu","z":"timur","la":5.41,"ln":103.088,"k":"unisza","t":"ua","b":2,"d":1.5},{"id":"unikl-ubis","i":"UniKL","c":"Business School","s":"WP Kuala Lumpur","z":"tengah","la":3.158,"ln":101.703,"k":"unikl-ubis","t":"ipts","b":2,"d":0},{"id":"unikl-miit","i":"UniKL","c":"MIIT","s":"WP Kuala Lumpur","z":"tengah","la":3.161,"ln":101.706,"k":"unikl-miit","t":"ipts","b":2,"d":0},{"id":"unikl-mitec","i":"UniKL","c":"MITEC Pasir Gudang","s":"Johor","z":"selatan","la":1.469,"ln":103.9,"k":"unikl-mitec","t":"ipts","b":2,"d":0},{"id":"unikl-rcmp","i":"UniKL","c":"RCMP Ipoh","s":"Perak","z":"utara","la":4.598,"ln":101.09,"k":"unikl-rcmp","t":"ipts","b":2,"d":0},{"id":"unikl-miat","i":"UniKL","c":"MIAT Sepang","s":"Selangor","z":"tengah","la":2.838,"ln":101.681,"k":"uitm-dengkil","t":"ipts","b":2,"d":2.9},{"id":"unikl-micet","i":"UniKL","c":"MICET Alor Gajah","s":"Melaka","z":"selatan","la":2.386,"ln":102.213,"k":"km-melaka","t":"ipts","b":2,"d":13.6},{"id":"uniten-muadzam","i":"UNITEN","c":"Muadzam Shah","s":"Pahang","z":"timur","la":3.057,"ln":103.093,"k":"uniten-muadzam","t":"ipts","b":2,"d":0},{"id":"uniten-putrajaya","i":"UNITEN","c":"Putrajaya","s":"Selangor","z":"tengah","la":2.973,"ln":101.731,"k":"uniten-putrajaya","t":"ipts","b":4,"d":0},{"id":"uptm","i":"UPTM","c":"Kuala Lumpur","s":"WP Kuala Lumpur","z":"tengah","la":3.116,"ln":101.724,"k":"uptm","t":"ipts","b":3,"d":0},{"id":"sunway-college","i":"Sunway College","c":"Bandar Sunway","s":"Selangor","z":"tengah","la":3.067,"ln":101.604,"k":"sunway-college","t":"ipts","b":2,"d":0},{"id":"intec","i":"INTEC Education College","c":"Shah Alam","s":"Selangor","z":"tengah","la":3.048,"ln":101.526,"k":"intec","t":"ipts","b":2,"d":0},{"id":"msu","i":"MSU","c":"Shah Alam","s":"Selangor","z":"tengah","la":3.079,"ln":101.553,"k":"msu","t":"ipts","b":2,"d":0},{"id":"disted","i":"DISTED College","c":"Pulau Pinang","s":"Pulau Pinang","z":"utara","la":5.421,"ln":100.33,"k":"disted","t":"ipts","b":2,"d":0},{"id":"mmu","i":"MMU","c":"Cyberjaya","s":"Selangor","z":"tengah","la":2.927,"ln":101.642,"k":"mmu","t":"ipts","b":2,"d":0},{"id":"manipal","i":"Manipal University College","c":"Melaka","s":"Melaka","z":"selatan","la":2.228,"ln":102.247,"k":"manipal","t":"ipts","b":2,"d":0},{"id":"sunway-uni","i":"Sunway University","c":"Bandar Sunway","s":"Selangor","z":"tengah","la":3.066,"ln":101.605,"k":"sunway-uni","t":"ipts","b":2,"d":0},{"id":"uis","i":"UIS","c":"Bangi","s":"Selangor","z":"tengah","la":2.879,"ln":101.788,"k":"uis","t":"ipts","b":2,"d":0},{"id":"unitar","i":"UNITAR","c":"Kelana Jaya","s":"Selangor","z":"tengah","la":3.106,"ln":101.595,"k":"unitar","t":"ipts","b":2,"d":0},{"id":"aimst","i":"AIMST University","c":"Bedong","s":"Kedah","z":"utara","la":5.733,"ln":100.517,"k":"km-penang","t":"ipts","b":2,"d":25.6},{"id":"aiu","i":"AIU","c":"Alor Setar","s":"Kedah","z":"utara","la":6.105,"ln":100.373,"k":"g-aiu","t":"ipts","b":2,"d":0},{"id":"alam","i":"ALAM","c":"Kuala Sungai Baru","s":"Melaka","z":"selatan","la":2.347,"ln":102.096,"k":"km-melaka","t":"ipts","b":2,"d":2.9},{"id":"heriotwatt","i":"Heriot Watt","c":"Putrajaya","s":"WP Putrajaya","z":"tengah","la":2.924,"ln":101.715,"k":"uniten-putrajaya","t":"ipts","b":2,"d":5.7},{"id":"jesselton","i":"Jesselton University College","c":"Kota Kinabalu","s":"Sabah","z":"borneo","la":5.976,"ln":116.072,"k":"g-jesselton","t":"ipts","b":2,"d":0},{"id":"kpj","i":"KPJ Healthcare University","c":"Nilai","s":"Negeri Sembilan","z":"tengah","la":2.807,"ln":101.796,"k":"usim","t":"ipts","b":2,"d":4.3},{"id":"lincoln","i":"Lincoln University College","c":"Petaling Jaya","s":"Selangor","z":"tengah","la":3.105,"ln":101.605,"k":"unitar","t":"ipts","b":2,"d":1.1},{"id":"mahsa","i":"MAHSA University","c":"Saujana Putra","s":"Selangor","z":"tengah","la":2.955,"ln":101.581,"k":"mmu","t":"ipts","b":2,"d":7.5},{"id":"oum","i":"OUM","c":"Kuala Lumpur","s":"WP Kuala Lumpur","z":"tengah","la":3.164,"ln":101.693,"k":"unikl-ubis","t":"ipts","b":2,"d":1.3},{"id":"tarumt","i":"TAR UMT","c":"Setapak","s":"WP Kuala Lumpur","z":"tengah","la":3.216,"ln":101.727,"k":"uiam-gombak","t":"ipts","b":2,"d":4.1},{"id":"unimaiwp","i":"UNIMAIWP","c":"Kuala Lumpur","s":"WP Kuala Lumpur","z":"tengah","la":3.214,"ln":101.748,"k":"uiam-gombak","t":"ipts","b":2,"d":4.5},{"id":"uow","i":"UOW Malaysia","c":"Glenmarie","s":"Selangor","z":"tengah","la":3.088,"ln":101.556,"k":"msu","t":"ipts","b":2,"d":1.1},{"id":"utp","i":"UTP","c":"Seri Iskandar","s":"Perak","z":"utara","la":4.385,"ln":100.979,"k":"unikl-rcmp","t":"ipts","b":2,"d":26.7},{"id":"geomatika","i":"Universiti Geomatika","c":"Kuala Lumpur","s":"WP Kuala Lumpur","z":"tengah","la":3.176,"ln":101.738,"k":"unikl-miit","t":"ipts","b":2,"d":3.9},{"id":"umw","i":"Universiti Malaya Wales","c":"Kuala Lumpur","s":"WP Kuala Lumpur","z":"tengah","la":3.147,"ln":101.713,"k":"unikl-ubis","t":"ipts","b":2,"d":1.7},{"id":"cyberjaya","i":"University of Cyberjaya","c":"Cyberjaya","s":"Selangor","z":"tengah","la":2.9213,"ln":101.6559,"k":"mmu","t":"ipts","b":2,"d":1.7},{"id":"km-melaka","i":"Kolej Matrikulasi KPM","c":"Melaka","s":"Melaka","z":"selatan","la":2.324,"ln":102.108,"k":"km-melaka","t":"matrik","b":4,"d":0},{"id":"km-penang","i":"Kolej Matrikulasi KPM","c":"Pulau Pinang","s":"Pulau Pinang","z":"utara","la":5.516,"ln":100.441,"k":"km-penang","t":"matrik","b":3,"d":0},{"id":"km-kelantan","i":"Kolej Matrikulasi KPM","c":"Kelantan","s":"Kelantan","z":"timur","la":5.96,"ln":102.354,"k":"km-kelantan","t":"matrik","b":2,"d":0},{"id":"km-n9","i":"Kolej Matrikulasi KPM","c":"Negeri Sembilan","s":"Negeri Sembilan","z":"tengah","la":2.747,"ln":102.239,"k":"km-n9","t":"matrik","b":2,"d":0},{"id":"km-pahang","i":"Kolej Matrikulasi KPM","c":"Pahang","s":"Pahang","z":"timur","la":3.688,"ln":103.088,"k":"km-pahang","t":"matrik","b":2,"d":0},{"id":"km-selangor","i":"Kolej Matrikulasi KPM","c":"Selangor","s":"Selangor","z":"tengah","la":2.817,"ln":101.527,"k":"km-selangor","t":"matrik","b":2,"d":0},{"id":"km-perlis","i":"Kolej Matrikulasi KPM","c":"Perlis","s":"Perlis","z":"utara","la":6.427,"ln":100.281,"k":"uitm-arau","t":"matrik","b":2,"d":2.5},{"id":"poli-merlimau","i":"Politeknik","c":"Merlimau","s":"Melaka","z":"selatan","la":2.145,"ln":102.432,"k":"poli-merlimau","t":"tvet","b":2,"d":0},{"id":"poli-psis","i":"Politeknik","c":"Sultan Idris Shah","s":"Selangor","z":"tengah","la":3.767,"ln":100.996,"k":"poli-psis","t":"tvet","b":2,"d":0},{"id":"poli-puo","i":"Politeknik","c":"Ungku Omar","s":"Perak","z":"utara","la":4.589,"ln":101.125,"k":"poli-puo","t":"tvet","b":2,"d":0},{"id":"poli-metrokuantan","i":"Politeknik","c":"Metro Kuantan","s":"Pahang","z":"timur","la":3.803,"ln":103.329,"k":"km-pahang","t":"tvet","b":2,"d":29.6},{"id":"poli-nilai","i":"Politeknik","c":"Nilai","s":"Negeri Sembilan","z":"tengah","la":2.809,"ln":101.806,"k":"usim","t":"tvet","b":2,"d":4.6},{"id":"poli-polimas","i":"Politeknik","c":"POLIMAS Jitra","s":"Kedah","z":"utara","la":6.269,"ln":100.42,"k":"unimap","t":"tvet","b":2,"d":22.6},{"id":"poli-psa","i":"Politeknik","c":"Sultan Salahuddin Abdul Aziz Shah","s":"Selangor","z":"tengah","la":3.07,"ln":101.525,"k":"uitm-shahalam","t":"tvet","b":2,"d":2.4},{"id":"kv-gombak","i":"Kolej Vokasional","c":"Gombak","s":"Selangor","z":"tengah","la":3.266,"ln":101.686,"k":"uiam-gombak","t":"tvet","b":2,"d":5.7},{"id":"kv-ipoh","i":"Kolej Vokasional","c":"Ipoh","s":"Perak","z":"utara","la":4.605,"ln":101.095,"k":"unikl-rcmp","t":"tvet","b":2,"d":1.0},{"id":"kv-muar","i":"Kolej Vokasional","c":"Muar","s":"Johor","z":"selatan","la":2.04,"ln":102.574,"k":"poli-merlimau","t":"tvet","b":2,"d":19.6},{"id":"kv-sperai","i":"Kolej Vokasional","c":"Seberang Perai","s":"Pulau Pinang","z":"utara","la":5.393,"ln":100.416,"k":"disted","t":"tvet","b":2,"d":10.0},{"id":"kv-sepang","i":"Kolej Vokasional","c":"Sepang","s":"Selangor","z":"tengah","la":2.737,"ln":101.736,"k":"usim","t":"tvet","b":2,"d":12.9},{"id":"gmi","i":"GMI","c":"Kajang","s":"Selangor","z":"tengah","la":2.992,"ln":101.778,"k":"gmi","t":"tvet","b":2,"d":0},{"id":"kk-segamat","i":"Kolej Komuniti","c":"Segamat 2","s":"Johor","z":"selatan","la":2.51,"ln":102.81,"k":"uitm-segamat","t":"tvet","b":2,"d":14.7},{"id":"ipg-batulintang","i":"IPG","c":"Batu Lintang","s":"Sarawak","z":"borneo","la":1.541,"ln":110.333,"k":"unimas","t":"ipg","b":2,"d":13.5},{"id":"ipg-ipoh","i":"IPG","c":"Ipoh","s":"Perak","z":"utara","la":4.636,"ln":101.11,"k":"unikl-rcmp","t":"ipg","b":2,"d":4.8},{"id":"ipg-jitra","i":"IPG","c":"Jitra","s":"Kedah","z":"utara","la":6.253,"ln":100.426,"k":"unimap","t":"ipg","b":2,"d":24.5},{"id":"ipg-kotabharu","i":"IPG","c":"Kota Bharu","s":"Kelantan","z":"timur","la":6.111,"ln":102.256,"k":"km-kelantan","t":"ipg","b":2,"d":20.0},{"id":"darulquran","i":"Darul Quran JAKIM","c":"Kuala Kubu Bharu","s":"Selangor","z":"tengah","la":3.561,"ln":101.66,"k":"g-darulquran","t":"islam","b":2,"d":0},{"id":"kpm-beranang","i":"Kolej Profesional MARA","c":"Beranang","s":"Selangor","z":"tengah","la":2.88,"ln":101.869,"k":"kpm-beranang","t":"mara","b":2,"d":0},{"id":"kpm-ayermolek","i":"Kolej Profesional MARA","c":"Ayer Molek","s":"Melaka","z":"selatan","la":2.212,"ln":102.329,"k":"kpm-ayermolek","t":"mara","b":2,"d":0},{"id":"kpm-seriiskandar","i":"Kolej Profesional MARA","c":"Seri Iskandar","s":"Perak","z":"utara","la":4.366,"ln":100.975,"k":"unikl-rcmp","t":"mara","b":2,"d":28.8},{"id":"kmara-seremban","i":"Kolej MARA","c":"Seremban","s":"Negeri Sembilan","z":"tengah","la":2.74,"ln":101.94,"k":"kmara-seremban","t":"mara","b":2,"d":0},{"id":"kmara-banting","i":"Kolej MARA","c":"Banting","s":"Selangor","z":"tengah","la":2.811,"ln":101.504,"k":"km-selangor","t":"mara","b":2,"d":2.6},{"id":"kmara-kualanerang","i":"Kolej MARA","c":"Kuala Nerang","s":"Kedah","z":"utara","la":6.247,"ln":100.611,"k":"uum","t":"mara","b":2,"d":26.7},{"id":"kptm-bangi","i":"KPTM","c":"Bangi","s":"Selangor","z":"tengah","la":2.956,"ln":101.763,"k":"kptm-bangi","t":"mara","b":2,"d":0},{"id":"kptm-alorsetar","i":"KPTM","c":"Alor Setar","s":"Kedah","z":"utara","la":6.146,"ln":100.37,"k":"g-aiu","t":"mara","b":2,"d":0},{"id":"ikm-kemaman","i":"TVET MARA","c":"Kemaman","s":"Terengganu","z":"timur","la":4.226,"ln":103.421,"k":"g-ikm-kemaman","t":"mara","b":2,"d":0},{"id":"ikm-lenggong","i":"TVET MARA","c":"Lenggong","s":"Perak","z":"utara","la":5.11,"ln":100.97,"k":"g-ikm-lenggong","t":"mara","b":2,"d":0},{"id":"mrsm-tgb","i":"MRSM","c":"Tun Ghafar Baba","s":"Melaka","z":"selatan","la":2.311,"ln":102.429,"k":"utem","t":"mara","b":2,"d":12.3},{"id":"smk-machang","i":"SMK","c":"Machang","s":"Kelantan","z":"timur","la":5.766,"ln":102.216,"k":"km-kelantan","t":"sekolah","b":2,"d":26.4},{"id":"smk-tinggikajang","i":"SMK","c":"Tinggi Kajang","s":"Selangor","z":"tengah","la":2.993,"ln":101.788,"k":"gmi","t":"sekolah","b":2,"d":1.1},{"id":"smka-yan","i":"SMKA","c":"Yan","s":"Kedah","z":"utara","la":5.8,"ln":100.38,"k":"km-penang","t":"sekolah","b":2,"d":32.3},{"id":"smk-putrajaya","i":"SMK","c":"Putrajaya Presint 5 (1)","s":"WP Putrajaya","z":"tengah","la":2.923,"ln":101.68,"k":"mmu","t":"sekolah","b":2,"d":4.2},{"id":"pte-tasikkesuma","i":"Pusat Tingkatan Enam","c":"SMK Bandar Tasik Kesuma","s":"Selangor","z":"tengah","la":2.893,"ln":101.858,"k":"kpm-beranang","t":"sekolah","b":2,"d":1.9},{"id":"pte-datomohdsaid","i":"Pusat Tingkatan Enam","c":"SMK Dato' Mohd Said","s":"Negeri Sembilan","z":"tengah","la":2.817,"ln":101.8,"k":"usim","t":"sekolah","b":2,"d":3.5},{"id":"kt6-shahalam","i":"Kolej Tingkatan Enam","c":"Shah Alam","s":"Selangor","z":"tengah","la":3.075,"ln":101.53,"k":"msu","t":"sekolah","b":2,"d":2.6},{"id":"sek-klang","i":"Sekolah menengah","c":"Kawasan Klang","s":"Selangor","z":"tengah","la":3.044,"ln":101.446,"k":"uitm-shahalam","t":"sekolah","b":2,"d":7.0}]};
+
+(function(){
+"use strict";
+var $ = function(s,r){ return (r||document).querySelector(s) };
+var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)) };
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] }) }
+function toast(m){ var t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){ t.classList.remove('on') },2600) }
+function store(k,v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v) }catch(e){ return null } }
+
+var ZONES = [
+  { id:'tengah',  n:'Tengah',       c:'#E8631A' },
+  { id:'selatan', n:'Selatan',      c:'#3A86FF' },
+  { id:'utara',   n:'Utara',        c:'#2BB673' },
+  { id:'timur',   n:'Pantai Timur', c:'#FFC23A' },
+  { id:'borneo',  n:'Borneo',       c:'#B48CFF' }
+];
+var ZN = {}; ZONES.forEach(function(z){ ZN[z.id]=z });
+var BAND = { 2:'bawah 5', 3:'5 hingga 9', 4:'10 ke atas' };
+var RADIUS = { 2:6, 3:9, 4:13 };
+var STATES = ['Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','WP Kuala Lumpur','WP Labuan','WP Putrajaya'];
+var STATE_ZONE = {'Selangor':'tengah','WP Kuala Lumpur':'tengah','WP Putrajaya':'tengah','Negeri Sembilan':'tengah','Johor':'selatan','Melaka':'selatan',
+  'Kedah':'utara','Pulau Pinang':'utara','Perak':'utara','Perlis':'utara','Kelantan':'timur','Terengganu':'timur','Pahang':'timur','Sabah':'borneo','Sarawak':'borneo','WP Labuan':'borneo'};
+var CATS = ['Khidmat komuniti dan kebajikan','Makanan dan agihan','Pendidikan dan pembangunan belia','Alam sekitar dan kelestarian','Kebajikan bandar dan kesihatan','Lain'];
+var MONTHS = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
+var MONTHS_L = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+var DAYS = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+
+var S = { clusters:PUB.clusters, campuses:PUB.campuses, buddies:[], projects:[], events:CFG.events,
+          config:{ open:true, closeAt:CFG.closeAt, announce:'' }, live:false, admin:null, zone:'all', q:'', sel:null };
+
+/* ── helpers: data ───────────────────────────────────── */
+function clusterById(id){ for(var i=0;i<S.clusters.length;i++) if(S.clusters[i].id===id) return S.clusters[i]; return null }
+function members(id){ return S.campuses.filter(function(c){ return c.k===id }) }
+function anchorOf(cl){
+  var m = members(cl.id); if(!m.length) return null;
+  var want = cl.id.replace(/^g-/,'');
+  for(var i=0;i<m.length;i++) if(m[i].id===want) return m[i];
+  var pub = m.filter(function(c){ return c.t!=='sekolah' }); var pool = pub.length?pub:m;
+  return pool.slice().sort(function(a,b){ return (b.b-a.b) || ((b.n||0)-(a.n||0)) })[0];
+}
+function adminN(id){ if(!S.admin) return null; var t=0; S.admin.campuses.forEach(function(c){ if(c.k===id) t+=c.n }); return t }
+function statusOf(cl){
+  var f = cl.filled||0, s = cl.slots||1;
+  if(f >= s) return { cls:'done', t:'Lengkap ' + f + '/' + s };
+  if(f > 0)  return { cls:'wip',  t:f + '/' + s + ' disahkan' };
+  if(cl.applied) return { cls:'wip', t:'Dalam saringan' };
+  return { cls:'open', t:'Terbuka' };
+}
+function projOf(id){ return S.projects.filter(function(p){ return p.k===id }) }
+function inst(c){ return c.i + ' ' + c.c }
+function parseD(s){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''); return m ? new Date(+m[1],+m[2]-1,+m[3]) : null }
+function fmtD(s){ var d=parseD(s); return d ? d.getDate()+' '+MONTHS_L[d.getMonth()]+' '+d.getFullYear() : 'Tarikh akan disahkan' }
+function evById(id){ for(var i=0;i<S.events.length;i++) if(S.events[i].id===id) return S.events[i]; return null }
+function evWhen(id){
+  var e = evById(id); if(!e) return '';
+  if(!e.s) return e.note || 'Tarikh akan disahkan';
+  var a=parseD(e.s), b=parseD(e.e||e.s), t;
+  if(e.e && e.e!==e.s) t = (a.getMonth()===b.getMonth() ? a.getDate() : a.getDate()+' '+MONTHS_L[a.getMonth()]) + ' hingga ' + fmtD(e.e);
+  else t = fmtD(e.s);
+  return t + (e.tent ? ' (sementara)' : '');
+}
+
+/* ── hero numbers ───────────────────────────────────── */
+function renderStats(){
+  var slots=0, cert=0; S.clusters.forEach(function(c){ slots+=c.slots||1; cert+=c.filled||0 });
+  $('#stClusters').textContent = S.clusters.length;
+  $('#stSlots').textContent = slots;
+  $('#stCert').textContent = cert;
+  if(S.live) $('#liveStamp').textContent = 'Status kluster dikemas kini secara langsung.';
+  var a = $('#announce'); if(S.config.announce){ a.textContent = S.config.announce; a.hidden=false } else a.hidden=true;
+}
+function regClosed(){ return !S.config.open || (S.config.closeAt && Date.now() > Date.parse(S.config.closeAt)) }
+function renderCountdown(){
+  var el=$('#countdown'), t=Date.parse(S.config.closeAt||'');
+  if(regClosed()){ el.innerHTML='Permohonan GVBuddy sudah ditutup. Ikuti @gengvolunteers untuk pusingan seterusnya.'; return }
+  if(!t){ el.textContent=''; return }
+  var ms=t-Date.now(), d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5);
+  el.innerHTML = 'Permohonan ditutup dalam <b>' + d + ' hari ' + h + ' jam</b>, ' + esc(fmtD(new Date(t+8*36e5).toISOString().slice(0,10))) + '.';
+}
+
+/* ── map ────────────────────────────────────────────── */
+var map=null, groups={}, pins={};
+function popupHtml(cl){
+  var z=ZN[cl.zone]||{n:cl.zone,c:'#999'}, st=statusOf(cl), m=members(cl.id), an=anchorOf(cl);
+  var shown = S.admin ? m : m.filter(function(c){ return c.t!=='sekolah' });
+  var schools = m.length - shown.length;
+  shown.sort(function(a,b){ return (a===an?-1:b===an?1:0) || (b.b-a.b) });
+  var n = adminN(cl.id);
+  var h = '<div class="pop"><div class="pz" style="color:'+z.c+'">Zon '+esc(z.n)+'</div><h4>'+esc(cl.name)+'</h4>'
+    + '<div class="pr"><span>Slot GVBuddy</span><b>'+cl.slots+'</b></div>'
+    + '<div class="pr"><span>Status</span><b>'+esc(st.t)+'</b></div>'
+    + '<div class="pr"><span>Sukarelawan</span><b>'+(n!==null ? n+' orang' : esc(BAND[cl.b]||''))+'</b></div><ul>';
+  shown.forEach(function(c){
+    h += '<li><b>'+esc(inst(c))+'</b>, '+esc(c.s) + (S.admin ? ' · '+(c.n||0)+' orang' : '')
+      + (c===an ? ' · kampus utama' : (c.d ? ' · '+Math.round(c.d)+' km' : '')) + '</li>';
+  });
+  if(schools>0) h += '<li>dan '+schools+' sekolah atau pusat tingkatan enam</li>';
+  h += '</ul>';
+  var p = projOf(cl.id);
+  if(p.length) h += '<div class="pr"><span>Projek</span><b>'+esc(p[0].title)+'</b></div>';
+  if(!regClosed() && (cl.filled||0) < cl.slots) h += '<button class="btn sm" data-apply="'+esc(cl.id)+'">Mohon untuk kluster ini</button>';
+  return h + '</div>';
+}
+function drawMap(){
+  if(!window.L){ $('#map').innerHTML='<div class="mapfail">Peta tidak dapat dimuatkan pada rangkaian ini. Senarai kluster di sebelah masih lengkap.</div>'; return }
+  if(!map){
+    map = L.map('map',{ scrollWheelZoom:false, zoomSnap:.25, minZoom:4.5, maxZoom:15 });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      { subdomains:'abcd', maxZoom:19, attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+    map.fitBounds([[0.9,99.6],[7.4,119.3]]);
+    map.on('focus',function(){ map.scrollWheelZoom.enable() });
+    map.on('blur',function(){ map.scrollWheelZoom.disable() });
+  }
+  Object.keys(groups).forEach(function(k){ map.removeLayer(groups[k]) });
+  groups={}; pins={};
+  S.clusters.forEach(function(cl){
+    var z=ZN[cl.zone]||{c:'#999'}, an=anchorOf(cl); if(!an) return;
+    var g=L.layerGroup(), html=popupHtml(cl);
+    members(cl.id).forEach(function(c){
+      if(c===an) return;
+      if(c.t==='sekolah' && !S.admin) return;
+      L.polyline([[c.la,c.ln],[an.la,an.ln]],{ color:z.c, weight:1.5, opacity:.55, dashArray:'4 5' }).addTo(g);
+      L.circleMarker([c.la,c.ln],{ radius:RADIUS[c.b]||6, color:'#fff', weight:1, fillColor:z.c, fillOpacity:.75 })
+        .bindPopup(html,{maxWidth:300}).addTo(g);
+    });
+    var full = (cl.filled||0) >= cl.slots;
+    var icon = L.divIcon({ className:'', iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-14],
+      html:'<div class="slotpin'+(full?' full':'')+'" style="--c:'+z.c+'">'+cl.slots+'</div>' });
+    var mk = L.marker([an.la,an.ln],{ icon:icon, title:cl.name, riseOnHover:true }).bindPopup(html,{maxWidth:300}).addTo(g);
+    pins[cl.id]=mk; groups[cl.id]=g;
+    if(S.zone==='all' || S.zone===cl.zone) g.addTo(map);
+  });
+}
+function focusCluster(id){
+  S.sel=id; renderList();
+  if(!map || !pins[id]) return;
+  var m = members(id).filter(function(c){ return S.admin || c.t!=='sekolah' }).map(function(c){ return [c.la,c.ln] });
+  if(m.length>1) map.fitBounds(m,{ padding:[50,50], maxZoom:12 }); else map.setView(m[0]||pins[id].getLatLng(), 11);
+  setTimeout(function(){ pins[id].openPopup() }, 350);
+  if(window.innerWidth < 960) $('#map').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function renderZones(){
+  var counts={}; S.clusters.forEach(function(c){ counts[c.zone]=(counts[c.zone]||0)+1 });
+  var h='<button aria-pressed="'+(S.zone==='all')+'" data-z="all">Semua <span class="mono">'+S.clusters.length+'</span></button>';
+  ZONES.forEach(function(z){ h+='<button aria-pressed="'+(S.zone===z.id)+'" data-z="'+z.id+'"><span class="dot" style="background:'+z.c+'"></span>'+z.n+' <span class="mono">'+(counts[z.id]||0)+'</span></button>' });
+  $('#zones').innerHTML=h;
+}
+function setZone(z){
+  S.zone=z; renderZones(); renderList();
+  if(!map) return;
+  var pts=[];
+  S.clusters.forEach(function(cl){
+    var g=groups[cl.id]; if(!g) return;
+    var on = z==='all' || cl.zone===z;
+    if(on){ g.addTo(map); members(cl.id).forEach(function(c){ pts.push([c.la,c.ln]) }) } else map.removeLayer(g);
+  });
+  if(z==='all') map.fitBounds([[0.9,99.6],[7.4,119.3]]); else if(pts.length) map.fitBounds(pts,{ padding:[40,40], maxZoom:11 });
+}
+function renderList(){
+  var q=S.q.toLowerCase().trim(), h='', n=0;
+  S.clusters.forEach(function(cl){
+    if(S.zone!=='all' && cl.zone!==S.zone) return;
+    var m = members(cl.id).filter(function(c){ return S.admin || c.t!=='sekolah' });
+    var hay = (cl.name+' '+m.map(function(c){ return inst(c)+' '+c.s }).join(' ')).toLowerCase();
+    if(q && hay.indexOf(q)<0) return;
+    n++;
+    var z=ZN[cl.zone]||{c:'#999',n:''}, st=statusOf(cl), p=projOf(cl.id);
+    h += '<button class="citem'+(S.sel===cl.id?' on':'')+'" data-c="'+esc(cl.id)+'"><div class="t"><span class="dot" style="background:'+z.c+'"></span>'+esc(cl.name)+'</div>'
+      + '<div class="m"><span>'+m.length+' kampus</span><span>·</span><span>'+cl.slots+' slot</span><span class="pill '+st.cls+'">'+esc(st.t)+'</span>'
+      + (p.length ? '<span class="pill done">Projek</span>' : '') + '</div></button>';
+  });
+  $('#clist').innerHTML = h || '<p class="note" style="padding:10px">Tiada padanan. Jika kampus anda tiada, pilih "Kampus saya tiada dalam senarai" dalam borang permohonan.</p>';
+}
+function renderZoneTable(){
+  var rows={}; ZONES.forEach(function(z){ rows[z.id]={ k:0, c:0, s:0, f:0, p:0 } });
+  S.clusters.forEach(function(cl){ var r=rows[cl.zone]; if(!r) return;
+    r.k++; r.s+=cl.slots; r.f+=Math.min(cl.filled||0,cl.slots); r.c+=members(cl.id).filter(function(c){ return c.t!=='sekolah' }).length;
+    if(projOf(cl.id).length) r.p++ });
+  var h='<thead><tr><th>Zon</th><th class="n">Kluster</th><th class="n">Kampus</th><th class="n">Slot GVBuddy</th><th class="n">Disahkan</th><th class="n">Projek</th></tr></thead><tbody>', T={k:0,c:0,s:0,f:0,p:0};
+  ZONES.forEach(function(z){ var r=rows[z.id]; Object.keys(T).forEach(function(k){ T[k]+=r[k] });
+    h+='<tr><td><span class="dot" style="background:'+z.c+';margin-right:8px"></span>'+z.n+'</td><td class="n">'+r.k+'</td><td class="n">'+r.c+'</td><td class="n">'+r.s+'</td><td class="n">'+r.f+'</td><td class="n">'+r.p+'</td></tr>' });
+  h+='<tr style="font-weight:700"><td>Jumlah</td><td class="n">'+T.k+'</td><td class="n">'+T.c+'</td><td class="n">'+T.s+'</td><td class="n">'+T.f+'</td><td class="n">'+T.p+'</td></tr></tbody>';
+  $('#zoneTable').innerHTML=h;
+}
+
+/* ── target ─────────────────────────────────────────── */
+function renderTarget(){
+  var N=S.clusters.length||1, b=0, p=0, d=0, zp={};
+  S.clusters.forEach(function(cl){
+    if((cl.filled||0)>0) b++;
+    var pr=projOf(cl.id); if(pr.length){ p++; zp[cl.zone]=1 }
+    if(pr.some(function(x){ return x.status==='Selesai' })) d++;
+  });
+  [['Buddy',b],['Proj',p],['Done',d]].forEach(function(x){
+    $('#pg'+x[0]).textContent = x[1]+' / '+N; $('#fg'+x[0]).style.width = Math.round(x[1]/N*100)+'%' });
+  $('#zoneBar').innerHTML = ZONES.map(function(z){ return '<div class="zb'+(zp[z.id]?' yes':'')+'">'+z.n+'<b>'+(zp[z.id]?'Ada projek':'Belum')+'</b></div>' }).join('');
+  $('#jkDates').innerHTML = [['jk-tot','ToT'],['jk-1','Siri 1'],['jk-2','Siri 2'],['jk-3','Siri 3']].map(function(x){
+    var e=evById(x[0]); return '<div><span>'+x[1]+'</span><b>'+esc(e && e.s ? shortRange(e) : 'Jan 2027')+'</b></div>' }).join('');
+  var list = S.projects.slice(0,6);
+  $('#projList').innerHTML = list.length ? '<h3 style="font-size:16px">Projek kluster terkini</h3>' + list.map(function(x){
+    var cl=clusterById(x.k); return '<div class="who"><span>'+esc(cl?cl.name:x.k)+'</span><b>'+esc(x.title)+'</b></div>' }).join('') : '';
+}
+function shortRange(e){
+  var a=parseD(e.s), b=parseD(e.e||e.s);
+  if(+a===+b) return a.getDate()+' '+MONTHS[a.getMonth()];
+  return a.getDate()+(a.getMonth()===b.getMonth()?'':' '+MONTHS[a.getMonth()])+' hingga '+b.getDate()+' '+MONTHS[b.getMonth()];
+}
+
+/* ── SOP path ───────────────────────────────────────── */
+function renderPath(){
+  var steps = [
+    ['', 'Mohon', 'gvb-tutup', 'Isi borang di laman ini. Pilih kampus anda dan kluster ditentukan secara automatik. Sertakan satu idea projek untuk kluster anda.'],
+    ['', 'Saringan ringkas', '', 'Semakan profil dan penglibatan GV, diikuti panggilan pendek. Calon tersenarai pendek dimaklumkan melalui emel dan Telegram.'],
+    ['key', 'ToT GV bersama Project Leader', 'gvb-tot', 'Latihan rasmi secara langsung bersama Project Leader berpandukan GV Playbook. Wajib hadir untuk disahkan.'],
+    ['key', 'Disijilkan', 'gvb-umum', 'Sijil GVBuddy dan nombor sijil rasmi dikeluarkan kepada peserta yang lulus ToT.'],
+    ['key', 'Diumumkan secara rasmi', 'gvb-umum', 'Nama paparan, kluster dan kampus diumumkan di laman ini dan di @gengvolunteers.'],
+    ['', 'Susulan pangkalan data secara sah', '', 'Selepas disahkan, Project Leader memberi akses minimum kepada sukarelawan yang memilih masuk ke kluster anda. Setiap akses direkodkan dan tamat mengikut tempoh.'],
+    ['star', 'Projek kluster anda', 'gvb-projek', 'Hantar cadangan sebelum ' + evWhen('gvb-cadangan') + '. Dapatkan kelulusan bertulis, laksana sebelum 31 Disember, dan hantar laporan penutup sebelum ' + evWhen('gvb-laporan') + '.']
+  ];
+  $('#path').innerHTML = steps.map(function(s){
+    var w = s[2] ? evWhen(s[2]) : '';
+    return '<li class="'+s[0]+'"><h3>'+esc(s[1])+(w?' <span class="when">'+esc(w)+'</span>':'')+'</h3><p class="just">'+esc(s[3])+'</p></li>' }).join('');
+  var tot = evById('gvb-tot'); $('#totHint').textContent = tot && tot.s ? 'Tarikh ToT GV: ' + evWhen('gvb-tot') + '.' : '';
+}
+
+/* ── calendar ───────────────────────────────────────── */
+function pad(n){ return (n<10?'0':'')+n }
+function ymd(d){ return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate()) }
+function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x }
+function timed(e){ return /^\d{1,2}:\d{2}$/.test(e.time||'') }
+function evDesc(e){ return [e.note, e.who ? 'Untuk: '+e.who : '', 'Butiran: https://cendekiaholistikmy.github.io/gengvolunteers/gvbuddy/#kalendar'].filter(Boolean).join('\n') }
+function gcal(e){
+  var a=parseD(e.s), b=parseD(e.e||e.s), dates;
+  if(timed(e)){
+    var p=e.time.split(':'), h=+p[0], mi=+p[1], st=ymd(a)+'T'+pad(h)+pad(mi)+'00';
+    var en = h>=23 ? ymd(a)+'T235900' : ymd(a)+'T'+pad(h+1)+pad(mi)+'00';
+    if(h>=23 && mi>=59){ st=ymd(a)+'T230000' }
+    dates = st+'/'+en;
+  } else dates = ymd(a)+'/'+ymd(addDays(b,1));
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(e.t)
+    +'&dates='+dates+'&ctz=Asia/Kuala_Lumpur&details='+encodeURIComponent(evDesc(e))+'&location='+encodeURIComponent(e.where||'');
+}
+function icsEsc(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/([,;])/g,'\\$1') }
+function fold(line){ var out=[], s=line; while(s.length>73){ out.push(s.slice(0,73)); s=' '+s.slice(73) } out.push(s); return out.join('\r\n') }
+function utc(d){ return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+'00Z' }
+function vevent(e){
+  var a=parseD(e.s), b=parseD(e.e||e.s), L=['BEGIN:VEVENT','UID:'+e.id+'-2026@gvbuddy.gengvolunteers','DTSTAMP:'+utc(new Date())];
+  if(timed(e)){
+    var p=e.time.split(':'), st=Date.UTC(a.getFullYear(),a.getMonth(),a.getDate(),+p[0]-8,+p[1]);
+    var dur = (+p[0]>=23) ? 0 : 36e5; if(+p[0]>=23){ st -= (+p[1]>=59 ? 59*6e4 : 0); dur = 59*6e4 }
+    L.push('DTSTART:'+utc(new Date(st)),'DTEND:'+utc(new Date(st+dur)));
+  } else L.push('DTSTART;VALUE=DATE:'+ymd(a),'DTEND;VALUE=DATE:'+ymd(addDays(b,1)));
+  L.push('SUMMARY:'+icsEsc((e.tent?'[Sementara] ':'')+e.t),'DESCRIPTION:'+icsEsc(evDesc(e)),'LOCATION:'+icsEsc(e.where||''),
+    'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(e.t),'TRIGGER:-P1D','END:VALARM','END:VEVENT');
+  return L.map(fold).join('\r\n');
+}
+function ics(list){
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//GengVolunteers//GVBuddy 2026//MS','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Kalendar GVBuddy 2026','X-WR-TIMEZONE:Asia/Kuala_Lumpur']
+    .concat(list.map(vevent)).concat(['END:VCALENDAR']).join('\r\n');
+}
+function download(name, text){
+  var a=document.createElement('a');
+  a.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(text);
+  a.download=name; a.rel='noopener'; document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove() },100);
+}
+function renderCal(){
+  var today=new Date(); today.setHours(0,0,0,0);
+  var list=S.events.slice().sort(function(a,b){ return (a.s||'9999') < (b.s||'9999') ? -1 : 1 });
+  var nextId=null; list.some(function(e){ var d=parseD(e.e||e.s); if(d && d>=today){ nextId=e.id; return true } return false });
+  $('#cal').innerHTML = list.map(function(e){
+    var a=parseD(e.s), past = a && parseD(e.e||e.s) < today;
+    var box = a ? '<b>'+a.getDate()+'</b><span>'+MONTHS[a.getMonth()]+' '+String(a.getFullYear()).slice(2)+'</span><small>'+DAYS[a.getDay()]+'</small>'
+                : '<b>?</b><span>Belum</span><small>disahkan</small>';
+    var range = a ? evWhen(e.id).replace(' (sementara)','') : (e.note || 'Tarikh akan disahkan');
+    var acts = a && !past ? '<a class="btn sm" href="'+esc(gcal(e))+'" target="_blank" rel="noopener">Google Calendar</a><button class="btn ghost sm" data-ics="'+esc(e.id)+'">.ics</button>' : '';
+    return '<div class="ev'+(past?' past':'')+(e.id===nextId?' next':'')+'"><div class="dbox">'+box+'</div><div><h3>'+esc(e.t)
+      +(e.tent?' <span class="pill tent">Sementara</span>':'')+(e.id===nextId?' <span class="pill open">Seterusnya</span>':'')+'</h3>'
+      +'<div class="meta">'+esc(range)+(e.time?' · '+esc(e.time):'')+(e.where?' · '+esc(e.where):'')+'</div>'
+      +'<div class="meta">'+esc(e.who||'')+(e.note && a ? ' · '+esc(e.note) : '')+'</div></div><div class="acts">'+acts+'</div></div>';
+  }).join('');
+}
+
+/* ── announced GVBuddies ───────────────────────────── */
+function renderBuddies(){
+  if(!S.buddies.length){ $('#buddies').innerHTML='<div class="empty">Pengumuman rasmi dibuat selepas ToT GV, '+esc(evWhen('gvb-umum'))+'.</div>'; return }
+  $('#buddies').innerHTML='<div class="buddies">'+S.buddies.map(function(b){
+    var cl=clusterById(b.k), z=ZN[cl?cl.zone:'']||{c:'#999',n:''};
+    return '<div class="bud"><div class="av" style="background:'+z.c+'">'+esc((b.name||'?').charAt(0).toUpperCase())+'</div><div><b>'+esc(b.name)+'</b><span>'+esc(cl?cl.name:'')+'</span><br><span class="mono">'+esc(b.no||'')+'</span></div></div>' }).join('')+'</div>';
+}
+
+/* ── forms ──────────────────────────────────────────── */
+function setOpts(id,html){ var el=$(id), cur=el.value; el.innerHTML=html; if(cur) el.value=cur }
+function fillSelects(){
+  setOpts('#a_state','<option value="">Pilih</option>'+STATES.map(function(s){ return '<option>'+s+'</option>' }).join(''));
+  var catOpts='<option value="">Pilih</option>'+CATS.map(function(c){ return '<option>'+c+'</option>' }).join('');
+  setOpts('#a_cat',catOpts); setOpts('#p_cat',catOpts);
+  var h='<option value="">Pilih kampus anda</option>';
+  ZONES.forEach(function(z){
+    var list=S.campuses.filter(function(c){ return c.z===z.id && c.t!=='sekolah' }).sort(function(a,b){ return inst(a).localeCompare(inst(b)) });
+    if(!list.length) return;
+    h+='<optgroup label="Zon '+z.n+'">'+list.map(function(c){ return '<option value="'+esc(c.id)+'">'+esc(inst(c))+' ('+esc(c.s)+')</option>' }).join('')+'</optgroup>';
+  });
+  h+='<option value="__other">Kampus saya tiada dalam senarai</option>';
+  var cur=$('#a_campus').value; $('#a_campus').innerHTML=h; if(cur) $('#a_campus').value=cur;
+}
+function campusChanged(){
+  var v=$('#a_campus').value, other=v==='__other';
+  $$('#aForm .other').forEach(function(el){ el.hidden=!other });
+  var hint='';
+  if(v && !other){
+    var c=null; S.campuses.forEach(function(x){ if(x.id===v) c=x });
+    if(c){ var cl=clusterById(c.k); if(cl) hint='Kluster anda: '+cl.name+' · Zon '+(ZN[cl.zone]||{n:''}).n+' · '+cl.slots+' slot GVBuddy.';
+      if(!$('#a_state').value) $('#a_state').value=c.s }
+  } else if(other) hint='Kami akan memadankan anda dengan kluster terdekat dalam zon negeri anda.';
+  $('#a_clusterHint').textContent=hint;
+}
+var FIELDS=['name','display','email','phone','telegram','age','gender','state','campus','otherInst','otherCampus','course','year','grad','involve','why','idea','cat','hours','tot'];
+function saveDraft(){
+  var o={}; FIELDS.forEach(function(f){ o[f]=$('#a_'+f).value }); store('gvb-draft',JSON.stringify(o));
+  $('#draftNote').textContent='Draf disimpan pada peranti ini.';
+}
+function loadDraft(){
+  var raw=store('gvb-draft'); if(!raw) return;
+  try{ var o=JSON.parse(raw); FIELDS.forEach(function(f){ if(o[f]) $('#a_'+f).value=o[f] }); campusChanged(); $('#draftNote').textContent='Draf anda dipulihkan.' }catch(e){}
+}
+function post(payload){
+  return new Promise(function(res,rej){
+    if(!CFG.appsScriptUrl){ rej(new Error('nourl')); return }
+    var done=false, t=setTimeout(function(){ if(!done){ done=true; rej(new Error('timeout')) } },25000);
+    fetch(CFG.appsScriptUrl,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) })
+      .then(function(r){ return r.json() })
+      .then(function(j){ if(!done){ done=true; clearTimeout(t); res(j) } })
+      .catch(function(e){ if(!done){ done=true; clearTimeout(t); rej(e) } });
+  });
+}
+function mailFallback(d){
+  var body='Permohonan GVBuddy (dihantar melalui emel kerana borang gagal)\n\n'
+    +['Nama paparan: '+d.display,'Emel: '+d.email,'Telefon: '+d.phone,'Kampus: '+(d.campusLabel||d.otherInst),'Kursus: '+d.course,'Umur: '+d.age,'Sebab: '+d.why,'Idea projek: '+d.idea].join('\n');
+  return 'mailto:'+CFG.contactEmail+'?subject='+encodeURIComponent('Permohonan GVBuddy: '+d.display)+'&body='+encodeURIComponent(body);
+}
+function bindApply(){
+  var f=$('#aForm');
+  f.addEventListener('input',function(){ clearTimeout(bindApply._t); bindApply._t=setTimeout(saveDraft,600) });
+  $('#a_campus').addEventListener('change',campusChanged);
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var err=$('#aErr'); err.innerHTML=''; $$('#aForm .bad').forEach(function(x){ x.classList.remove('bad') });
+    function fail(m,id){ err.textContent=m; if(id){ var el=$('#a_'+id); el.classList.add('bad'); el.focus(); el.scrollIntoView({block:'center'}) } }
+    if(regClosed()) return fail('Permohonan GVBuddy sudah ditutup.');
+    var d={ action:'apply', website:$('#a_website').value }; FIELDS.forEach(function(k){ d[k]=$('#a_'+k).value.trim() });
+    var need=['name','display','email','phone','age','gender','state','campus','course','year','grad','involve','why','idea','cat','hours','tot'];
+    for(var i=0;i<need.length;i++) if(!d[need[i]]) return fail('Soalan ini wajib dijawab.',need[i]);
+    if(d.campus==='__other'){ if(!d.otherInst) return fail('Tulis nama institusi anda.','otherInst'); d.campus='' }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) return fail('Emel ini tidak kelihatan betul.','email');
+    if(!/^\+?[0-9 ]{9,15}$/.test(d.phone)) return fail('Nombor telefon tidak kelihatan betul. Guna digit sahaja.','phone');
+    var age=parseInt(d.age,10); if(!(age>=18 && age<=40)) return fail('GVBuddy mesti berumur 18 tahun ke atas.','age');
+    if(d.why.length<30) return fail('Ceritakan sedikit lagi, sekurangnya satu atau dua ayat.','why');
+    if(d.idea.length<30) return fail('Terangkan idea projek dalam satu atau dua ayat.','idea');
+    for(var k=1;k<=4;k++){ if(!$('#a_ok'+k).checked){ err.textContent='Sila tandakan semua pengakuan.'; $('#a_ok'+k).scrollIntoView({block:'center'}); return } d['ok'+k]=true }
+    var opt=$('#a_campus').selectedOptions && $('#a_campus').selectedOptions[0]; d.campusLabel=opt?opt.textContent:'';
+    var btn=$('#aBtn'); btn.disabled=true; btn.textContent='Menghantar…';
+    post(d).then(function(r){
+      btn.disabled=false; btn.textContent='Hantar permohonan';
+      if(r && (r.status==='saved' || r.status==='duplicate')){
+        store('gvb-draft',null); f.hidden=true; $('#aDone').hidden=false;
+        $('#aRef').textContent=r.ref||''; if(r.status==='duplicate') $('#aDone h3').textContent='Permohonan anda sudah ada dalam rekod.';
+        var tot=evById('gvb-tot');
+        $('#aDoneActs').innerHTML=(tot && tot.s ? '<a class="btn" target="_blank" rel="noopener" href="'+esc(gcal(tot))+'">Tambah ToT GV ke kalendar</a>' : '')
+          +'<a class="btn ghost" target="_blank" rel="noopener" href="'+esc(CFG.telegramUrl)+'">Sertai GV Familia</a>';
+        $('#aDone').scrollIntoView({block:'center'});
+      } else if(r && r.status==='closed'){ fail(r.message||'Permohonan sudah ditutup.') }
+      else { fail((r && r.message) || 'Permohonan tidak dapat disimpan.') }
+    }).catch(function(e){
+      btn.disabled=false; btn.textContent='Hantar permohonan';
+      var why = e && e.message==='nourl' ? 'Sistem permohonan sedang disediakan.' : 'Sambungan gagal.';
+      err.innerHTML=esc(why)+' Draf anda selamat pada peranti ini. Cuba lagi sebentar, atau <a href="'+esc(mailFallback(d))+'">hantar melalui emel</a>.';
+    });
+  });
+}
+function bindProject(){
+  $('#pForm').addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var err=$('#pErr'); err.textContent='';
+    var d={ action:'project' }; ['cert','email','title','cat','tier','date','size','why','risk','funds'].forEach(function(k){ d[k]=$('#p_'+k).value.trim() });
+    var need=['cert','email','title','cat','tier','date','size','why','funds'];
+    for(var i=0;i<need.length;i++) if(!d[need[i]]){ err.textContent='Lengkapkan semua ruangan bertanda.'; $('#p_'+need[i]).focus(); return }
+    if(d.funds.indexOf('Ada')===0 && d.tier!=='Tahap 3'){ err.textContent='Projek dengan kutipan dana ialah Tahap 3 dan memerlukan kelulusan bertulis Majlis Kepimpinan Cendekia.'; $('#p_tier').focus(); return }
+    var btn=$('#pBtn'); btn.disabled=true;
+    post(d).then(function(r){ btn.disabled=false;
+      if(r && r.status==='saved'){ $('#pForm').hidden=true; $('#pDone').hidden=false; $('#pRef').textContent=r.ref }
+      else err.textContent=(r && r.message)||'Cadangan tidak dapat disimpan.';
+    }).catch(function(e){ btn.disabled=false; err.textContent = e && e.message==='nourl' ? 'Sistem sedang disediakan.' : 'Sambungan gagal. Cuba lagi.' });
+  });
+}
+
+/* ── playbook reader (dimuat hanya apabila dibuka) ─── */
+var PB={ i:0, loading:false };
+function pbLoad(cb){
+  if(window.PAGES && window.PAGES.length) return cb();
+  if(PB.loading) return; PB.loading=true;
+  $('#rCnt').textContent='Memuatkan…';
+  var s=document.createElement('script'); s.src='playbook-pages.js';
+  s.onload=function(){ PB.loading=false; cb() };
+  s.onerror=function(){ PB.loading=false; $('#rCnt').textContent='Playbook gagal dimuatkan. Cuba lagi.' };
+  document.body.appendChild(s);
+}
+function pbShow(k){
+  var N=(window.PAGES||[]).length; if(k<0||k>=N) return;
+  PB.i=k; $('#sheet').src=window.PAGES[k];
+  $('#rCnt').textContent='Muka surat '+(k+1)+' daripada '+N;
+  $('#rPrev').disabled=k===0; $('#rNext').disabled=k===N-1;
+  $('#prog').style.width=((k+1)/N*100)+'%'; $('#rstage').scrollTop=0;
+  store('gvb-pb',String(k));
+}
+function pbOpen(){
+  $('#reader').classList.add('on'); document.body.classList.add('locked'); $('#rClose').focus();
+  pbLoad(function(){ if(!$('#sheet').getAttribute('src')){ var v=parseInt(store('gvb-pb'),10); pbShow(v>=0 && v<window.PAGES.length ? v : 0) } });
+}
+function pbClose(){ $('#reader').classList.remove('on'); document.body.classList.remove('locked') }
+function bindReader(){
+  $('#wm').innerHTML=new Array(5).join('CENDEKIA · GVBUDDY · BACA SAHAJA<br>');
+  $('#openBook').addEventListener('click',pbOpen);
+  $('#coverBtn').addEventListener('click',pbOpen);
+  $('#coverBtn').addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pbOpen() } });
+  $('#rClose').addEventListener('click',pbClose);
+  $('#rPrev').addEventListener('click',function(){ pbShow(PB.i-1) });
+  $('#rNext').addEventListener('click',function(){ pbShow(PB.i+1) });
+  document.addEventListener('keydown',function(e){
+    if(!$('#reader').classList.contains('on')) return;
+    if(e.key==='Escape') pbClose();
+    if(e.key==='ArrowRight') pbShow(PB.i+1);
+    if(e.key==='ArrowLeft') pbShow(PB.i-1);
+  });
+  var x0=null;
+  $('#rstage').addEventListener('touchstart',function(e){ x0 = e.touches.length===1 ? e.touches[0].clientX : null },{passive:true});
+  $('#rstage').addEventListener('touchend',function(e){ if(x0===null) return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>70) pbShow(PB.i+(dx<0?1:-1)); x0=null },{passive:true});
+  $('#reader').addEventListener('contextmenu',function(e){ e.preventDefault() });
+  $('#reader').addEventListener('dragstart',function(e){ e.preventDefault() });
+}
+
+/* ── live data ──────────────────────────────────────── */
+function applyLive(d){
+  if(!d || !d.ok) return;
+  if(d.clusters && d.clusters.length) S.clusters=d.clusters;
+  if(d.campuses && d.campuses.length && !S.admin) S.campuses=d.campuses;
+  S.buddies=d.buddies||[]; S.projects=d.projects||[];
+  if(d.events && d.events.length) S.events=d.events;
+  if(d.config){ S.config.open=d.config.open!==false; if(d.config.closeAt) S.config.closeAt=d.config.closeAt; S.config.announce=d.config.announce||'' }
+  S.live=true;
+}
+function renderAll(){
+  renderStats(); renderCountdown(); renderZones(); renderList(); renderZoneTable(); drawMap();
+  renderTarget(); renderPath(); renderCal(); renderBuddies(); fillSelects(); campusChanged();
+  var closed=regClosed();
+  $('#aForm').hidden = closed && $('#aDone').hidden ? true : $('#aForm').hidden;
+  if(closed && $('#aDone').hidden){ $('#closedBox').hidden=false; $('#closedBox').textContent='Permohonan GVBuddy pusingan ini sudah ditutup. Ikuti @gengvolunteers dan GV Familia untuk pusingan seterusnya.' }
+}
+function loadLive(){
+  if(!CFG.appsScriptUrl) return;
+  fetch(CFG.appsScriptUrl).then(function(r){ return r.json() }).then(function(d){ applyLive(d); renderAll() }).catch(function(){});
+}
+
+/* ── review mode (?semak) ───────────────────────────── */
+var SM={ tab:'apps', key:'' };
+var APP_ST=['Baharu','Disenarai pendek','Hadir ToT','Disahkan','Diumumkan','Ditolak','Tarik diri'];
+var PRJ_ST=['Dihantar','Perlu pindaan','Diluluskan','Selesai','Ditolak'];
+function sel(opts,cur,attr){ return '<select '+attr+'>'+opts.map(function(o){ var v=o.v!==undefined?o.v:o, t=o.t||o; return '<option value="'+esc(v)+'"'+(String(v)===String(cur)?' selected':'')+'>'+esc(t)+'</option>' }).join('')+'</select>' }
+function clusterOpts(){ return [{v:'',t:'(belum)'}].concat(S.clusters.map(function(c){ return { v:c.id, t:c.name } })) }
+function semakLoad(){
+  $('#semakErr').textContent='Memuatkan…';
+  post({ action:'admin_list', key:SM.key }).then(function(r){
+    if(!r || r.status!=='ok'){ $('#semakErr').textContent=(r&&r.message)||'Gagal.'; try{ sessionStorage.removeItem('gvb-k') }catch(e){} return }
+    try{ sessionStorage.setItem('gvb-k',SM.key) }catch(e){}
+    $('#semakErr').textContent=''; $('#semakGate').hidden=true; $('#semakBody').hidden=false;
+    S.admin=r; S.campuses = r.campuses.map(function(c){
+      var p=null; PUB.campuses.concat(S.campuses).some(function(x){ if(x.id===c.id){ p=x; return true } return false });
+      return { id:c.id, i:c.i, c:c.c, s:c.s, z:c.z, la:c.la||(p?p.la:3.1), ln:c.ln||(p?p.ln:101.6), k:c.k, t:c.t||(p?p.t:''), b:c.n>=10?4:c.n>=5?3:2, d:Number(c.d)||0, n:c.n };
+    });
+    r.clusters.forEach(function(c){ var x=clusterById(c.id); if(x){ x.slots=c.slots; x.name=c.name } });
+    renderAll(); semakView();
+  }).catch(function(e){ $('#semakErr').textContent = e && e.message==='nourl' ? 'appsScriptUrl belum diisi dalam CFG.' : 'Sambungan gagal.' });
+}
+function semakView(){
+  var r=S.admin, h='';
+  $$('.stabs button').forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.t===SM.tab)) });
+  if(SM.tab==='apps'){
+    var counts={}; r.apps.forEach(function(a){ counts[a.Status]=(counts[a.Status]||0)+1 });
+    h+='<p class="note">'+r.apps.length+' permohonan · '+APP_ST.map(function(s){ return s+': '+(counts[s]||0) }).join(' · ')+'</p>';
+    h+='<div class="admwrap"><table class="adm"><thead><tr><th>Rujukan</th><th>Pemohon</th><th>Hubungi</th><th>Kampus / kluster</th><th>Profil</th><th>Sebab dan idea</th><th>Status</th><th></th></tr></thead><tbody>';
+    r.apps.slice().reverse().forEach(function(a){
+      var camp=''; S.campuses.some(function(c){ if(c.id===a['Kampus ID']){ camp=inst(c); return true } return false });
+      h+='<tr'+(a.Status==='Baharu'?' class="hl"':'')+'><td class="mono">'+esc(a.Rujukan)+'<br><span class="note">'+esc(String(a.Masa).slice(0,10))+'</span>'+(a['No sijil']?'<br><b>'+esc(a['No sijil'])+'</b>':'')+'</td>'
+        +'<td><b>'+esc(a['Nama penuh'])+'</b><br>Paparan: '+esc(a['Nama paparan'])+'<br>'+esc(a.Umur)+' · '+esc(a['Ikhwah atau akhwat'])+'</td>'
+        +'<td>'+esc(a.Emel)+'<br>'+esc(a.Telefon)+'<br>'+esc(a.Telegram)+'</td>'
+        +'<td>'+esc(camp || (a['Institusi (jika tiada dalam senarai)']+' '+a['Kampus (jika tiada)']))+'<br>'+sel(clusterOpts(),a.Kluster,'data-f="cluster"')+'</td>'
+        +'<td>'+esc(a.Kursus)+'<br>'+esc(a['Tahun pengajian'])+' · tamat '+esc(a['Tamat pengajian'])+'<br>'+esc(a['Penglibatan GV'])+'<br>Sukarelawan GV 2.0: <b>'+esc(a['Sukarelawan GV 2.0 berdaftar'])+'</b><br>'+esc(a['Jam seminggu'])+' · '+esc(a['Komitmen ToT'])+'</td>'
+        +'<td class="long"><b>Sebab:</b> '+esc(a.Sebab)+'\n<b>Idea ('+esc(a['Kategori projek'])+'):</b> '+esc(a['Idea projek'])+'</td>'
+        +'<td>'+sel(APP_ST,a.Status,'data-f="status"')+'<input data-f="note" placeholder="Catatan" value="'+esc(a['Catatan semakan'])+'" style="margin-top:6px"></td>'
+        +'<td><button class="btn sm" data-save-app="'+esc(a.Rujukan)+'">Simpan</button></td></tr>';
+    });
+    h+='</tbody></table></div><p class="note" style="margin-top:8px">Disahkan menjana nombor sijil GVB-2026-NNN secara automatik. Diumumkan memaparkan nama paparan dan kluster di laman awam.</p>';
+  }
+  if(SM.tab==='clus'){
+    var ap={}, ce={}; r.apps.forEach(function(a){ if(!a.Kluster) return; if(a.Status!=='Ditolak'&&a.Status!=='Tarik diri') ap[a.Kluster]=(ap[a.Kluster]||0)+1; if(a.Status==='Disahkan'||a.Status==='Diumumkan') ce[a.Kluster]=(ce[a.Kluster]||0)+1 });
+    h+='<div class="admwrap"><table class="adm"><thead><tr><th>Kluster</th><th>Zon</th><th>Kampus (sukarelawan)</th><th>Jumlah</th><th>Cadangan slot</th><th>Slot</th><th>Pemohon</th><th>Disahkan</th><th>Catatan</th><th></th></tr></thead><tbody>';
+    r.clusters.forEach(function(c){
+      var m=S.campuses.filter(function(x){ return x.k===c.id }), n=m.reduce(function(t,x){ return t+(x.n||0) },0), sug=Math.max(1,Math.ceil(n/CFG.ratio));
+      h+='<tr><td><input data-f="name" value="'+esc(c.name)+'" style="min-width:200px"></td><td>'+esc((ZN[c.zone]||{n:c.zone}).n)+'</td>'
+        +'<td class="long">'+m.map(function(x){ return esc(inst(x))+' ('+x.n+')' }).join(', ')+'</td><td class="mono">'+n+'</td><td class="mono">'+sug+(sug!==c.slots?' ⚠':'')+'</td>'
+        +'<td><input data-f="slots" type="number" min="1" max="10" value="'+c.slots+'" style="width:70px"></td><td class="mono">'+(ap[c.id]||0)+'</td><td class="mono">'+(ce[c.id]||0)+'</td>'
+        +'<td><input data-f="note" value="'+esc(c.note||'')+'"></td><td><button class="btn sm" data-save-clus="'+esc(c.id)+'">Simpan</button></td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  if(SM.tab==='camp'){
+    h+='<div class="admwrap"><table class="adm"><thead><tr><th>Kampus</th><th>Negeri</th><th>Sukarelawan</th><th>Jarak km</th><th>Kluster</th><th></th></tr></thead><tbody>';
+    S.campuses.slice().sort(function(a,b){ return a.z.localeCompare(b.z) || inst(a).localeCompare(inst(b)) }).forEach(function(c){
+      h+='<tr><td>'+esc(inst(c))+(c.t==='sekolah'?' <span class="pill">sekolah</span>':'')+'</td><td>'+esc(c.s)+'</td><td class="mono">'+c.n+'</td><td class="mono">'+(c.d||'')+'</td>'
+        +'<td>'+sel(clusterOpts().slice(1),c.k,'data-f="cluster"')+'</td><td><button class="btn sm" data-save-camp="'+esc(c.id)+'">Pindah</button></td></tr>';
+    });
+    h+='</tbody></table></div><p class="note" style="margin-top:8px">Untuk menambah kampus atau kluster baharu, tambah baris dalam tab Kampus atau Kluster di Google Sheet.</p>';
+  }
+  if(SM.tab==='proj'){
+    h+='<div class="admwrap"><table class="adm"><thead><tr><th>Rujukan</th><th>Kluster</th><th>Projek</th><th>CAF dan TEOF</th><th>Dana</th><th>Status</th><th></th></tr></thead><tbody>';
+    if(!r.projects.length) h+='<tr><td colspan="7" class="note">Belum ada cadangan projek.</td></tr>';
+    r.projects.slice().reverse().forEach(function(p){
+      var cl=clusterById(p.Kluster);
+      h+='<tr><td class="mono">'+esc(p.Rujukan)+'<br>'+esc(p['No sijil ketua'])+'</td><td>'+esc(cl?cl.name:p.Kluster)+'</td>'
+        +'<td><b>'+esc(p.Tajuk)+'</b><br>'+esc(p.Kategori)+' · '+esc(p.Tahap)+'<br>'+esc(String(p['Tarikh cadangan']).slice(0,10))+' · '+esc(p['Anggaran peserta'])+' orang</td>'
+        +'<td class="long">'+esc(p['Kenapa (CAF)'])+'\n<b>Risiko:</b> '+esc(p['Risiko utama (TEOF)'])+'</td><td>'+esc(p['Kutipan dana'])+'</td>'
+        +'<td>'+sel(PRJ_ST,p.Status,'data-f="status"')+'<input data-f="note" placeholder="Catatan kelulusan" value="'+esc(p['Catatan kelulusan'])+'" style="margin-top:6px"></td>'
+        +'<td><button class="btn sm" data-save-proj="'+esc(p.Rujukan)+'">Simpan</button></td></tr>';
+    });
+    h+='</tbody></table></div><p class="note" style="margin-top:8px">Diluluskan dan Selesai dipaparkan di laman awam (tajuk dan kluster sahaja). Kelulusan bertulis Majlis Kepimpinan Cendekia tetap dihantar melalui emel.</p>';
+  }
+  $('#semakView').innerHTML=h;
+}
+function rowVals(btn){ var o={}; $$('[data-f]',btn.closest('tr')).forEach(function(el){ o[el.dataset.f]=el.value }); return o }
+function semakSave(btn,payload){
+  btn.disabled=true; btn.textContent='…';
+  payload.key=SM.key;
+  post(payload).then(function(r){ btn.disabled=false; btn.textContent='Simpan';
+    if(r && r.status==='ok'){ toast('Disimpan'+(r.cert?' · '+r.cert:'')); semakLoad(); loadLive() } else toast((r&&r.message)||'Gagal disimpan') })
+  .catch(function(){ btn.disabled=false; btn.textContent='Simpan'; toast('Sambungan gagal') });
+}
+function bindSemak(){
+  if(!/[?&]semak\b/.test(location.search)) return;
+  $('#semak').hidden=false;
+  try{ SM.key=sessionStorage.getItem('gvb-k')||'' }catch(e){}
+  $('#semakGo').addEventListener('click',function(){ SM.key=$('#semakKey').value; semakLoad() });
+  $('#semakKey').addEventListener('keydown',function(e){ if(e.key==='Enter'){ SM.key=this.value; semakLoad() } });
+  $('#semakOut').addEventListener('click',function(){ try{ sessionStorage.removeItem('gvb-k') }catch(e){} location.href=location.pathname });
+  $('#semakReload').addEventListener('click',semakLoad);
+  $('.stabs').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; SM.tab=b.dataset.t; semakView() });
+  $('#semakView').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return; var v=rowVals(b);
+    if(b.dataset.saveApp)  semakSave(b,{ action:'admin_app', ref:b.dataset.saveApp, status:v.status, cluster:v.cluster, note:v.note });
+    if(b.dataset.saveClus) semakSave(b,{ action:'admin_cluster', id:b.dataset.saveClus, slots:v.slots, name:v.name, note:v.note });
+    if(b.dataset.saveCamp) semakSave(b,{ action:'admin_campus', id:b.dataset.saveCamp, cluster:v.cluster });
+    if(b.dataset.saveProj) semakSave(b,{ action:'admin_project', ref:b.dataset.saveProj, status:v.status, note:v.note });
+  });
+  if(SM.key) semakLoad();
+}
+
+/* ── wire up ────────────────────────────────────────── */
+function init(){
+  $('#tgLink').href=CFG.telegramUrl; $('#mailLink').href='mailto:'+CFG.contactEmail;
+  $('#mailRule').textContent=CFG.contactEmail;
+  renderAll(); loadDraft(); bindApply(); bindProject(); bindReader(); bindSemak(); loadLive();
+  setInterval(renderCountdown,60000);
+  $('#zones').addEventListener('click',function(e){ var b=e.target.closest('button'); if(b) setZone(b.dataset.z) });
+  $('#clist').addEventListener('click',function(e){ var b=e.target.closest('[data-c]'); if(b) focusCluster(b.dataset.c) });
+  $('#q').addEventListener('input',function(){ S.q=this.value; renderList() });
+  $('#icsAll').addEventListener('click',function(){ download('Kalendar-GVBuddy-2026.ics', ics(S.events.filter(function(e){ return e.s }))); toast('Fail kalendar dimuat turun') });
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-ics]');
+    if(b){ var ev=evById(b.dataset.ics); if(ev){ download('GVBuddy-'+ev.id+'.ics', ics([ev])); toast('Fail .ics dimuat turun') } }
+    var a=e.target.closest('[data-apply]');
+    if(a){ var cl=clusterById(a.dataset.apply), an=cl && anchorOf(cl);
+      if(an){ $('#a_campus').value=an.id; campusChanged(); if(map) map.closePopup() }
+      $('#daftar').scrollIntoView({ behavior:'smooth' }); }
+  });
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+</body>
+</html>
