@@ -142,6 +142,15 @@ section.alt{background:var(--bg2);border-top:1px solid var(--line2);border-botto
 .leaflet-popup-content{margin:14px 16px;font:14px/1.5 var(--body);min-width:220px}
 .leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
 .leaflet-container{font-family:var(--body)}
+.gv-dark{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.88) saturate(.55)}
+.leaflet-control-layers{background:var(--panel);color:var(--fg);border:1px solid var(--line)!important;border-radius:12px!important}
+.leaflet-control-layers-expanded{padding:8px 12px}
+.leaflet-control-layers label{display:block;font-size:14px;color:var(--fg);font-weight:600;padding:3px 0}
+.leaflet-control-layers-toggle{filter:invert(1)}
+.leaflet-control-layers form{margin:0}
+.leaflet-control-layers section{padding:0}
+.leaflet-control-layers input{width:auto;padding:0;margin:0 8px 0 0;accent-color:var(--orange);vertical-align:-1px}
+.leaflet-control-layers label>span,.leaflet-control-layers label>div{display:flex;align-items:center}
 .pop .pz{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
 .pop h4{font-size:18px;margin:4px 0 8px}
 .pop .pr{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line2);padding:5px 0;font-size:13.5px}
@@ -702,7 +711,7 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
       <a class="btn ghost sm" href="https://instagram.com/gengvolunteers" target="_blank" rel="noopener">@gengvolunteers</a>
       <a class="btn ghost sm" id="mailLink" href="#">Emel kami</a>
     </div>
-    <p class="legal just"><b>Harta intelek.</b> Nama dan logo GengVolunteers, GVBuddy dan Cendekia, struktur organisasi Architect, Anchor dan Squad GV, empat kerangka strategik serta GV Playbook yang dipaparkan di laman ini adalah milik Persatuan Belia Cendekia Holistik, dilindungi di bawah Akta Hak Cipta 1987 (Akta 332). Ia tidak boleh disalin, diubah suai atau diedarkan tanpa kebenaran bertulis. Peta dasar: OpenStreetMap dan CARTO.</p>
+    <p class="legal just"><b>Harta intelek.</b> Nama dan logo GengVolunteers, GVBuddy dan Cendekia, struktur organisasi Architect, Anchor dan Squad GV, empat kerangka strategik serta GV Playbook yang dipaparkan di laman ini adalah milik Persatuan Belia Cendekia Holistik, dilindungi di bawah Akta Hak Cipta 1987 (Akta 332). Ia tidak boleh disalin, diubah suai atau diedarkan tanpa kebenaran bertulis. Peta dasar: OpenStreetMap dan Esri.</p>
   </div>
 </footer>
 
@@ -863,8 +872,15 @@ function drawMap(){
   if(!window.L){ $('#map').innerHTML='<div class="mapfail">Peta tidak dapat dimuatkan pada rangkaian ini. Senarai kluster di sebelah masih lengkap.</div>'; return }
   if(!map){
     map = L.map('map',{ scrollWheelZoom:false, zoomSnap:.25, minZoom:4.5, maxZoom:15 });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      { subdomains:'abcd', maxZoom:19, attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+    var osm = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+    var dark = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, className:'gv-dark', attribution:osm });
+    var street = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:osm });
+    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom:18, attribution:'Imej &copy; Esri, Maxar, Earthstar Geographics' });
+    var base = { 'Peta gelap':dark, 'Peta jalan':street, 'Satelit':sat };
+    var pick = store('gvb-base'); (base[pick] || dark).addTo(map);
+    L.control.layers(base, null, { position:'topright', collapsed:true }).addTo(map);
+    map.on('baselayerchange', function(e){ store('gvb-base', e.name) });
     map.fitBounds([[0.9,99.6],[7.4,119.3]]);
     map.on('focus',function(){ map.scrollWheelZoom.enable() });
     map.on('blur',function(){ map.scrollWheelZoom.disable() });
