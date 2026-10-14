@@ -517,7 +517,7 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
       <p class="just">GengVolunteers ialah program sukarelawan utama Persatuan Belia Cendekia Holistik. GVBuddy diselaraskan oleh National XI mengikut zon, di bawah pengawasan Project Leader, bekerja bersama Architect dan Anchor mengikut carta organisasi rasmi dalam GV Playbook, dan menggerakkan pasukan projek kampus melalui empat squad GV.</p>
       <div class="org" role="list" aria-label="Struktur GengVolunteers">
         <div class="tierrow t-auth" role="listitem"><b>Persatuan Belia Cendekia Holistik</b><span>Pertubuhan belia berdaftar dengan Pejabat Pendaftar Pertubuhan Belia. Badan berautoriti bagi semua program.</span></div>
-        <div class="tierrow t-lead" role="listitem"><b>Project Leader</b><span>Bersama Majlis Kepimpinan Cendekia. Kelulusan akhir, hala tuju dan bajet.</span></div>
+        <div class="tierrow t-lead" role="listitem"><b>Project Leader</b><span>Bersama Cendekia Mastermind Council. Kelulusan akhir, hala tuju dan bajet.</span></div>
         <div class="tierrow t-xi" role="listitem"><b>National XI</b><span>Menyelaras HighCom pada musim program dan GVBuddy di kampus sepanjang tahun.</span></div>
         <div class="tierrow t-core" role="listitem"><b>GV Core</b><span>Dipilih, bukan sekadar mendaftar.</span>
           <div class="sub"><i>HighCom Squad GV</i><i class="me">GVBuddy HQ</i><i>Corecom kolaborasi</i><i>TheNextGen</i></div></div>
@@ -550,9 +550,9 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
         <div class="who"><span>Lulus oleh</span><b>National XI</b></div><div class="who"><span>Tempoh</span><b>5 hari bekerja</b></div></div>
       <div class="card tier t3"><div class="lv">Tahap 3</div><h3>Luar kampus atau berisiko</h3>
         <p class="just">Rakan kongsi, penaja, sekolah, komuniti Orang Asli, perjalanan bermalam, media atau sebarang kutipan dana.</p>
-        <div class="who"><span>Lulus oleh</span><b>Majlis Kepimpinan Cendekia</b></div><div class="who"><span>Tempoh</span><b>10 hari bekerja</b></div></div>
+        <div class="who"><span>Lulus oleh</span><b>Cendekia Mastermind Council</b></div><div class="who"><span>Tempoh</span><b>10 hari bekerja</b></div></div>
     </div>
-    <div class="rule just"><b>Wajib mengikut GV Playbook.</b> Cadangan projek mesti diluluskan secara bertulis oleh Majlis Kepimpinan Cendekia sebelum sebarang kutipan dana atau pengumuman kepada komuniti, melalui <span id="mailRule" style="word-break:break-all">persatuanbeliacendekiaholistik@gmail.com</span>. Laporan Ketelusan Kewangan diterbitkan dalam 7 hari selepas kutipan ditutup. Isu keselamatan dan perlindungan dilaporkan kepada HQ pada hari yang sama, pada sebarang peringkat.</div>
+    <div class="rule just"><b>Wajib mengikut GV Playbook.</b> Cadangan projek mesti diluluskan secara bertulis oleh Cendekia Mastermind Council sebelum sebarang kutipan dana atau pengumuman kepada komuniti, melalui <span id="mailRule" style="word-break:break-all">persatuanbeliacendekiaholistik@gmail.com</span>. Laporan Ketelusan Kewangan diterbitkan dalam 7 hari selepas kutipan ditutup. Isu keselamatan dan perlindungan dilaporkan kepada HQ pada hari yang sama, pada sebarang peringkat.</div>
     <div class="card" style="margin-top:14px">
       <h3>Empat kerangka perancangan Cendekia</h3>
       <div class="fw">
@@ -1177,7 +1177,7 @@ function bindProject(){
     var d={ action:'project' }; ['cert','email','title','cat','tier','date','size','why','risk','funds'].forEach(function(k){ d[k]=$('#p_'+k).value.trim() });
     var need=['cert','email','title','cat','tier','date','size','why','funds'];
     for(var i=0;i<need.length;i++) if(!d[need[i]]){ err.textContent='Lengkapkan semua ruangan bertanda.'; $('#p_'+need[i]).focus(); return }
-    if(d.funds.indexOf('Ada')===0 && d.tier!=='Tahap 3'){ err.textContent='Projek dengan kutipan dana ialah Tahap 3 dan memerlukan kelulusan bertulis Majlis Kepimpinan Cendekia.'; $('#p_tier').focus(); return }
+    if(d.funds.indexOf('Ada')===0 && d.tier!=='Tahap 3'){ err.textContent='Projek dengan kutipan dana ialah Tahap 3 dan memerlukan kelulusan bertulis Cendekia Mastermind Council.'; $('#p_tier').focus(); return }
     var btn=$('#pBtn'); btn.disabled=true;
     post(d).then(function(r){ btn.disabled=false;
       if(r && r.status==='saved'){ $('#pForm').hidden=true; $('#pDone').hidden=false; $('#pRef').textContent=r.ref }
@@ -1324,7 +1324,7 @@ function semakView(){
         +'<td>'+sel(PRJ_ST,p.Status,'data-f="status"')+'<input data-f="note" placeholder="Catatan kelulusan" value="'+esc(p['Catatan kelulusan'])+'" style="margin-top:6px"></td>'
         +'<td><button class="btn sm" data-save-proj="'+esc(p.Rujukan)+'">Simpan</button></td></tr>';
     });
-    h+='</tbody></table></div><p class="note" style="margin-top:8px">Diluluskan dan Selesai dipaparkan di laman awam (tajuk dan kluster sahaja). Kelulusan bertulis Majlis Kepimpinan Cendekia tetap dihantar melalui emel.</p>';
+    h+='</tbody></table></div><p class="note" style="margin-top:8px">Diluluskan dan Selesai dipaparkan di laman awam (tajuk dan kluster sahaja). Kelulusan bertulis Cendekia Mastermind Council tetap dihantar melalui emel.</p>';
   }
   $('#semakView').innerHTML=h;
 }
