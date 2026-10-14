@@ -202,6 +202,15 @@ table.zt{width:100%;border-collapse:collapse;margin-top:18px;font-size:14.5px}
 .nots li{display:flex;gap:10px;color:var(--muted);font-size:15px}
 .nots li::before{content:"✕";color:var(--bad);font-weight:700;flex:none}
 .oks li::before{content:"✓";color:var(--ok)}
+.org{display:grid;gap:8px;margin-top:16px}
+.tierrow{border:1px solid var(--line);border-left:4px solid var(--c,var(--line));border-radius:12px;padding:12px 14px;background:var(--bg)}
+.tierrow b{display:block;font:800 16px var(--display)}
+.tierrow span{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.tierrow .sub{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tierrow .sub i{font-style:normal;font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+.tierrow .sub i.me{border-color:var(--orange);color:var(--orange2)}
+.t-auth{--c:var(--gold)}.t-lead{--c:var(--orange)}.t-xi{--c:var(--sky)}.t-core{--c:#2BB673}.t-fam{--c:#B48CFF}
+@media(min-width:760px){.tierrow{margin-left:calc(var(--i,0)*28px)}.t-lead{--i:1}.t-xi{--i:2}.t-core{--i:3}.t-fam{--i:4}}
 .squads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
 @media(min-width:760px){.squads{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .squads div{border-left:3px solid var(--orange);background:var(--bg);border-radius:8px;padding:10px 12px;font-size:14px}
@@ -505,7 +514,17 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
     </div>
     <div class="card" style="margin-top:14px">
       <h3>Di mana GVBuddy dalam struktur GV 2.0</h3>
-      <p class="just">GVBuddy melapor terus kepada Project Leader, bekerja bersama Architect dan Anchor mengikut carta organisasi rasmi dalam GV Playbook, dan menggerakkan pasukan projek kampus melalui empat squad GV.</p>
+      <p class="just">GengVolunteers ialah program sukarelawan utama Persatuan Belia Cendekia Holistik. GVBuddy diselaraskan oleh National XI mengikut zon, di bawah pengawasan Project Leader, bekerja bersama Architect dan Anchor mengikut carta organisasi rasmi dalam GV Playbook, dan menggerakkan pasukan projek kampus melalui empat squad GV.</p>
+      <div class="org" role="list" aria-label="Struktur GengVolunteers">
+        <div class="tierrow t-auth" role="listitem"><b>Persatuan Belia Cendekia Holistik</b><span>Pertubuhan belia berdaftar dengan Pejabat Pendaftar Pertubuhan Belia. Badan berautoriti bagi semua program.</span></div>
+        <div class="tierrow t-lead" role="listitem"><b>Project Leader</b><span>Bersama Majlis Kepimpinan Cendekia. Kelulusan akhir, hala tuju dan bajet.</span></div>
+        <div class="tierrow t-xi" role="listitem"><b>National XI</b><span>Menyelaras HighCom pada musim program dan GVBuddy di kampus sepanjang tahun.</span></div>
+        <div class="tierrow t-core" role="listitem"><b>GV Core</b><span>Dipilih, bukan sekadar mendaftar.</span>
+          <div class="sub"><i>HighCom Squad GV</i><i class="me">GVBuddy HQ</i><i>Corecom kolaborasi</i><i>TheNextGen</i></div></div>
+        <div class="tierrow t-fam" role="listitem"><b>GV Familia</b><span>Komuniti terbuka untuk semua sukarelawan.</span>
+          <div class="sub"><i>GV Familia · Nasional</i><i class="me">GV Familia @ Kampus</i></div></div>
+      </div>
+      <p class="note" style="margin-top:10px">Laluan: GV Familia, kemudian GV Familia @ Kampus, kemudian GVBuddy atau TheNextGen, kemudian HighCom, kemudian National XI.</p>
       <div class="squads">
         <div><b>Squad Khidmat</b><span>Tugasan khidmat fizikal</span></div>
         <div><b>Squad Kreativiti</b><span>Kandungan mengikut protokol persetujuan</span></div>
@@ -528,7 +547,7 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
         <div class="who"><span>Lulus oleh</span><b>GVBuddy</b></div><div class="who"><span>Tempoh</span><b>Minggu yang sama</b></div></div>
       <div class="card tier t2"><div class="lv">Tahap 2</div><h3>Kolaborasi kampus</h3>
         <p class="just">Fasiliti kampus, penceramah jemputan, sesi bersama kelab, sehingga 80 orang.</p>
-        <div class="who"><span>Lulus oleh</span><b>Penyelaras Nasional</b></div><div class="who"><span>Tempoh</span><b>5 hari bekerja</b></div></div>
+        <div class="who"><span>Lulus oleh</span><b>National XI</b></div><div class="who"><span>Tempoh</span><b>5 hari bekerja</b></div></div>
       <div class="card tier t3"><div class="lv">Tahap 3</div><h3>Luar kampus atau berisiko</h3>
         <p class="just">Rakan kongsi, penaja, sekolah, komuniti Orang Asli, perjalanan bermalam, media atau sebarang kutipan dana.</p>
         <div class="who"><span>Lulus oleh</span><b>Majlis Kepimpinan Cendekia</b></div><div class="who"><span>Tempoh</span><b>10 hari bekerja</b></div></div>
@@ -690,7 +709,7 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
     <h2 class="h2">Data ahli ialah amanah, bukan senarai.</h2>
     <p class="lead just">Susulan oleh GVBuddy hanya sah selepas pensijilan dan direkodkan dalam log akses HQ, selaras dengan Akta Perlindungan Data Peribadi 2010 (Akta 709).</p>
     <div class="grid g4" style="margin-top:26px">
-      <div class="card"><h3>Pilih masuk dahulu</h3><p class="just">GVBuddy hanya menghubungi sukarelawan yang memilih untuk menyertai GV Circle kluster mereka.</p></div>
+      <div class="card"><h3>Pilih masuk dahulu</h3><p class="just">GVBuddy hanya menghubungi sukarelawan yang memilih untuk menyertai GV Familia @ Kampus mereka.</p></div>
       <div class="card"><h3>Akses minimum</h3><p class="just">Nama pertama, kursus dan minat sahaja. Lihat sahaja, tiada muat turun.</p></div>
       <div class="card"><h3>Dipulangkan</h3><p class="just">Akses tamat dalam tempoh 7 hari selepas penggal atau tempoh khidmat berakhir.</p></div>
       <div class="card"><h3>Bawah 18 kekal dengan HQ</h3><p class="just">Tiada data sukarelawan bawah 18 tahun diberikan kepada GVBuddy. Wajah peserta bawah umur dalam media sentiasa dikaburkan.</p></div>
