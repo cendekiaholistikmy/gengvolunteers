@@ -333,6 +333,20 @@ details.more[open]>summary::after{content:"−"}
 @media(min-width:760px){.duo2{grid-template-columns:1fr 1fr}}
 .duo2 .card h3{font-size:18px}
 
+/* verification */
+.verify{margin-top:22px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:16px 18px;display:grid;gap:10px}
+.verify label{display:grid;gap:4px;color:var(--fg);font-size:15px}
+.verify small{color:var(--muted);font-weight:500;font-size:13px}
+.vres{font-weight:600;min-height:1.4em}
+.vres.ok{color:var(--ok)}.vres.no{color:#FF8B8F}
+.bcard.hit .face{box-shadow:0 0 0 3px var(--ok),0 0 30px rgba(59,178,115,.45)}
+.leads{display:flex;flex-wrap:wrap;gap:8px}
+.lead2{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;text-decoration:none;color:var(--fg);font-size:13px;background:var(--bg)}
+.lead2:hover{border-color:var(--ok)}
+.lead2 .av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:800 12px var(--display);color:#081428;overflow:hidden;flex:none}
+.lead2 .av img{width:100%;height:100%;object-fit:cover}
+.lead2 small{font-family:var(--mono);color:var(--gold);font-size:11px}
+
 /* photo field */
 .photo{display:flex;gap:14px;align-items:center}
 .ph{width:84px;height:84px;border-radius:50%;flex:none;background:var(--bg) center/cover no-repeat;border:1.5px dashed var(--line);display:grid;place-items:center;color:var(--dim);font-size:12px;text-align:center}
@@ -699,6 +713,11 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
     <div class="eyebrow">Pengumuman rasmi</div>
     <h2 class="h2">GVBuddy yang disahkan.</h2>
     <p class="lead just">Senarai ini dikemas kini selepas setiap ToT GV. Tekan kad untuk melihat profil. Hanya nama paparan, gambar, kluster, nombor sijil dan kod GV dipaparkan, dengan persetujuan GVBuddy. Untuk berhubung, PM Project Leader di Telegram.</p>
+    <div class="verify" role="search">
+      <label for="vNo"><b>Semak GVBuddy sah</b><small>Masukkan nombor sijil, contohnya GVB-2026-001. Ahli GVFam boleh guna ini untuk memastikan wakil kampus mereka ialah duta rasmi GV.</small></label>
+      <div class="row"><input id="vNo" placeholder="GVB-2026-001" autocomplete="off" inputmode="text" style="max-width:260px;text-transform:uppercase"><button class="btn" id="vBtn" type="button">Semak</button></div>
+      <p class="vres" id="vRes" role="status"></p>
+    </div>
     <div id="buddies"></div>
   </div>
 </section>
@@ -953,6 +972,37 @@ function renderCountdown(){
 var map=null, groups={}, pins={};
 function famOf(id){ var f=null; (CFG.gvfam||[]).forEach(function(x){ if(x.k===id) f=x }); return f }
 function famLabel(name){ var i=String(name).indexOf('@'); return i<0 ? esc(name) : esc(name.slice(0,i+1))+'<i>'+esc(name.slice(i+1))+'</i>' }
+function verifyUrl(no){ return location.origin + location.pathname + '?sah=' + encodeURIComponent(no) }
+function leadersHtml(k){
+  var L=S.buddies.filter(function(b){ return b.k===k });
+  if(!L.length) return '<div class="sub">Duta rasmi GV: <b style="color:var(--gold)">belum dilantik</b></div>';
+  return '<div class="sub">Duta rasmi GV (GVBuddy):</div><div class="leads">'+L.map(function(b){
+    var z=ZN[(clusterById(k)||{}).zone]||{c:'#9DB0CC'};
+    var av=b.img?'<img src="'+esc(b.img)+'" alt="" referrerpolicy="no-referrer">':esc((b.name||'?').charAt(0).toUpperCase());
+    return '<a class="lead2" href="?sah='+encodeURIComponent(b.no||'')+'#disahkan" data-verify="'+esc(b.no||'')+'"><span class="av" style="background:'+z.c+'">'+av+'</span>'+esc(b.name)+' <small>'+esc(b.no||'')+'</small></a>';
+  }).join('')+'</div>';
+}
+function verifyNo(no, scroll){
+  no=String(no||'').trim().toUpperCase(); var res=$('#vRes'); if(!res) return;
+  $$('.bcard.hit').forEach(function(c){ c.classList.remove('hit') });
+  if(!no){ res.textContent=''; res.className='vres'; return }
+  $('#vNo').value=no;
+  var b=null; S.buddies.forEach(function(x){ if(String(x.no||'').toUpperCase()===no) b=x });
+  if(b){
+    var cl=clusterById(b.k), fm=famOf(b.k);
+    res.className='vres ok';
+    res.textContent='✓ Sah. '+b.name+' ialah GVBuddy, duta rasmi GV untuk '+(cl?cl.name:'kluster ini')+(fm?' dan '+fm.name:'')+'.';
+    var card=document.querySelector('.bcard[data-no="'+no.replace(/"/g,'')+'"]');
+    if(card){ card.classList.add('hit'); if(scroll!==false) card.scrollIntoView({behavior:'smooth',block:'center'}) }
+  } else {
+    res.className='vres no';
+    res.textContent = S.live ? 'Tiada GVBuddy sah dengan nombor '+no+'. Jika seseorang mendakwa sebagai GVBuddy, laporkan kepada @'+(CFG.pmTelegram||'')+' di Telegram.' : 'Sedang memuatkan senarai rasmi. Cuba sebentar lagi.';
+  }
+}
+function copyText(t){
+  try{ navigator.clipboard.writeText(t).then(function(){ toast('Pautan pengesahan disalin') },function(){ prompt0(t) }) }catch(e){ prompt0(t) }
+}
+function prompt0(t){ toast('Salin pautan: '+t) }
 function renderFams(){
   var list=(CFG.gvfam||[]).filter(function(f){ return f.k && f.name }), pm='https://t.me/'+encodeURIComponent(CFG.pmTelegram||'');
   var h=list.map(function(f){
@@ -961,7 +1011,8 @@ function renderFams(){
                       : '<a class="btn tg" href="'+pm+'" target="_blank" rel="noopener">Minta pautan @'+esc(CFG.pmTelegram||'')+'</a>';
     return '<div class="fam" style="--zc:'+z.c+'"><div class="tag">'+famLabel(f.name)+'</div>'
       +'<div class="sub">'+esc(f.campus||'')+(cl?' · Zon '+esc(z.n):'')+'</div>'
-      +(cl?'<div class="row"><span class="pill">'+esc(cl.name)+'</span><span class="pill '+st.cls+'">GVBuddy: '+esc(st.t)+'</span></div>':'')
+      +(cl?'<div class="row"><span class="pill">'+esc(cl.name)+'</span></div>':'')
+      +leadersHtml(f.k)
       +'<div class="acts">'+join+(cl?'<button class="btn ghost sm" type="button" data-map="'+esc(f.k)+'">Lihat kluster di peta</button>':'')+'</div></div>';
   }).join('');
   h+='<div class="fam ghost"><div class="tag" style="font-size:20px">Kampus anda belum ada GVFam?</div><div class="sub just">Jadilah GVBuddy dan bina GVFam@Kampus anda sendiri bersama HQ.</div><div class="acts"><a class="btn ghost" href="#daftar">Mohon jadi GVBuddy</a></div></div>';
@@ -1182,9 +1233,9 @@ function renderBuddies(){
   $('#buddies').innerHTML='<div class="bcards">'+S.buddies.map(function(b,i){
     var cl=clusterById(b.k), z=ZN[cl?cl.zone:'']||{c:'#9DB0CC',n:''}, init=esc((b.name||'?').charAt(0).toUpperCase());
     var pic = b.img ? '<img src="'+esc(b.img)+'" alt="Gambar '+esc(b.name)+'" loading="lazy" referrerpolicy="no-referrer" data-init="'+init+'">' : init;
-    return '<div class="bcard" data-i="'+i+'"><div class="inner">'
+    return '<div class="bcard" data-i="'+i+'" data-no="'+esc(String(b.no||'').toUpperCase())+'"><div class="inner">'
       +'<div class="face front"><button class="flipbtn" type="button" aria-expanded="false" aria-label="Lihat profil '+esc(b.name)+'">'
-        +'<span class="ribbon">✓ GVBuddy disahkan</span>'
+        +'<span class="ribbon">✓ Duta Rasmi GV</span>'
         +'<div class="bpic" style="background:'+(b.img?'var(--panel2)':z.c)+'">'+pic+'</div>'
         +'<div class="bmeta"><b>'+esc(b.name)+'</b><span>'+esc(cl?cl.name:'')+'</span><span class="no">'+esc(b.no||'')+'</span><span class="hint">Tekan untuk profil</span></div>'
       +'</button></div>'
@@ -1193,10 +1244,11 @@ function renderBuddies(){
         +'<h4>'+esc(b.name)+'</h4>'
         +'<dl><dt>No sijil</dt><dd class="mono">'+esc(b.no||'Belum')+'</dd>'
         +'<dt>Kod GV</dt><dd class="mono">'+esc(b.gv||'Belum ada')+'</dd>'
-        +'<dt>Kluster</dt><dd>'+esc(cl?cl.name:'')+'</dd></dl>'
+        +'<dt>Kluster</dt><dd>'+esc(cl?cl.name:'')+'</dd>'+(famOf(b.k)?'<dt>Memimpin</dt><dd>'+esc(famOf(b.k).name)+'</dd>':'')+'</dl>'
         +'<div class="acts">'
           +(CFG.pmTelegram?'<a class="btn tg" href="'+tg+'" target="_blank" rel="noopener">PM di Telegram @'+esc(CFG.pmTelegram)+'</a>':'')
           +'<button class="btn ghost sm" type="button" data-map="'+esc(b.k)+'">Lihat kluster di peta</button>'
+          +'<button class="btn ghost sm" type="button" data-copy="'+esc(b.no||'')+'">Salin pautan pengesahan</button>'
           +'<button class="btn ghost sm" type="button" data-back="1">Kembali</button>'
         +'</div>'
       +'</div></div></div>';
@@ -1405,7 +1457,7 @@ function renderAll(){
 }
 function loadLive(){
   if(!CFG.appsScriptUrl) return;
-  fetch(CFG.appsScriptUrl).then(function(r){ return r.json() }).then(function(d){ applyLive(d); renderAll() }).catch(function(){});
+  fetch(CFG.appsScriptUrl).then(function(r){ return r.json() }).then(function(d){ applyLive(d); renderAll(); var q=new URLSearchParams(location.search).get('sah'); if(q) verifyNo(q) }).catch(function(){});
 }
 
 /* ── review mode (?semak) ───────────────────────────── */
@@ -1514,7 +1566,9 @@ function bindSemak(){
 function init(){
   $('#tgLink').href=CFG.telegramUrl; $('#mailLink').href='mailto:'+CFG.contactEmail;
   $('#mailRule').textContent=CFG.contactEmail;
-  renderAll(); loadDraft(); bindApply(); bindPhoto(); bindProject(); bindReader(); bindSemak(); loadLive();
+  renderAll(); loadDraft(); bindApply(); bindPhoto();
+  $('#vBtn').addEventListener('click',function(){ verifyNo($('#vNo').value) });
+  $('#vNo').addEventListener('keydown',function(e){ if(e.key==='Enter') verifyNo(this.value) }); bindProject(); bindReader(); bindSemak(); loadLive();
   setInterval(renderCountdown,60000);
   $('#zones').addEventListener('click',function(e){ var b=e.target.closest('button'); if(b) setZone(b.dataset.z) });
   $('#clist').addEventListener('click',function(e){ var b=e.target.closest('[data-c]'); if(b) focusCluster(b.dataset.c) });
@@ -1523,6 +1577,8 @@ function init(){
   document.addEventListener('click',function(e){
     var b=e.target.closest('[data-ics]');
     if(b){ var ev=evById(b.dataset.ics); if(ev){ download('GVBuddy-'+ev.id+'.ics', ics([ev])); toast('Fail .ics dimuat turun') } }
+    var vf=e.target.closest('[data-verify]'); if(vf){ e.preventDefault(); $('#disahkan').scrollIntoView({behavior:'smooth'}); verifyNo(vf.getAttribute('data-verify')); return }
+    var cp=e.target.closest('[data-copy]'); if(cp){ copyText(verifyUrl(cp.getAttribute('data-copy'))); return }
     var fb=e.target.closest('.flipbtn'); if(fb){ flipCard(fb.closest('.bcard'),true); return }
     var bk=e.target.closest('[data-back]'); if(bk){ flipCard(bk.closest('.bcard'),false); return }
     var mp=e.target.closest('[data-map]'); if(mp){ focusCluster(mp.getAttribute('data-map')); $('#peta').scrollIntoView({behavior:'smooth'}); return }
