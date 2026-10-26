@@ -315,6 +315,41 @@ details.more[open]>summary::after{content:"−"}
 .trust .card h3{font-size:18px}
 .principles{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 
+/* photo field */
+.photo{display:flex;gap:14px;align-items:center}
+.ph{width:84px;height:84px;border-radius:50%;flex:none;background:var(--bg) center/cover no-repeat;border:1.5px dashed var(--line);display:grid;place-items:center;color:var(--dim);font-size:12px;text-align:center}
+.ph.on{border-style:solid;border-color:var(--orange)}
+.photo input[type=file]{padding:9px;font-size:14px}
+
+/* GVBuddy cards */
+.bcards{display:grid;gap:16px;margin-top:24px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.bcard{perspective:1200px;height:360px}
+.bcard .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.bcard.flip .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;overflow:hidden;
+  border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column}
+.face.back{transform:rotateY(180deg);padding:16px;gap:10px}
+.flipbtn{all:unset;cursor:pointer;display:flex;flex-direction:column;height:100%;width:100%}
+.flipbtn:focus-visible{outline:2px solid var(--gold);outline-offset:-4px;border-radius:18px}
+.bpic{position:relative;height:230px;background:var(--panel2);display:grid;place-items:center;font:800 72px var(--display);color:#081428;overflow:hidden}
+.bpic img{width:100%;height:100%;object-fit:cover;display:block}
+.bpic::after{content:"";position:absolute;inset:auto 0 0 0;height:70px;background:linear-gradient(transparent,rgba(11,36,72,.95))}
+.ribbon{position:absolute;top:12px;left:12px;z-index:2;font:700 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  background:var(--orange);color:#fff;border-radius:999px;padding:5px 9px}
+.bmeta{padding:10px 14px 14px;display:grid;gap:3px}
+.bmeta b{font:800 19px var(--display)}
+.bmeta span{color:var(--muted);font-size:13.5px}
+.bmeta .no{font:700 12px var(--mono);color:var(--gold)}
+.bmeta .hint{font-size:12px;color:var(--dim);margin-top:4px}
+.back h4{font-size:19px}
+.back dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;margin:4px 0;font-size:13.5px}
+.back dt{font:700 10.5px var(--mono);color:var(--dim);letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
+.back dd{margin:0;word-break:break-word}
+.back .acts{display:grid;gap:8px;margin-top:auto}
+.btn.tg{background:#229ED9}
+.btn.tg:hover{background:#1B8BC0}
+@media(prefers-reduced-motion:reduce){.bcard .inner{transition:none}}
+
 /* review mode */
 #semak{background:#1A1206;border-bottom:2px solid var(--gold);padding:28px 0}
 #semak h2{font-size:26px}
@@ -630,7 +665,7 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
   <div class="wrap">
     <div class="eyebrow">Pengumuman rasmi</div>
     <h2 class="h2">GVBuddy yang disahkan.</h2>
-    <p class="lead just">Senarai ini dikemas kini selepas setiap ToT GV. Hanya nama paparan, kluster dan nombor sijil dipaparkan. Butiran peribadi kekal dengan HQ.</p>
+    <p class="lead just">Senarai ini dikemas kini selepas setiap ToT GV. Tekan kad untuk melihat profil. Hanya nama paparan, gambar, kluster, nombor sijil dan kod GV dipaparkan, dengan persetujuan GVBuddy. Untuk berhubung, PM Project Leader di Telegram.</p>
     <div id="buddies"></div>
   </div>
 </section>
@@ -655,6 +690,13 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
           <label><span class="req">Umur</span><input id="a_age" type="number" min="18" max="40" inputmode="numeric"></label>
           <label><span class="req">Ikhwah atau akhwat</span><select id="a_gender"><option value="">Pilih</option><option>Ikhwah</option><option>Akhwat</option></select></label>
           <label><span class="req">Negeri kampus</span><select id="a_state"></select></label>
+          <label><span>Kod GV rasmi</span><input id="a_gvcode" maxlength="40" placeholder="Contoh: HLSTK-GV-2.0-1582" autocomplete="off"><small>Ada dalam emel atau pas pendaftaran GV 2.0 anda. Kosongkan jika belum ada.</small></label>
+          <div style="grid-column:1/-1;display:grid;gap:6px">
+            <label for="a_photo"><span class="req">Gambar diri</span></label>
+            <div class="photo"><div class="ph" id="phPrev">Tiada gambar</div>
+              <div style="display:grid;gap:6px;min-width:0"><input id="a_photo" type="file" accept="image/jpeg,image/png,image/webp,image/*">
+              <small style="color:var(--dim);font-size:12.5px">Muka jelas, berpakaian sopan. Gambar dipotong segi empat dan dikecilkan secara automatik. Dipaparkan di laman hanya selepas anda disahkan dan diumumkan.</small></div></div>
+          </div>
         </div>
       </div>
       <div class="fcard">
@@ -688,6 +730,7 @@ footer .legal{margin-top:16px;font-size:13px;color:var(--dim);max-width:90ch}
           <label class="check"><input type="checkbox" id="a_ok2"><span>Saya akan menjaga Ikrar Maruah GV dan tiga prinsip GV Playbook: komuniti didahulukan, telus secara lalai, cemerlang tanpa pengecualian.</span></label>
           <label class="check"><input type="checkbox" id="a_ok3"><span>Saya faham GVBuddy bukan pemilik pangkalan data sukarelawan. Akses hanya diberi selepas disahkan, secara minimum, dan tamat apabila tempoh tamat.</span></label>
           <label class="check"><input type="checkbox" id="a_ok4"><span>Saya faham saya hanya menjadi GVBuddy selepas menghadiri ToT GV dan disahkan secara rasmi oleh Project Leader.</span></label>
+          <label class="check"><input type="checkbox" id="a_ok5"><span>Saya bersetuju gambar, nama paparan, kluster, nombor sijil dan kod GV saya dipaparkan di laman GVBuddy jika saya disahkan dan diumumkan.</span></label>
         </div>
       </div>
       <p class="err" id="aErr" role="alert"></p>
@@ -762,6 +805,7 @@ var CFG = {
   appsScriptUrl : "https://script.google.com/macros/s/AKfycbx5hmUCFcNQB8oRpAiqeBRpVAZFHsAQq16q1fb1ov4sc298xuRGQH0Y_zBrZj7IUO559A/exec",
   contactEmail  : "persatuanbeliacendekiaholistik@gmail.com",
   telegramUrl   : "https://t.me/+ouIRupHdiuQ2MjZl",
+  pmTelegram    : "ziqrionlyone",               // butang PM pada kad GVBuddy (tanpa @)
   closeAt       : "",   // kosong = permohonan dibuka sepanjang tahun (Sheet Config boleh ganti)
   ratio         : 15,                            // 1 slot GVBuddy bagi setiap 15 sukarelawan, minimum 1
 
@@ -1076,9 +1120,36 @@ function renderCal(){
 /* ── announced GVBuddies ───────────────────────────── */
 function renderBuddies(){
   if(!S.buddies.length){ $('#buddies').innerHTML='<div class="empty">Pengumuman rasmi dibuat selepas ToT GV, '+esc(evWhen('gvb-umum'))+'.</div>'; return }
-  $('#buddies').innerHTML='<div class="buddies">'+S.buddies.map(function(b){
-    var cl=clusterById(b.k), z=ZN[cl?cl.zone:'']||{c:'#999',n:''};
-    return '<div class="bud"><div class="av" style="background:'+z.c+'">'+esc((b.name||'?').charAt(0).toUpperCase())+'</div><div><b>'+esc(b.name)+'</b><span>'+esc(cl?cl.name:'')+'</span><br><span class="mono">'+esc(b.no||'')+'</span></div></div>' }).join('')+'</div>';
+  var tg='https://t.me/'+encodeURIComponent(CFG.pmTelegram||'');
+  $('#buddies').innerHTML='<div class="bcards">'+S.buddies.map(function(b,i){
+    var cl=clusterById(b.k), z=ZN[cl?cl.zone:'']||{c:'#9DB0CC',n:''}, init=esc((b.name||'?').charAt(0).toUpperCase());
+    var pic = b.img ? '<img src="'+esc(b.img)+'" alt="Gambar '+esc(b.name)+'" loading="lazy" referrerpolicy="no-referrer" data-init="'+init+'">' : init;
+    return '<div class="bcard" data-i="'+i+'"><div class="inner">'
+      +'<div class="face front"><button class="flipbtn" type="button" aria-expanded="false" aria-label="Lihat profil '+esc(b.name)+'">'
+        +'<span class="ribbon">✓ GVBuddy disahkan</span>'
+        +'<div class="bpic" style="background:'+(b.img?'var(--panel2)':z.c)+'">'+pic+'</div>'
+        +'<div class="bmeta"><b>'+esc(b.name)+'</b><span>'+esc(cl?cl.name:'')+'</span><span class="no">'+esc(b.no||'')+'</span><span class="hint">Tekan untuk profil</span></div>'
+      +'</button></div>'
+      +'<div class="face back" inert>'
+        +'<span class="pill" style="color:'+z.c+';border-color:'+z.c+';align-self:flex-start">Zon '+esc(z.n)+'</span>'
+        +'<h4>'+esc(b.name)+'</h4>'
+        +'<dl><dt>No sijil</dt><dd class="mono">'+esc(b.no||'Belum')+'</dd>'
+        +'<dt>Kod GV</dt><dd class="mono">'+esc(b.gv||'Belum ada')+'</dd>'
+        +'<dt>Kluster</dt><dd>'+esc(cl?cl.name:'')+'</dd></dl>'
+        +'<div class="acts">'
+          +(CFG.pmTelegram?'<a class="btn tg" href="'+tg+'" target="_blank" rel="noopener">PM di Telegram @'+esc(CFG.pmTelegram)+'</a>':'')
+          +'<button class="btn ghost sm" type="button" data-map="'+esc(b.k)+'">Lihat kluster di peta</button>'
+          +'<button class="btn ghost sm" type="button" data-back="1">Kembali</button>'
+        +'</div>'
+      +'</div></div></div>';
+  }).join('')+'</div>';
+  $$('#buddies img[data-init]').forEach(function(im){ im.addEventListener('error',function(){ var p=im.parentNode; p.textContent=im.getAttribute('data-init') }) });
+}
+function flipCard(card,on){
+  card.classList.toggle('flip',on);
+  var front=card.querySelector('.front'), back=card.querySelector('.back');
+  if(on){ back.removeAttribute('inert'); front.setAttribute('inert',''); card.querySelector('.flipbtn').setAttribute('aria-expanded','true'); setTimeout(function(){ var a=back.querySelector('a,button'); if(a) a.focus() },350) }
+  else { front.removeAttribute('inert'); back.setAttribute('inert',''); card.querySelector('.flipbtn').setAttribute('aria-expanded','false'); setTimeout(function(){ card.querySelector('.flipbtn').focus() },350) }
 }
 
 /* ── forms ──────────────────────────────────────────── */
@@ -1107,7 +1178,30 @@ function campusChanged(){
   } else if(other) hint='Kami akan memadankan anda dengan kluster terdekat dalam zon negeri anda.';
   $('#a_clusterHint').textContent=hint;
 }
-var FIELDS=['name','display','email','phone','telegram','age','gender','state','campus','otherInst','otherCampus','course','year','grad','involve','why','idea','cat','hours','tot'];
+var FIELDS=['name','display','email','phone','telegram','age','gender','state','gvcode','campus','otherInst','otherCampus','course','year','grad','involve','why','idea','cat','hours','tot'];
+var PHOTO=null;
+function processPhoto(file){
+  return new Promise(function(res,rej){
+    if(!file) return rej(new Error('nofile'));
+    if(file.size > 15e6) return rej(new Error('big'));
+    var url=URL.createObjectURL(file), img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth, h=img.naturalHeight, s=Math.min(w,h), S=Math.min(640,s);
+      var c=document.createElement('canvas'); c.width=c.height=S;
+      c.getContext('2d').drawImage(img,(w-s)/2,(h-s)/2,s,s,0,0,S,S);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',0.82));
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('bad')) };
+    img.src=url;
+  });
+}
+function bindPhoto(){
+  $('#a_photo').addEventListener('change',function(){
+    var f=this.files&&this.files[0], pv=$('#phPrev'); PHOTO=null; this.classList.remove('bad'); $('#aErr').textContent=''; pv.classList.remove('on'); pv.style.backgroundImage=''; pv.textContent='Memproses…';
+    processPhoto(f).then(function(u){ PHOTO=u; pv.textContent=''; pv.style.backgroundImage='url('+u+')'; pv.classList.add('on') })
+      .catch(function(e){ pv.textContent='Tiada gambar'; $('#aErr').textContent = e.message==='big' ? 'Gambar terlalu besar. Pilih gambar bawah 15 MB.' : 'Gambar tidak dapat dibaca. Cuba gambar JPG atau PNG lain.' });
+  });
+}
 function saveDraft(){
   var o={}; FIELDS.forEach(function(f){ o[f]=$('#a_'+f).value }); store('gvb-draft',JSON.stringify(o));
   $('#draftNote').textContent='Draf disimpan pada peranti ini.';
@@ -1119,7 +1213,7 @@ function loadDraft(){
 function post(payload){
   return new Promise(function(res,rej){
     if(!CFG.appsScriptUrl){ rej(new Error('nourl')); return }
-    var done=false, t=setTimeout(function(){ if(!done){ done=true; rej(new Error('timeout')) } },25000);
+    var done=false, t=setTimeout(function(){ if(!done){ done=true; rej(new Error('timeout')) } },45000);
     fetch(CFG.appsScriptUrl,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) })
       .then(function(r){ return r.json() })
       .then(function(j){ if(!done){ done=true; clearTimeout(t); res(j) } })
@@ -1149,14 +1243,17 @@ function bindApply(){
     var age=parseInt(d.age,10); if(!(age>=18 && age<=40)) return fail('GVBuddy mesti berumur 18 tahun ke atas.','age');
     if(d.why.length<30) return fail('Ceritakan sedikit lagi, sekurangnya satu atau dua ayat.','why');
     if(d.idea.length<30) return fail('Terangkan idea projek dalam satu atau dua ayat.','idea');
-    for(var k=1;k<=4;k++){ if(!$('#a_ok'+k).checked){ err.textContent='Sila tandakan semua pengakuan.'; $('#a_ok'+k).scrollIntoView({block:'center'}); return } d['ok'+k]=true }
+    if(!PHOTO) return fail('Sila muat naik gambar diri anda.','photo');
+    for(var k=1;k<=5;k++){ if(!$('#a_ok'+k).checked){ err.textContent='Sila tandakan semua pengakuan.'; $('#a_ok'+k).scrollIntoView({block:'center'}); return } d['ok'+k]=true }
     var opt=$('#a_campus').selectedOptions && $('#a_campus').selectedOptions[0]; d.campusLabel=opt?opt.textContent:'';
+    d.photo=PHOTO;
     var btn=$('#aBtn'); btn.disabled=true; btn.textContent='Menghantar…';
     post(d).then(function(r){
       btn.disabled=false; btn.textContent='Hantar permohonan';
-      if(r && (r.status==='saved' || r.status==='duplicate')){
+      if(r && (r.status==='saved' || r.status==='duplicate' || r.status==='updated')){
         store('gvb-draft',null); f.hidden=true; $('#aDone').hidden=false;
         $('#aRef').textContent=r.ref||''; if(r.status==='duplicate') $('#aDone h3').textContent='Permohonan anda sudah ada dalam rekod.';
+        if(r.status==='updated') $('#aDone h3').textContent='Rekod anda telah dikemas kini dengan gambar dan maklumat terkini.';
         var tot=evById('gvb-tot');
         $('#aDoneActs').innerHTML=(tot && tot.s ? '<a class="btn" target="_blank" rel="noopener" href="'+esc(gcal(tot))+'">Tambah ToT GV ke kalendar</a>' : '')
           +'<a class="btn ghost" target="_blank" rel="noopener" href="'+esc(CFG.telegramUrl)+'">Sertai GV Familia</a>';
@@ -1283,7 +1380,7 @@ function semakView(){
     r.apps.slice().reverse().forEach(function(a){
       var camp=''; S.campuses.some(function(c){ if(c.id===a['Kampus ID']){ camp=inst(c); return true } return false });
       h+='<tr'+(a.Status==='Baharu'?' class="hl"':'')+'><td class="mono">'+esc(a.Rujukan)+'<br><span class="note">'+esc(String(a.Masa).slice(0,10))+'</span>'+(a['No sijil']?'<br><b>'+esc(a['No sijil'])+'</b>':'')+'</td>'
-        +'<td><b>'+esc(a['Nama penuh'])+'</b><br>Paparan: '+esc(a['Nama paparan'])+'<br>'+esc(a.Umur)+' · '+esc(a['Ikhwah atau akhwat'])+'</td>'
+        +'<td>'+(a.Gambar?'<img src="https://drive.google.com/thumbnail?id='+encodeURIComponent(a.Gambar)+'&sz=w120" alt="" referrerpolicy="no-referrer" style="width:52px;height:52px;border-radius:50%;object-fit:cover;display:block;margin-bottom:6px">':'<span class="pill">Tiada gambar</span><br>')+'<b>'+esc(a['Nama penuh'])+'</b><br>Paparan: '+esc(a['Nama paparan'])+'<br>'+esc(a.Umur)+' · '+esc(a['Ikhwah atau akhwat'])+'<br>Kod GV: <span class="mono">'+esc(a['Kod GV']||'Tiada')+'</span><br>Papar awam: '+esc(a['Papar awam']||'Tidak')+'</td>'
         +'<td>'+esc(a.Emel)+'<br>'+esc(a.Telefon)+'<br>'+esc(a.Telegram)+'</td>'
         +'<td>'+esc(camp || (a['Institusi (jika tiada dalam senarai)']+' '+a['Kampus (jika tiada)']))+'<br>'+sel(clusterOpts(),a.Kluster,'data-f="cluster"')+'</td>'
         +'<td>'+esc(a.Kursus)+'<br>'+esc(a['Tahun pengajian'])+' · tamat '+esc(a['Tamat pengajian'])+'<br>'+esc(a['Penglibatan GV'])+'<br>Sukarelawan GV 2.0: <b>'+esc(a['Sukarelawan GV 2.0 berdaftar'])+'</b><br>'+esc(a['Jam seminggu'])+' · '+esc(a['Komitmen ToT'])+'</td>'
@@ -1359,7 +1456,7 @@ function bindSemak(){
 function init(){
   $('#tgLink').href=CFG.telegramUrl; $('#mailLink').href='mailto:'+CFG.contactEmail;
   $('#mailRule').textContent=CFG.contactEmail;
-  renderAll(); loadDraft(); bindApply(); bindProject(); bindReader(); bindSemak(); loadLive();
+  renderAll(); loadDraft(); bindApply(); bindPhoto(); bindProject(); bindReader(); bindSemak(); loadLive();
   setInterval(renderCountdown,60000);
   $('#zones').addEventListener('click',function(e){ var b=e.target.closest('button'); if(b) setZone(b.dataset.z) });
   $('#clist').addEventListener('click',function(e){ var b=e.target.closest('[data-c]'); if(b) focusCluster(b.dataset.c) });
@@ -1368,6 +1465,9 @@ function init(){
   document.addEventListener('click',function(e){
     var b=e.target.closest('[data-ics]');
     if(b){ var ev=evById(b.dataset.ics); if(ev){ download('GVBuddy-'+ev.id+'.ics', ics([ev])); toast('Fail .ics dimuat turun') } }
+    var fb=e.target.closest('.flipbtn'); if(fb){ flipCard(fb.closest('.bcard'),true); return }
+    var bk=e.target.closest('[data-back]'); if(bk){ flipCard(bk.closest('.bcard'),false); return }
+    var mp=e.target.closest('[data-map]'); if(mp){ focusCluster(mp.getAttribute('data-map')); $('#peta').scrollIntoView({behavior:'smooth'}); return }
     var a=e.target.closest('[data-apply]');
     if(a){ var cl=clusterById(a.dataset.apply), an=cl && anchorOf(cl);
       if(an){ $('#a_campus').value=an.id; campusChanged(); if(map) map.closePopup() }
