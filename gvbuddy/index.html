@@ -762,7 +762,7 @@ var CFG = {
   appsScriptUrl : "https://script.google.com/macros/s/AKfycbx5hmUCFcNQB8oRpAiqeBRpVAZFHsAQq16q1fb1ov4sc298xuRGQH0Y_zBrZj7IUO559A/exec",
   contactEmail  : "persatuanbeliacendekiaholistik@gmail.com",
   telegramUrl   : "https://t.me/+ouIRupHdiuQ2MjZl",
-  closeAt       : "2026-10-26T23:59:00+08:00",   // tarikh tutup permohonan (Sheet Config boleh ganti)
+  closeAt       : "",   // kosong = permohonan dibuka sepanjang tahun (Sheet Config boleh ganti)
   ratio         : 15,                            // 1 slot GVBuddy bagi setiap 15 sukarelawan, minimum 1
 
   /* Kalendar sandaran. Selepas backend disambung, tab Kalendar dalam Sheet yang digunakan.
@@ -859,7 +859,7 @@ function regClosed(){ return !S.config.open || (S.config.closeAt && Date.now() >
 function renderCountdown(){
   var el=$('#countdown'), t=Date.parse(S.config.closeAt||'');
   if(regClosed()){ el.innerHTML='Permohonan GVBuddy sudah ditutup. Ikuti @gengvolunteers untuk pusingan seterusnya.'; return }
-  if(!t){ el.textContent=''; return }
+  if(!t){ el.innerHTML='Permohonan GVBuddy <b>dibuka sepanjang tahun</b>. Saringan dan ToT GV diadakan secara berkala.'; return }
   var ms=t-Date.now(), d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5);
   el.innerHTML = 'Permohonan ditutup dalam <b>' + d + ' hari ' + h + ' jam</b>, ' + esc(fmtD(new Date(t+8*36e5).toISOString().slice(0,10))) + '.';
 }
@@ -1002,7 +1002,7 @@ function shortRange(e){
 /* ── SOP path ───────────────────────────────────────── */
 function renderPath(){
   var steps = [
-    ['', 'Mohon', 'gvb-tutup', 'Isi borang di laman ini. Pilih kampus anda dan kluster ditentukan secara automatik. Sertakan satu idea projek untuk kluster anda.'],
+    ['', 'Mohon', '', 'Permohonan dibuka sepanjang tahun. Isi borang di laman ini. Pilih kampus anda dan kluster ditentukan secara automatik. Sertakan satu idea projek untuk kluster anda.'],
     ['', 'Saringan ringkas', '', 'Semakan profil dan penglibatan GV, diikuti panggilan pendek. Calon tersenarai pendek dimaklumkan melalui emel dan Telegram.'],
     ['key', 'ToT GV bersama Project Leader', 'gvb-tot', 'Latihan rasmi secara langsung bersama Project Leader berpandukan GV Playbook. Wajib hadir untuk disahkan.'],
     ['key', 'Disijilkan', 'gvb-umum', 'Sijil GVBuddy dan nombor sijil rasmi dikeluarkan kepada peserta yang lulus ToT.'],
@@ -1238,7 +1238,7 @@ function applyLive(d){
   if(d.campuses && d.campuses.length && !S.admin) S.campuses=d.campuses;
   S.buddies=d.buddies||[]; S.projects=d.projects||[];
   if(d.events && d.events.length) S.events=d.events;
-  if(d.config){ S.config.open=d.config.open!==false; if(d.config.closeAt) S.config.closeAt=d.config.closeAt; S.config.announce=d.config.announce||'' }
+  if(d.config){ S.config.open=d.config.open!==false; if('closeAt' in d.config) S.config.closeAt=d.config.closeAt||''; S.config.announce=d.config.announce||'' }
   S.live=true;
 }
 function renderAll(){
