@@ -1,0 +1,19 @@
+{
+  "mood": "heart",
+  "grade": "heart",
+  "face": [0.5, 0.33],
+  "brand": { "text": "CHANGEMAKERS LAB 1.0/2026", "sub": "SUARA PESERTA" },
+  "cues": [
+    { "fx": "name", "start": 0.4, "end": 3.2, "name": "Nama Peserta", "role": "Peserta · JOMKORA Edition" },
+    { "fx": "zoom", "start": 3.4, "end": 5.8, "scale": 1.18 },
+    { "fx": "caption", "start": 3.5, "end": 5.8, "text": "Saya belajar cara lead team dengan yakin", "highlight": ["lead", "yakin"] },
+    { "fx": "checklist", "start": 6.0, "end": 8.8, "title": "Apa saya bawa balik", "items": ["Skill komunikasi", "Kawan baru", "Keyakinan diri"] },
+    { "fx": "takeover", "start": 9.0, "end": 11.2, "name": "Changemakers Lab", "status": "peserta JOMKORA Edition", "messages": [
+      { "side": "l", "text": "Fasilitator sangat supportive" },
+      { "side": "l", "text": "Aktiviti dia hands-on, tak boring" },
+      { "side": "r", "text": "Terima kasih semua!" },
+      { "side": "l", "text": "Nak join edisi seterusnya" } ] },
+    { "fx": "card", "start": 11.2, "end": 12.6, "scale": 0.8 },
+    { "fx": "endcard", "start": 12.6, "text": "Terima kasih, Changemakers!", "sub": "Kongsi pengalaman anda #ChangemakersLab" }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "mood": "hype",
+  "grade": "hype",
+  "face": [0.5, 0.33],
+  "brand": { "text": "CHANGEMAKERS LAB 1.0/2026", "sub": "JOMKORA EDITION" },
+  "cues": [
+    { "fx": "spotlight", "start": 0.2, "end": 2.8 },
+    { "fx": "title", "start": 0.3, "end": 2.6, "text": "JOMKORA!", "sub": "Changemakers Lab 1.0/2026", "say": "Ini dia Changemakers Lab!" },
+    { "fx": "glitch", "start": 0.3, "end": 0.6 },
+    { "fx": "snap", "start": 3.0, "end": 4.2, "scale": 1.45, "say": "...paling BEST..." },
+    { "fx": "chat", "start": 4.6, "end": 7.0, "messages": [
+      { "side": "l", "text": "Seronok tak Changemakers Lab?" },
+      { "side": "r", "text": "Gila best!!" },
+      { "side": "l", "text": "Next edition join lagi!" } ] },
+    { "fx": "growth", "start": 7.4, "end": 9.6, "label": "Contoh: peserta hadir (ganti nombor sebenar)", "value": "120" },
+    { "fx": "broll", "start": 9.8, "end": 11.8, "file": "broll-demo.mp4", "label": "MOMEN" },
+    { "fx": "endcard", "start": 12.0, "text": "Terima kasih, Changemakers!", "sub": "Jumpa di Changemakers Lab 2.0" }
+  ]
+}

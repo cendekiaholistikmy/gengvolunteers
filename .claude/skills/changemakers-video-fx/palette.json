@@ -1,0 +1,26 @@
+{
+  "name": "Changemakers Lab 1.0/2026 — JOMKORA Edition",
+  "source": "Sampled from the Changemakers Lab, GengVolunteers and HeartSpace logos",
+  "colors": {
+    "night":   { "hex": "#0B1026", "use": "Backgrounds, card glass, end card" },
+    "navy":    { "hex": "#16204A", "use": "Card fill, tag banner (from the Lab tagline bar)" },
+    "gold":    { "hex": "#FFC83D", "use": "Hero accent: stars, keyword highlight, progress bar" },
+    "ignite":  { "hex": "#FF7A1A", "use": "Energy: 'LAB' type, right-side chat bubble, snap flash" },
+    "magenta": { "hex": "#C531D9", "use": "Gradient partner of ignite (flask right side)" },
+    "cyan":    { "hex": "#2EC4F1", "use": "Cool accent: flask left side, glitch split, glow" },
+    "chalk":   { "hex": "#F5F7FF", "use": "All body text on dark" },
+    "gvblue":  { "hex": "#034B90", "use": "GengVolunteers partner tag" },
+    "gvorange":{ "hex": "#E86F3B", "use": "GengVolunteers partner tag" },
+    "teal":    { "hex": "#1DC4D7", "use": "HeartSpace: feedback / testimony mood, checkmarks" },
+    "blush":   { "hex": "#FFA8A9", "use": "HeartSpace: feedback / testimony mood, soft highlight" }
+  },
+  "moods": {
+    "hype":  { "for": "Moment / highlight videos", "accent": "gold", "accent2": "ignite", "accent3": "magenta", "cool": "cyan" },
+    "heart": { "for": "Feedback / testimony videos", "accent": "teal", "accent2": "blush", "accent3": "gold", "cool": "teal" }
+  },
+  "grades": {
+    "natural": "eq=contrast=1.03:saturation=1.04",
+    "hype":    "eq=contrast=1.07:saturation=1.10,colorbalance=rs=-0.02:bs=0.04:rh=0.03:gh=0.01:bh=-0.02,vignette=angle=PI/6",
+    "heart":   "eq=contrast=0.96:saturation=1.04:brightness=0.025,colorbalance=rm=0.02:bm=0.01:rh=0.03:gh=0.01:bh=0.02,vignette=angle=PI/7"
+  }
+}
