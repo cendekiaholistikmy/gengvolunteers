@@ -66,7 +66,12 @@ Every cue has `fx`, `start`, `end` (or `dur`). Optional `y` = vertical centre as
 | `caption` | extra: big caption with highlighted words | `text`, `highlight:[...]`, `size` |
 | `endcard` | extra: Lab logo, thank-you, partner logos | `text`, `sub`, `partners` |
 
-Top-level: `mood`, `grade`, `face`, `brand: {text, sub}` (persistent pill + progress bar).
+Top-level: `mood`, `grade`, `face`, `brand: {text, sub}` (persistent pill + progress bar),
+`frame: {zoom, center:[x, y]}` (static reframe of the source, e.g. `1.5` for speakers filmed full-body).
+
+Phone footage is often HDR (HLG / Dolby Vision, `color_transfer=arib-std-b67`). Tone-map it to SDR when
+making working copies, or it looks washed out:
+`zscale=t=linear:npl=203,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p`.
 `"sfx": false` on a cue mutes its pop.
 
 Not built yet (need a person cut-out / matte): true **text behind head** (01), **orbit icons** (09),

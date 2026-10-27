@@ -709,7 +709,12 @@ def probe(path):
 
 def vf(cfg, grade=None):
     g = grade or cfg.get("grade", "natural")
-    chain = [f"scale={W}:{H}:force_original_aspect_ratio=increase", f"crop={W}:{H}", f"fps={FPS}"]
+    chain = []
+    if cfg.get("frame"):  # static reframe: {"zoom": 1.5, "center": [x, y]} as fractions of the source
+        z, (cx, cy) = cfg["frame"].get("zoom", 1.0), cfg["frame"].get("center", [0.5, 0.5])
+        chain.append(f"crop=iw/{z}:ih/{z}:min(max(iw*{cx}-iw/{z}/2\\,0)\\,iw-iw/{z}):"
+                     f"min(max(ih*{cy}-ih/{z}/2\\,0)\\,ih-ih/{z})")
+    chain += [f"scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos", f"crop={W}:{H}", f"fps={FPS}"]
     if g and g != "none":
         chain.append(PAL["grades"].get(g, g))
     return ",".join(chain + ["format=rgb24"])
