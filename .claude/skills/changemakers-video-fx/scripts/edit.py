@@ -104,11 +104,15 @@ def build(spec, outdir, render=False):
                 if p["punch"]:
                     tight = not tight
                 p["zoom"] = base * (seg.get("punch_scale", 1.08) if tight else 1.0)
+        first = True
         for w in correct(keep, phrases):
             for p in plan:
                 if p["seg"] == si and p["a"] <= w["s"] < p["b"]:
                     subs.append({"w": w["w"].replace(",", ""), "s": round(w["s"] - p["a"] + p["o"], 3),
                                  "e": round(min(w["e"], p["b"]) - p["a"] + p["o"], 3)})
+                    if first:
+                        subs[-1]["brk"] = True  # subtitles never run across a segment change
+                        first = False
                     break
         seg_marks.append((seg_start, t_out))
     speech_end = t_out

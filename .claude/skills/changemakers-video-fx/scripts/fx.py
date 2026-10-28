@@ -533,17 +533,29 @@ def sub_groups(c):
     """Split timed words into display groups (by length, punctuation and pauses)."""
     if "_groups" in c:
         return c["_groups"]
-    maxch = c.get("maxch", {"pop": 14, "sentence": 40, "box": 24}.get(c.get("style"), 22))
+    maxch = c.get("maxch", {"pop": 14, "sentence": 46, "box": 24}.get(c.get("style"), 22))
     groups, cur = [], []
     for w in c["words"]:
         if cur:
             n = sum(len(x["w"]) + 1 for x in cur) + len(w["w"])
-            if n > maxch or cur[-1]["w"][-1:] in ".?!," or w["s"] - cur[-1]["e"] > 0.45:
+            if n > maxch or cur[-1]["w"][-1:] in ".?!," or w["s"] - cur[-1]["e"] > 0.45 or w.get("brk"):
                 groups.append(cur)
                 cur = []
         cur.append(w)
     if cur:
         groups.append(cur)
+    merged = []
+    for g in groups:  # don't strand a single word: fold it into the group before it
+        if merged and len(g) == 1 and not g[0].get("brk") and g[0]["s"] - merged[-1][-1]["e"] < 0.35 \
+                and merged[-1][-1]["w"][-1:] not in ".?!" \
+                and sum(len(x["w"]) + 1 for x in merged[-1]) + len(g[0]["w"]) <= maxch + 10:
+            merged[-1] = merged[-1] + g
+        else:
+            merged.append(g)
+    groups = merged
+    for i, g in enumerate(groups):  # sentence case after a cut or a full stop
+        if g[0].get("brk") or i == 0 or groups[i - 1][-1]["w"][-1:] in ".?!":
+            g[0] = dict(g[0], w=g[0]["w"][:1].upper() + g[0]["w"][1:])
     out = []
     for i, g in enumerate(groups):
         nxt = groups[i + 1][0]["s"] if i + 1 < len(groups) else 1e9
@@ -592,7 +604,12 @@ def fx_subs(fr, t, c, cfg):
         return
     if style == "sentence":
         f = font("semi", c.get("size", 46))
-        lines = wrap(" ".join(w["w"] for w in ws), f, W - 220)
+        text = " ".join(w["w"] for w in ws)
+        lines = wrap(text, f, W - 160)
+        if len(lines) == 2:  # balance the two lines
+            parts = text.split()
+            k = min(range(1, len(parts)), key=lambda i: abs(f.getlength(" ".join(parts[:i])) - f.getlength(" ".join(parts[i:]))))
+            lines = [" ".join(parts[:k]), " ".join(parts[k:])]
         lh = int(f.size * 1.32)
         bw = int(max(f.getlength(l) for l in lines)) + 56
         spr = rrect(bw, lh * len(lines) + 30, 18, rgba("night", 150))
