@@ -486,23 +486,187 @@ def fx_growth(fr, t, c, cfg):
 
 
 def fx_name(fr, t, c, cfg):
+    """Name tag. style: bar (glass card + accent bar), pill (accent pill + role underneath), minimal (text only)."""
     e = envelope(t, c, 0.45, 0.35)
     if e <= 0:
         return
-    nf, rf = font("black", 58), font("semi", 34)
-    w = int(max(nf.getlength(c["name"]), rf.getlength(c.get("role", "")))) + 90
-    h = 150 if c.get("role") else 100
-    spr = rrect(w, h, 26, rgba("night", 220))
-    d = ImageDraw.Draw(spr)
-    spr.alpha_composite(rrect(12, h - 36, 6, None, grad=(acc(cfg), acc(cfg, "accent2"))), (26, 18))
-    d.text((56, 22), c["name"], font=nf, fill=rgba("chalk"))
-    if c.get("role"):
-        d.text((58, 92), c["role"], font=rf, fill=acc(cfg))
-    # wipe in from the left
-    vis = int(w * ease((t - c["start"]) / 0.5))
-    if vis < w:
-        spr = spr.crop((0, 0, max(vis, 1), h))
+    style = c.get("style", "bar")
+    size = c.get("size", 54)
+    while font("black", size).getlength(c["name"]) > W - 220 and size > 30:
+        size -= 2
+    nf, rf = font("black", size), font("semi", max(26, int(size * 0.58)))
+    role = c.get("role", "")
+    nw, rw = int(nf.getlength(c["name"])), int(rf.getlength(role))
+    if style == "pill":
+        pw, ph = nw + 64, size + 34
+        name = rrect(pw, ph, ph // 2, None, grad=(acc(cfg), acc(cfg, "accent2")))
+        ImageDraw.Draw(name).text((32, ph / 2), c["name"], font=nf, fill=rgba("night"), anchor="lm")
+        spr = Image.new("RGBA", (max(pw, rw + 40), ph + (rf.size + 30 if role else 0)), (0, 0, 0, 0))
+        spr.alpha_composite(name)
+        if role:
+            tag = rrect(rw + 36, rf.size + 22, 12, rgba("night", 210))
+            ImageDraw.Draw(tag).text((18, (rf.size + 22) / 2), role, font=rf, fill=rgba("chalk"), anchor="lm")
+            spr.alpha_composite(tag, (16, ph + 8))
+    elif style == "minimal":
+        spr = Image.new("RGBA", (max(nw, rw) + 40, size + (rf.size + 26 if role else 0) + 30), (0, 0, 0, 0))
+        d = ImageDraw.Draw(spr)
+        d.text((10, 6), c["name"], font=nf, fill=rgba("chalk"), stroke_width=4, stroke_fill=rgba("night", 150))
+        if role:
+            d.line((12, size + 18, 12 + min(rw, 120), size + 18), fill=acc(cfg), width=4)
+            d.text((12, size + 28), role, font=rf, fill=rgba("chalk"), stroke_width=3, stroke_fill=rgba("night", 150))
+    else:
+        w = max(nw, rw) + 90
+        h = size + (rf.size + 54 if role else 44)
+        spr = rrect(w, h, 26, rgba("night", 220))
+        d = ImageDraw.Draw(spr)
+        spr.alpha_composite(rrect(12, h - 36, 6, None, grad=(acc(cfg), acc(cfg, "accent2"))), (26, 18))
+        d.text((56, 20), c["name"], font=nf, fill=rgba("chalk"))
+        if role:
+            d.text((58, size + 34), role, font=rf, fill=acc(cfg))
+    vis = int(spr.width * ease((t - c["start"]) / 0.5))
+    if vis < spr.width:
+        spr = spr.crop((0, 0, max(vis, 1), spr.height))
     put(fr, spr, 60 - 40 * (1 - e), c.get("y", 0.80) * H, anchor=(0, 0.5), alpha=e)
+
+
+def sub_groups(c):
+    """Split timed words into display groups (by length, punctuation and pauses)."""
+    if "_groups" in c:
+        return c["_groups"]
+    maxch = c.get("maxch", {"pop": 14, "sentence": 40, "box": 24}.get(c.get("style"), 22))
+    groups, cur = [], []
+    for w in c["words"]:
+        if cur:
+            n = sum(len(x["w"]) + 1 for x in cur) + len(w["w"])
+            if n > maxch or cur[-1]["w"][-1:] in ".?!," or w["s"] - cur[-1]["e"] > 0.45:
+                groups.append(cur)
+                cur = []
+        cur.append(w)
+    if cur:
+        groups.append(cur)
+    out = []
+    for i, g in enumerate(groups):
+        nxt = groups[i + 1][0]["s"] if i + 1 < len(groups) else 1e9
+        out.append((g[0]["s"] - 0.05, min(g[-1]["e"] + 0.5, nxt - 0.02), g))
+    c["_groups"] = out
+    return out
+
+
+def fx_subs(fr, t, c, cfg):
+    """Word-timed subtitles. style: karaoke | pop | sentence | box | reveal."""
+    style = c.get("style", "karaoke")
+    keys = {k.lower() for k in c.get("keywords", [])}
+    g = next(((a, b, ws) for a, b, ws in sub_groups(c) if a <= t <= b), None)
+    if not g:
+        return
+    a, b, ws = g
+    fade = clamp((t - a) / 0.12) * clamp((b - t) / 0.12)
+    key = lambda w: w["w"].lower().strip(".,!?\"'") in keys
+    upper = c.get("upper", style in ("pop", "karaoke"))
+    txt = lambda w: w["w"].upper() if upper else w["w"]
+    if style == "pop":
+        f = font("black", c.get("size", 92))
+        shown = [w for w in ws if w["s"] <= t + 0.02]
+        if not shown:
+            return
+        lines, cur = [], []
+        for w in shown:
+            if cur and f.getlength(" ".join(txt(x) for x in cur + [w])) > W - 140:
+                lines.append(cur)
+                cur = []
+            cur.append(w)
+        lines.append(cur)
+        lh = int(f.size * 1.12)
+        spr = Image.new("RGBA", (W, lh * len(lines) + 40), (0, 0, 0, 0))
+        for li, line in enumerate(lines):
+            x = (W - f.getlength(" ".join(txt(x) for x in line))) / 2
+            for w in line:
+                p = back(clamp((t - w["s"]) / 0.16), 2.2)
+                ww = f.getlength(txt(w))
+                gl = Image.new("RGBA", (int(ww) + 30, lh + 30), (0, 0, 0, 0))
+                ImageDraw.Draw(gl).text((15, 12), txt(w), font=f, fill=acc(cfg) if key(w) else rgba("chalk"),
+                                        stroke_width=7, stroke_fill=rgba("night", 235))
+                put(spr, gl, x + ww / 2, 20 + li * lh + lh / 2, scale=0.55 + 0.45 * p, alpha=clamp(p * 1.5))
+                x += ww + f.getlength(" ")
+        put(fr, spr, W / 2, c.get("y", 0.64) * H, alpha=fade)
+        return
+    if style == "sentence":
+        f = font("semi", c.get("size", 46))
+        lines = wrap(" ".join(w["w"] for w in ws), f, W - 220)
+        lh = int(f.size * 1.32)
+        bw = int(max(f.getlength(l) for l in lines)) + 56
+        spr = rrect(bw, lh * len(lines) + 30, 18, rgba("night", 150))
+        d = ImageDraw.Draw(spr)
+        for i, l in enumerate(lines):
+            d.text((bw / 2, 15 + i * lh + lh / 2), l, font=f, fill=rgba("chalk"), anchor="mm")
+        put(fr, spr, W / 2, c.get("y", 0.84) * H, alpha=fade)
+        return
+    f = font("bold" if style == "box" else "black", c.get("size", 54 if style == "box" else 64))
+    words = [w for w in ws if w["s"] <= t + 0.02] if style == "box" else ws
+    if not words:
+        return
+    lines, cur = [], []
+    for w in words:
+        if cur and f.getlength(" ".join(txt(x) for x in cur + [w])) > W - 160:
+            lines.append(cur)
+            cur = []
+        cur.append(w)
+    lines.append(cur)
+    lh = int(f.size * 1.3)
+    if style == "box":
+        bw = int(max(f.getlength(" ".join(txt(x) for x in l)) for l in lines)) + 60
+        spr = rrect(bw, lh * len(lines) + 30, 22, rgba("chalk", 245))
+        x0 = 30
+    else:
+        bw = W
+        spr = Image.new("RGBA", (W, lh * len(lines) + 30), (0, 0, 0, 0))
+    d = ImageDraw.Draw(spr)
+    for li, line in enumerate(lines):
+        lw = f.getlength(" ".join(txt(x) for x in line))
+        x = 30 if style == "box" else (W - lw) / 2
+        y = 15 + li * lh
+        for w in line:
+            ww = f.getlength(txt(w))
+            nxt = next((x["s"] for x in ws if x["s"] > w["s"]), w["e"] + 0.3)
+            on = w["s"] <= t < min(nxt, w["e"] + 0.3)
+            said = w["s"] <= t
+            if style == "box":
+                if key(w):
+                    d.rounded_rectangle((x - 8, y - 2, x + ww + 8, y + f.size + 12), 10, fill=acc(cfg))
+                d.text((x, y), txt(w), font=f, fill=rgba("night"))
+            elif style == "reveal":
+                col = (acc(cfg) if key(w) else rgba("chalk")) if said else rgba("chalk", 95)
+                d.text((x, y), txt(w), font=f, fill=col, stroke_width=5, stroke_fill=rgba("night", 200 if said else 90))
+            else:  # karaoke
+                if on:
+                    d.rounded_rectangle((x - 10, y - 4, x + ww + 10, y + f.size + 14), 12, fill=acc(cfg))
+                col = rgba("night") if on else (acc(cfg, "accent2") if key(w) else rgba("chalk"))
+                d.text((x, y), txt(w), font=f, fill=col, stroke_width=0 if on else 5, stroke_fill=rgba("night", 220))
+            x += ww + f.getlength(" ")
+    pop = 0.94 + 0.06 * back(clamp((t - a) / 0.15))
+    put(fr, spr, W / 2, c.get("y", 0.71) * H, scale=pop if style != "box" else 1.0, alpha=fade)
+
+
+def fx_question(fr, t, c, cfg):
+    """Interview question card at the top of the frame."""
+    e = envelope(t, c, 0.45, 0.4)
+    if e <= 0:
+        return
+    qf, lf = font("black", c.get("size", 60)), font("bold", 26)
+    lines = wrap(c["text"], qf, W - 220)
+    lh = int(qf.size * 1.18)
+    w = int(max(qf.getlength(l) for l in lines)) + 80
+    h = lh * len(lines) + 96
+    spr = rrect(w, h, 30, rgba("night", 225))
+    d = ImageDraw.Draw(spr)
+    lab = c.get("label", "SOALAN")
+    pill = rrect(int(lf.getlength(lab)) + 36, 40, 20, None, grad=(acc(cfg), acc(cfg, "accent2")))
+    ImageDraw.Draw(pill).text((18, 20), lab, font=lf, fill=rgba("night"), anchor="lm")
+    spr.alpha_composite(pill, (40, 26))
+    for i, l in enumerate(lines):
+        d.text((40, 80 + i * lh), l, font=qf, fill=rgba("chalk"))
+    put(fr, shadow(w, h, 30), W / 2, c.get("y", 0.17) * H - 30 * (1 - e), alpha=e)
+    put(fr, spr, W / 2, c.get("y", 0.17) * H - 30 * (1 - e), alpha=e, scale=0.96 + 0.04 * e)
 
 
 def fx_caption(fr, t, c, cfg):
@@ -661,7 +825,7 @@ def fx_endcard(fr, t, c, cfg):
 
 # ---------------------------------------------------------------- frame pipeline
 
-OVERLAY_ORDER = ["spotlight", "takeover", "title", "chat", "checklist", "growth", "broll", "name", "caption"]
+OVERLAY_ORDER = ["spotlight", "takeover", "title", "chat", "checklist", "growth", "broll", "question", "name", "caption", "subs"]
 
 
 def compose(img, t, cfg, ctx):
@@ -689,6 +853,10 @@ def compose(img, t, cfg, ctx):
             fx_name(fr, t, c, cfg)
         elif f == "caption":
             fx_caption(fr, t, c, cfg)
+        elif f == "subs":
+            fx_subs(fr, t, c, cfg)
+        elif f == "question":
+            fx_question(fr, t, c, cfg)
         elif f == "broll":
             fx_broll(fr, t, c, cfg, ctx)
         elif f == "spotlight":
