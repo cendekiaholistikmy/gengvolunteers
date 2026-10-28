@@ -99,6 +99,15 @@ style per video. Name tags: `"style": "bar" | "pill" | "minimal"`. Question card
 Rules: real names only as the speaker says them, flagged for spelling check; never invent quotes; group
 compilations by interview question (introduce, what you learned, best slot, shout-out).
 
+### Music and sound effects (mix.py)
+
+`python3 scripts/mix.py OUTDIR spec.json music.mp3 sfx/` adds a looping music bed that ducks under speech
+(sidechain) and lifts on the end card, plus SFX from the cue sheet (pop: name tag / question, rise: title,
+hit: snap, whoosh: card, cutaway, speaker change, chime: end card), normalised to -14 LUFS for social.
+Sources: ElevenLabs sound-generation works on the free plan (`/v1/sound-generation` with
+`"loop": true, "duration_seconds": 22` for a seamless music loop; one call at a time on the free plan).
+The Music API (`/v1/music`) needs a paid plan. Use a different music loop per video.
+
 ## Which effect for which video
 
 **Feedback / testimony (mood `heart`)** — trust first, effects second. `name` in the first 3 s,
