@@ -78,6 +78,27 @@ Not built yet (need a person cut-out / matte): true **text behind head** (01), *
 **body glow outline** (10). To add them, ask the user before installing `rembg` (downloads a ~170 MB
 model), generate a per-frame alpha matte, and composite: video → behind-layer → person → front-layer.
 
+## Interview / testimony videos (edit.py)
+
+For talking-head feedback, cut from the transcript instead of by hand:
+
+1. Transcribe each clip with word timestamps. ElevenLabs Scribe works for Malay/English mix:
+   `curl https://api.elevenlabs.io/v1/speech-to-text -H "xi-api-key: $ELEVENLABS_API_KEY" -F model_id=scribe_v1
+   -F timestamps_granularity=word -F file=@clip.m4a > tx/<clip>.json` (tell the user before sending audio out).
+2. Make framed working copies per speaker (crop from the 4K original so a 1.6x reframe stays sharp, tone-map HDR).
+3. Write a spec: `segments` (clip, from, to, skip ranges), `subs` (style + keywords), `cues` anchored with
+   `"at": [clip, source_seconds]` or `"seg": n`, `cutaways` (event B-roll under the speaker's voice), `endcard`,
+   `corrections` (speech-to-text fixes such as "jo korad" -> "JOMKORA"), `look` (mood, grade, brand).
+4. `python3 scripts/edit.py spec.json outdir --render`: drops fillers and long pauses, hides jump cuts with
+   alternating 8% punch-ins, white dips between speakers, word-timed subtitles mapped to the new timeline.
+
+Subtitle styles (`subs.style`): `karaoke` (current word boxed), `pop` (big word-by-word), `sentence`
+(cinematic two-line), `box` (words build in a white box), `reveal` (grey to white as spoken). Use a different
+style per video. Name tags: `"style": "bar" | "pill" | "minimal"`. Question card: `{"fx": "question", "text": ...}`.
+
+Rules: real names only as the speaker says them, flagged for spelling check; never invent quotes; group
+compilations by interview question (introduce, what you learned, best slot, shout-out).
+
 ## Which effect for which video
 
 **Feedback / testimony (mood `heart`)** — trust first, effects second. `name` in the first 3 s,
