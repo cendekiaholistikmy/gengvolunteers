@@ -105,7 +105,7 @@ def build(spec, outdir, render=False):
                     tight = not tight
                 p["zoom"] = base * (seg.get("punch_scale", 1.08) if tight else 1.0)
         first = True
-        for w in correct(keep, phrases):
+        for w in ([] if seg.get("nosubs") else correct(keep, phrases)):
             for p in plan:
                 if p["seg"] == si and p["a"] <= w["s"] < p["b"]:
                     subs.append({"w": w["w"].replace(",", ""), "s": round(w["s"] - p["a"] + p["o"], 3),

@@ -818,7 +818,12 @@ def fx_endcard(fr, t, c, cfg):
         SPOT[key] = Image.fromarray(a.astype(np.uint8)).resize((W, H), Image.BICUBIC).convert("RGBA")
     put(fr, SPOT[key], 0, 0, anchor=(0, 0), alpha=e)
     p = back(clamp((t - c["start"] - 0.3) / 0.6))
-    put(fr, logo("changemakers-lab.webp", 900, 640), W / 2, H * 0.33, scale=0.7 + 0.3 * p, alpha=clamp(p))
+    lg = logo(c.get("logo", "changemakers-lab.webp"), 900, 640 if not c.get("logo_card") else 520)
+    if c.get("logo_card"):  # logos with dark type need a light card behind them on the night gradient
+        card = rrect(lg.width + 120, lg.height + 100, 48, rgba("chalk", 250))
+        card.alpha_composite(lg, (60, 50))
+        lg = card
+    put(fr, lg, W / 2, H * 0.33, scale=0.7 + 0.3 * p, alpha=clamp(p))
     q = ease((t - c["start"] - 0.8) / 0.5)
     hf = font("black", 70)
     for i, line in enumerate(wrap(c.get("text", "TERIMA KASIH, CHANGEMAKERS!").upper(), hf, W - 140)):
