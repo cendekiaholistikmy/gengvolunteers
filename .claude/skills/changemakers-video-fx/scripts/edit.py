@@ -41,8 +41,11 @@ def correct(words, phrases):
             n = len(src)
             if [norm(w["w"]) for w in words[i:i + n]] == src:
                 tail = re.sub(r"^.*?([.,!?]*)$", r"\1", words[i + n - 1]["w"])
-                if dst:
-                    out.append({"w": dst + tail, "s": words[i]["s"], "e": words[i + n - 1]["e"]})
+                parts = dst.split()
+                s0, e0 = words[i]["s"], words[i + n - 1]["e"]
+                for k, part in enumerate(parts):  # keep words separate so subtitles can wrap
+                    out.append({"w": part + (tail if k == len(parts) - 1 else ""),
+                                "s": s0 + (e0 - s0) * k / len(parts), "e": s0 + (e0 - s0) * (k + 1) / len(parts)})
                 i += n
                 break
         else:
