@@ -132,6 +132,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gv.css">
+<link rel="stylesheet" href="gv-plus.css">
 </head>
 <body>
 
@@ -191,6 +192,7 @@
           <li><a href="volunteer.html#squads">The four squads</a></li>
           <li><a href="volunteer.html#pledge">The dignity pledge</a></li>
           <li><a href="volunteer.html#faq">Before you ask</a></li>
+          <li><a href="volunteer.html#ai">AI Story Studio ✦</a></li>
         </ul>
       </li>
       <li class="nav-item"><a class="nav-link" href="highcom.html">HighCom</a></li>
@@ -345,6 +347,61 @@
           <button class="btn btn-g" id="rcShare" type="button">SHARE IT</button>
           <a class="btn btn-g" id="rcTg" href="#" target="_blank" rel="noopener">OPEN THE COMMUNITY GROUP</a>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ai">
+  <div class="blob" style="width:340px;height:340px;background:var(--vio);top:40px;left:-140px"></div>
+  <div class="wrap" style="position:relative;z-index:1">
+    <span class="eye rv">GV AI · STORY STUDIO</span>
+    <h2 class="dh rv">TURN YOUR PROJECT DAY INTO YOUR STORY</h2>
+    <p class="lede rv">Scholarship panels and employers want to hear what you actually did. Tell GV in your own words, rough is fine, and it will shape it into something you can submit. It only uses the facts you give it.</p>
+    <div class="gvp-studio" id="gvpStudio">
+      <div class="gvp-form rv">
+        <div class="gvp-row">
+          <div><label for="gsState">State squad</label>
+            <select id="gsState"><option value="">Choose…</option><option>Johor</option><option>Kedah</option><option>Kelantan</option><option>Kuala Lumpur</option><option>Melaka</option><option>Negeri Sembilan</option><option>Pahang</option><option>Penang</option><option>Perak</option><option>Perlis</option><option>Putrajaya</option><option>Sabah</option><option>Sarawak</option><option>Selangor</option><option>Terengganu</option></select></div>
+          <div><label for="gsSquad">Your squad or role</label>
+            <select id="gsSquad"><option value="">Choose…</option><option>Squad Khidmat (service)</option><option>Squad Komuniti (community)</option><option>Squad Logistik (logistics)</option><option>Squad Kreativiti (media)</option><option>High Committee Architect</option><option>High Committee Anchor</option></select></div>
+        </div>
+        <label for="gsDid">What did you actually do? <small>(required)</small></label>
+        <textarea id="gsDid" maxlength="1500" placeholder="e.g. Ran a reading station for 25 kids at a rumah anak yatim in Kuantan. Planned the module with 3 friends, bought materials under RM200, led two sessions."></textarea>
+        <div class="gvp-meter" aria-hidden="true"><i id="gsMeter"></i></div>
+        <p class="gvp-hint" id="gsHint" aria-live="polite"></p>
+        <label for="gsChal">A challenge you faced <small>(optional)</small></label>
+        <textarea id="gsChal" maxlength="800" placeholder="e.g. Half the kids did not speak much Malay, so we switched to picture cards on the spot."></textarea>
+        <label for="gsLearn">What you learned or what changed <small>(optional)</small></label>
+        <textarea id="gsLearn" maxlength="800" placeholder="e.g. I learned to plan for the people in front of me, not the plan on paper."></textarea>
+        <label>What do you need?</label>
+        <div class="gvp-seg" data-key="format" role="group" aria-label="Format">
+          <button type="button" data-v="essay" aria-pressed="true">Scholarship essay<span>150–200 words</span></button>
+          <button type="button" data-v="linkedin" aria-pressed="false">LinkedIn post<span>with hashtags</span></button>
+          <button type="button" data-v="resume" aria-pressed="false">Resume bullets<span>3–4 lines</span></button>
+          <button type="button" data-v="interview" aria-pressed="false">Interview answer<span>45 seconds</span></button>
+        </div>
+        <label>Language</label>
+        <div class="gvp-seg" data-key="lang" role="group" aria-label="Language">
+          <button type="button" data-v="en" aria-pressed="true">English</button>
+          <button type="button" data-v="bm" aria-pressed="false">Bahasa Melayu</button>
+        </div>
+        <label for="gsName">Name to use <small>(optional, stays on your device unless you generate)</small></label>
+        <input id="gsName" maxlength="60" autocomplete="given-name" placeholder="First name only is fine">
+        <button type="button" class="btn btn-o gvp-go" id="gsGo"><span>GENERATE WITH GV AI</span></button>
+      </div>
+      <div class="gvp-out rv" id="gsOut" aria-live="polite">
+        <span class="gvp-glow" aria-hidden="true"></span>
+        <div class="hd"><b>Your draft</b><span id="gsStatus"></span></div>
+        <div class="gvp-empty"><div><div class="gvp-orb" aria-hidden="true"><i></i><i></i></div>Your draft appears here.<br>The more real detail you give, the better it gets.</div></div>
+        <div class="gvp-text" id="gsText" hidden></div>
+        <div class="gvp-tools" id="gsTools">
+          <button type="button" data-act="copy" disabled>Copy</button>
+          <button type="button" data-act="again" disabled>Try another version</button>
+          <button type="button" data-act="save" disabled>Download .txt</button>
+          <button type="button" data-act="ask" disabled>Ask GV how to improve it</button>
+        </div>
+        <p class="gvp-note" id="gsNote">Never paste IC numbers, phone numbers or children's names. Always check the draft before you submit it.</p>
       </div>
     </div>
   </div>
@@ -553,5 +610,6 @@
 
 <script src="site-config.js"></script>
 <script src="gv.js"></script>
+<script src="gv-plus.js"></script>
 </body>
 </html>

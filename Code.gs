@@ -116,6 +116,13 @@ function setup() {
    WRITE A REGISTRATION
    ═══════════════════════════════════════════════════════════════ */
 function doPost(e) {
+  /* GV AI requests are answered by GV-AI.gs, without the sheet lock,
+     so a slow AI reply never holds up a registration. */
+  if (typeof routeAI_ === 'function') {
+    var aiReply = routeAI_(e);
+    if (aiReply) return aiReply;
+  }
+
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {

@@ -157,6 +157,14 @@ const CFG = {
       items:["Premium placement on the volunteer shirt, front and centre","Logo on every banner where your sponsorship applies","Dedicated social feature across both accounts","Brand in the final national impact report","Certificate on association letterhead","Named in the closing ceremony"] }
   ],
 
+  /* 10 · GV AI (Claude)
+     The AI runs inside your Apps Script, never in the browser, so the
+     API key stays secret. Setup steps are at the top of GV-AI.gs.
+     enabled  : false = built-in keyword answers only, no AI calls
+     endpoint : leave "" to use appsScriptUrl above
+     If the key is not set yet, the site falls back on its own. */
+  ai : { enabled: true, endpoint: "" },
+
   registeredEntity : "Persatuan Belia Cendekia Holistik",
   regStatusLine    : "Registration with the Registrar of Youth is in progress. The number goes here the day it is issued."
 };
