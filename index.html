@@ -115,6 +115,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gv.css">
+<link rel="stylesheet" href="gv-plus.css">
+<link rel="stylesheet" href="gv-motion.css">
 </head>
 <body>
 
@@ -234,6 +236,7 @@
           <li><a href="volunteer.html#squads">The four squads</a></li>
           <li><a href="volunteer.html#pledge">The dignity pledge</a></li>
           <li><a href="volunteer.html#faq">Before you ask</a></li>
+          <li><a href="volunteer.html#ai">AI Story Studio ✦</a></li>
         </ul>
       </li>
       <li class="nav-item"><a class="nav-link" href="highcom.html">HighCom</a></li>
@@ -332,6 +335,39 @@
       Read all of it &mdash; the scores and their own words
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
+  </div>
+</section>
+
+<section id="gvai" class="gvp-meet">
+  <div class="blob" style="width:380px;height:380px;background:var(--vio);top:-80px;right:-120px"></div>
+  <div class="wrap" style="position:relative;z-index:1">
+    <span class="eye rv">NEW · GV AI</span>
+    <h2 class="dh rv">ASK ANYTHING. WRITE YOUR STORY.</h2>
+    <p class="lede rv">GV, our digital buddy, now runs on real AI. It answers from what is published on this site, in Bahasa Melayu or English, and it turns your volunteering into words a scholarship panel will read.</p>
+    <div class="gvp-grid">
+      <div class="gvp-card rv">
+        <span class="gvp-glow" aria-hidden="true"></span>
+        <span class="gvp-aitag">Ask GV</span>
+        <h3>Your questions, answered in seconds</h3>
+        <p>Places, squads, dates, HighCom, what to wear. Ask follow ups like you would a friend. Highlight any text on the site and GV will explain it.</p>
+        <div class="gvp-demo" id="gvpDemo" aria-hidden="true"></div>
+        <div class="gvp-suggest">
+          <button type="button" data-gvp-ask="Which squad suits someone who is shy but organised?">Shy but organised. Which squad?</button>
+          <button type="button" data-gvp-ask="Macam mana nak jadi Architect atau Anchor?">Nak jadi Anchor?</button>
+          <button type="button" data-gvp-ask="What happens on a project day, step by step?">A project day, step by step</button>
+        </div>
+      </div>
+      <div class="gvp-card rv">
+        <span class="gvp-aitag">AI Story Studio</span>
+        <div class="gvp-orb" aria-hidden="true"><i></i><i></i></div>
+        <h3>Turn what you did into your best application</h3>
+        <p>Tell GV what you did on your project day. Get a scholarship essay paragraph, a LinkedIn post, resume bullets or an interview answer, built only from your own facts.</p>
+        <div class="btnrow">
+          <a class="btn btn-o" href="volunteer.html#ai">OPEN THE STUDIO</a>
+          <a class="btn btn-g" href="#ask">ASK GV NOW</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -537,5 +573,7 @@
 
 <script src="site-config.js"></script>
 <script src="gv.js"></script>
+<script src="gv-plus.js"></script>
+<script src="gv-motion.js"></script>
 </body>
 </html>

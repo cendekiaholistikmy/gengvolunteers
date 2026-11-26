@@ -1998,8 +1998,10 @@ var GVBOT = {
   short   : 'GV',
   tagline : 'Your GengVolunteers Digital Buddy',
 
-  /* leave empty to use the built in answers only */
-  api     : '',
+  /* the AI endpoint. Set in site-config.js (ai.enabled / ai.endpoint);
+     empty means built in answers only */
+  api     : (typeof CFG !== 'undefined' && CFG.ai && CFG.ai.enabled)
+              ? (CFG.ai.endpoint || CFG.appsScriptUrl || '') : '',
 
   /* how long the first hello runs, in milliseconds */
   intro   : { ripple:100, crown:200, panel:300, character:450, wave:650,
@@ -2243,7 +2245,7 @@ var GVBOT = {
 
   /* ── strings ────────────────────────────────────────────────── */
   var T = {
-    en:{ status:'Answers from this site',
+    en:{ status: GVBOT.api ? 'AI buddy · answers from this site' : 'Answers from this site',
          ph:'Ask about places, squads, dates…',
          foot:'GV answers from this site, not a person. Anything else, we will pass it on.',
          miss:function(){ return 'I do not have a published answer for that one, and I will not guess.\n\nWrite to ' + mailto() + ' and a person will answer. Your question has been passed to the team.' },
@@ -2253,7 +2255,7 @@ var GVBOT = {
          l1:'Hi! 👋', l2:'I am Ghaz Victoria.', l3:'But just call me GV.',
          l4:'Your GengVolunteers digital buddy. Ask me anything about the programme.',
          back:'Good to see you again. What do you need?' },
-    bm:{ status:'Jawapan dari laman ini',
+    bm:{ status: GVBOT.api ? 'AI buddy · jawapan dari laman ini' : 'Jawapan dari laman ini',
          ph:'Tanya pasal tempat, skuad, tarikh…',
          foot:'GV jawab dari laman ini, bukan orang sebenar. Apa-apa lain, kami sampaikan.',
          miss:function(){ return 'Saya takde jawapan rasmi untuk soalan tu, dan saya tak nak teka.\n\nEmel ' + mailto() + ', orang sebenar akan jawab. Soalan korang dah disampaikan kepada team.' },
@@ -2365,6 +2367,54 @@ var GVBOT = {
   }
 
   var busy = false;
+  var aiOn = true;          /* flips off if the backend says no key is set */
+  var HIST = [];            /* this conversation, for follow up questions */
+  var pendingSel = '';      /* text the visitor highlighted, see GVAsk */
+
+  /* AI replies arrive as light Markdown. Escape everything first, then
+     allow only bold, italics, line breaks and links to this site,
+     https pages or mailto. Nothing else can reach the page. */
+  function md(src){
+    var h = esc(String(src || '').trim());
+    h = h.replace(/\[([^\]\n]{1,120})\]\(([^)\s]{1,300})\)/g, function(m, txt, url){
+      var u = url.replace(/&amp;/g, '&');
+      var ok = /^(https:\/\/|mailto:)/i.test(u) || /^[a-z0-9_\-\/]+(\.html)?\/?(#[a-z0-9_\-]+)?$/i.test(u) || /^#[a-z0-9_\-]+$/i.test(u);
+      if(!ok) return txt;
+      var ext = /^https:/i.test(u);
+      return '<a href="' + esc(u) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + '>' + txt + '</a>';
+    });
+    h = h.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>')
+         .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,!?]|$)/g, '$1<i>$2</i>')
+         .replace(/^[-•] (.+)$/gm, '• $1');
+    h = h.replace(/(^|[\s(])([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})(?![^<]*<\/a>)/gi,
+      '$1<a href="mailto:$2">$2</a>');
+    return h;
+  }
+
+  /* reveals a reply word by word, like it is being typed live */
+  function typewrite(el){
+    if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), nodes = [], n;
+    while((n = walker.nextNode())) nodes.push({ node:n, full:n.nodeValue });
+    if(!nodes.length) return;
+    nodes.forEach(function(x){ x.node.nodeValue = '' });
+    el.classList.add('typing');
+    var ni = 0, ci = 0;
+    (function tick(){
+      var budget = 3 + Math.floor(Math.random() * 4);
+      while(budget > 0 && ni < nodes.length){
+        var x = nodes[ni], rest = x.full.slice(ci);
+        var m = rest.match(/^\s*\S+\s?/);
+        var take = m ? m[0].length : rest.length;
+        ci += take; x.node.nodeValue = x.full.slice(0, ci);
+        if(ci >= x.full.length){ ni++; ci = 0 }
+        budget -= 1;
+      }
+      logEl.scrollTop = logEl.scrollHeight;
+      if(ni < nodes.length) setTimeout(tick, 28);
+      else el.classList.remove('typing');
+    })();
+  }
 
   function ask(q){
     q = String(q || '').trim();
@@ -2378,37 +2428,54 @@ var GVBOT = {
     chips.classList.remove('on');
     var typing = dots();
 
-    var finish = function(html, cls, hit, sc){
+    var finish = function(html, cls, hit, sc, type){
       typing.remove();
-      bubble(html, cls || 'bot');
+      var b = bubble(html, cls === 'ai' ? 'bot ai' : (cls || 'bot'));
+      if(type) typewrite(b);
       log(q, hit, sc, l);
       busy = false; send.disabled = false;
       setTimeout(function(){ chips.innerHTML = ''; drawChips() }, 400);
     };
 
-    /* a real backend, when one is configured */
-    if(GVBOT.api){
+    /* GV AI (Claude via Apps Script), when configured. Sent as
+       text/plain so the browser does not need a CORS preflight,
+       which Apps Script cannot answer. */
+    if(GVBOT.api && aiOn){
       var done = false;
-      var timer = setTimeout(function(){
-        if(done) return; done = true;
+      var fallback = function(){
         var r = lookup(q, l);
-        finish(r.text || t().miss(), r.text ? '' : 'bot', r.id, r.score);
-      }, 9000);
+        if(r.text) finish(r.text, '', r.id, r.score);
+        else finish(t().miss(), '', '', 0);
+      };
+      var timer = setTimeout(function(){
+        if(done) return; done = true; fallback();
+      }, 30000);
+      var sel = pendingSel; pendingSel = '';
       fetch(GVBOT.api, { method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ question:q, lang:l, session:SID }) })
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({ form:'ai', mode:'chat', question:q, lang:l,
+          session:SID, history:HIST.slice(-8), selection:sel,
+          page:location.pathname.split('/').pop() || 'index.html',
+          live:{ familia:((document.getElementById('navPillNum') || {}).textContent || '').replace(/[^\d,]/g, ''),
+                 familiaGoal:(typeof CFG !== 'undefined' && CFG.familiaGoal) || '',
+                 filled:filled(), capacity:cap() } }) })
         .then(function(r){ return r.json() })
         .then(function(res){
           if(done) return; done = true; clearTimeout(timer);
-          if(res && res.answer) finish(res.answer, '', 'api', 99);
-          else { var r2 = lookup(q, l);
-                 finish(r2.text || t().miss(), '', r2.id, r2.score) }
+          if(res && res.status === 'ok' && res.answer){
+            HIST.push({ role:'user', content:q });
+            HIST.push({ role:'assistant', content:res.answer });
+            if(HIST.length > 16) HIST = HIST.slice(-16);
+            finish(md(res.answer), 'ai', 'ai', 99, true);
+          }else if(res && res.status === 'limited'){
+            finish(esc(res.message || 'Slow down a little.'), '', '', 0);
+          }else{
+            if(res && res.status === 'off') aiOn = false;   /* no key yet: stop asking */
+            fallback();
+          }
         })
         .catch(function(){
-          if(done) return; done = true; clearTimeout(timer);
-          var r3 = lookup(q, l);
-          if(r3.text) finish(r3.text, '', r3.id, r3.score);
-          else finish(t().err + mailto() + '.', 'err', '', 0);
+          if(done) return; done = true; clearTimeout(timer); fallback();
         });
       return;
     }
@@ -2511,6 +2578,15 @@ var GVBOT = {
     var q = el.getAttribute('data-ask');
     if(q && q.length > 1) setTimeout(function(){ ask(q) }, GVBOT.intro.actions);
   });
+
+  /* other scripts (gv-ai.js) can open GV with a question, optionally
+     carrying text the visitor highlighted on the page */
+  window.GVAsk = function(q, selection){
+    toggle(true);
+    pendingSel = String(selection || '').slice(0, 1200);
+    setTimeout(function(){ ask(q) }, greeted ? GVBOT.intro.panel + 60 : GVBOT.intro.actions);
+  };
+  window.GVAI = { on:function(){ return !!(GVBOT.api && aiOn) }, endpoint:GVBOT.api, session:SID };
 
   /* the nudge, once, a few seconds in, and never again */
   if(GVBOT.nudge){
